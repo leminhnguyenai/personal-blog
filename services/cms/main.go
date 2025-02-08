@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/leminhnguyenai/personal-blog/services/cms/runner"
 )
@@ -13,7 +14,7 @@ func main() {
 		fmt.Printf("Error: %s\n", err.Error())
 	}
 
-	runner.Execute(cfg)
+	if err = runner.Execute(cfg); err != nil {
+		log.Printf("Error: %s\n", err.Error())
+	}
 }
-
-// COMMIT: Build a basic server to receive a markdown file and stream it
