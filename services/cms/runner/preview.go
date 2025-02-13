@@ -89,5 +89,4 @@ func Preview(filePath string) error {
 	}
 }
 
-// COMMIT: Define a sequence to convert Markdown to HTMl and apply to basic HTML elements
 // NOTE: All log will be change to fmt when the tool is finished

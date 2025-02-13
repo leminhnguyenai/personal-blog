@@ -6,9 +6,10 @@ type TokenKind int
 
 const (
 	EOF TokenKind = iota
-	STRING
 
-	OPEN_BRACKE
+	INLINE_PARAGRAPH
+	NEWLINE_PARAGRAPH
+
 	LINK
 
 	HEADING_1
@@ -87,7 +88,7 @@ func (token Token) isOneOfKinds(kinds ...TokenKind) bool {
 }
 
 func (token Token) Debug() {
-	if token.isOneOfKinds(STRING, NUMBERED_LIST, LINK) {
+	if token.isOneOfKinds(INLINE_PARAGRAPH, NEWLINE_PARAGRAPH, NUMBERED_LIST, LINK) {
 		fmt.Printf(
 			"%s (%s)",
 			TokenKindString(token.Kind),
@@ -107,8 +108,10 @@ func TokenKindString(kind TokenKind) string {
 	switch kind {
 	case EOF:
 		return "eof"
-	case STRING:
-		return "string"
+	case INLINE_PARAGRAPH:
+		return "paragraph"
+	case NEWLINE_PARAGRAPH:
+		return "newline_paragraph"
 	case LINK:
 		return "link"
 	case HEADING_1:

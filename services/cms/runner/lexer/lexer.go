@@ -102,6 +102,16 @@ func linkHandler(lex *lexer, regex *regexp.Regexp) {
 	lex.push(NewToken(LINK, NewLoc(startLoc, endLoc), placeholder, link))
 }
 
+func paragraphHandler(lex *lexer, regex *regexp.Regexp) {
+	prevChar := lex.source[lex.pos-1]
+
+	if string(prevChar) == "\n" {
+		dynamicHandler(NEWLINE_PARAGRAPH)(lex, regex)
+	} else {
+		dynamicHandler(INLINE_PARAGRAPH)(lex, regex)
+	}
+}
+
 func CreateLexer(source string) *lexer {
 	return &lexer{
 		source: source,
@@ -115,7 +125,7 @@ func CreateLexer(source string) *lexer {
 			{patternBuilder(INLINE_WHITESPACE, `*`, `##\s`), defaultHandler(HEADING_2, `##\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `#\s`), defaultHandler(HEADING_1, `#\s`)},
 			{patternBuilder(INDENTABLE, `-\s`), dynamicHandler(DASH)},
-			{patternBuilder(TEXT, `+`), dynamicHandler(STRING)},
+			{patternBuilder(TEXT, `+`), paragraphHandler},
 		},
 	}
 }
@@ -151,3 +161,5 @@ func Tokenize(source string) ([]Token, error) {
 	lex.push(NewToken(EOF, NewLoc(loc, loc), "EOF"))
 	return lex.Tokens, nil
 }
+
+// COMMIT: Add new handler for paragraph in a new line
