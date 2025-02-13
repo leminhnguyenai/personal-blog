@@ -19,10 +19,16 @@ func (node *Node) FindAncestor(possibleAncestor *Node) *Node {
 			HEADING_3,
 			HEADING_4,
 			HEADING_5,
-			// DASH,
-			// NUMBERED_LIST,
-			// NEWLINE_PARAGRAPH,
 		) && possibleAncestor.Children[i].Self.Kind < node.Self.Kind {
+			return node.FindAncestor(possibleAncestor.Children[i])
+		}
+
+		if possibleAncestor.Children[i].Self.isOneOfKinds(
+			DASH,
+			NUMBERED_LIST,
+			NEWLINE_PARAGRAPH,
+		) && (node.Self.isOneOfKinds(INLINE_PARAGRAPH, LINK) ||
+			possibleAncestor.Children[i].Self.Indentation() < node.Self.Indentation()) {
 			return node.FindAncestor(possibleAncestor.Children[i])
 		}
 	}
@@ -30,7 +36,7 @@ func (node *Node) FindAncestor(possibleAncestor *Node) *Node {
 	return possibleAncestor
 }
 
-// FIX: Non comparable elements (e.g paragraph) are left out
+// COMMIT: Add structure and organizing for indentable token
 
 // NOTE: Perform structuring here
 func (node *Node) AddDescendant(newNode *Node) {

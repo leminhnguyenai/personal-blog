@@ -1,6 +1,8 @@
 package lexer
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type TokenKind int
 
@@ -17,8 +19,8 @@ const (
 	NUMBERED_LIST
 
 	NEWLINE_PARAGRAPH
-	INLINE_PARAGRAPH
 
+	INLINE_PARAGRAPH
 	LINK
 )
 
@@ -87,12 +89,20 @@ func (token Token) isOneOfKinds(kinds ...TokenKind) bool {
 	return false
 }
 
+// Calculate the length of indentation
+func (token Token) Indentation() int {
+	firstCharLoc := patternBuilder(CHARACTER).FindStringIndex(token.Values[0])[0]
+
+	return firstCharLoc
+}
+
 func (token Token) Debug() {
 	if token.isOneOfKinds(INLINE_PARAGRAPH, NEWLINE_PARAGRAPH, NUMBERED_LIST, LINK) {
 		fmt.Printf(
-			"%s (%s)",
+			"%s (%s) %d",
 			TokenKindString(token.Kind),
 			token.Values.getString(),
+			token.Indentation(),
 		)
 	} else {
 		fmt.Printf("%s ()", TokenKindString(token.Kind))

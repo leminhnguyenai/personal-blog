@@ -89,8 +89,8 @@ func skipHandler(lex *lexer, regex *regexp.Regexp) {
 
 func linkHandler(lex *lexer, regex *regexp.Regexp) {
 	matchString := regex.FindString(lex.remainder())
-	placeholder := patternBuilder(`\[`, TEXT, `*`, `\]`).FindString(matchString)
-	link := patternBuilder(`\(`, TEXT, `*`, `\)`).FindString(matchString)
+	placeholder := patternBuilder(`\[`, PARAGRAPH, `*`, `\]`).FindString(matchString)
+	link := patternBuilder(`\(`, PARAGRAPH, `*`, `\)`).FindString(matchString)
 
 	placeholder = placeholder[1 : len(placeholder)-1]
 	link = link[1 : len(link)-1]
@@ -118,14 +118,14 @@ func CreateLexer(source string) *lexer {
 		patterns: []regexPattern{
 			{patternBuilder(`\n`, `+`), skipHandler},
 			{patternBuilder(INDENTABLE, `\d+\.\s*`), dynamicHandler(NUMBERED_LIST)},
-			{patternBuilder(`\[`, TEXT, `*`, `\]`, `\(`, TEXT, `*`, `\)`), linkHandler},
+			{patternBuilder(`\[`, PARAGRAPH, `*`, `\]`, `\(`, PARAGRAPH, `*`, `\)`), linkHandler},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `#####\s`), defaultHandler(HEADING_5, `#####\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `####\s`), defaultHandler(HEADING_4, `####\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `###\s`), defaultHandler(HEADING_3, `###\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `##\s`), defaultHandler(HEADING_2, `##\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `#\s`), defaultHandler(HEADING_1, `#\s`)},
 			{patternBuilder(INDENTABLE, `-\s`), dynamicHandler(DASH)},
-			{patternBuilder(TEXT, `+`), paragraphHandler},
+			{patternBuilder(PARAGRAPH, `+`), paragraphHandler},
 		},
 	}
 }
@@ -159,5 +159,3 @@ func Tokenize(source string) ([]Token, error) {
 
 	return lex.Tokens, nil
 }
-
-// COMMIT: Add new handler for paragraph in a new line
