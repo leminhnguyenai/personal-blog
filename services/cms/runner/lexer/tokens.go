@@ -5,12 +5,7 @@ import "fmt"
 type TokenKind int
 
 const (
-	EOF TokenKind = iota
-
-	INLINE_PARAGRAPH
-	NEWLINE_PARAGRAPH
-
-	LINK
+	SOURCE_FILE TokenKind = iota
 
 	HEADING_1
 	HEADING_2
@@ -20,6 +15,11 @@ const (
 
 	DASH
 	NUMBERED_LIST
+
+	NEWLINE_PARAGRAPH
+	INLINE_PARAGRAPH
+
+	LINK
 )
 
 type values []string
@@ -55,7 +55,7 @@ func NewLoc(start, end []int) Location {
 
 func (loc Location) Display() string {
 	return fmt.Sprintf(
-		"    [%d,%d] - [%d,%d]\n",
+		"    [%d,%d] - [%d,%d]",
 		loc.start[0],
 		loc.start[1],
 		loc.end[0],
@@ -94,20 +94,17 @@ func (token Token) Debug() {
 			TokenKindString(token.Kind),
 			token.Values.getString(),
 		)
-	} else if token.Kind == EOF {
-		fmt.Println(TokenKindString(token.Kind))
-		return
 	} else {
 		fmt.Printf("%s ()", TokenKindString(token.Kind))
 	}
 
-	fmt.Printf("%s", token.Loc.Display())
+	fmt.Printf("%s\n", token.Loc.Display())
 }
 
 func TokenKindString(kind TokenKind) string {
 	switch kind {
-	case EOF:
-		return "eof"
+	case SOURCE_FILE:
+		return "source_file"
 	case INLINE_PARAGRAPH:
 		return "paragraph"
 	case NEWLINE_PARAGRAPH:

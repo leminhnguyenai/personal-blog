@@ -157,8 +157,6 @@ func Tokenize(source string) ([]Token, error) {
 		}
 	}
 
-	loc := lex.getLoc(lex.pos, "\n")
-	lex.push(NewToken(EOF, NewLoc(loc, loc), "EOF"))
 	return lex.Tokens, nil
 }
 

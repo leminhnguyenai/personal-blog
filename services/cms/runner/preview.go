@@ -29,15 +29,13 @@ func Preview(filePath string) error {
 			return
 		}
 
-		tokens, err := lexer.Tokenize(string(data))
+		sourceNode, err := lexer.ParseAST(string(data))
 		if err != nil {
 			HandleError(w, err)
 			return
 		}
 
-		for _, token := range tokens {
-			token.Debug()
-		}
+		sourceNode.Display(0)
 
 		content := `{{ block "content" . }}` + string(data) + `{{ end }}`
 
