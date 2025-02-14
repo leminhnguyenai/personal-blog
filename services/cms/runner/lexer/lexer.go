@@ -17,7 +17,7 @@ type regexPattern struct {
 
 type lexer struct {
 	patterns []regexPattern
-	Tokens   []Token
+	tokens   []Token
 	source   string
 	pos      int
 }
@@ -28,7 +28,7 @@ func (lex *lexer) advanceN(n int) {
 }
 
 func (lex *lexer) push(token Token) {
-	lex.Tokens = append(lex.Tokens, token)
+	lex.tokens = append(lex.tokens, token)
 }
 
 func (lex *lexer) at() byte {
@@ -157,5 +157,5 @@ func Tokenize(source string) ([]Token, error) {
 		}
 	}
 
-	return lex.Tokens, nil
+	return lex.tokens, nil
 }

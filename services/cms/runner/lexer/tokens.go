@@ -66,22 +66,22 @@ func (loc Location) Display() string {
 }
 
 type Token struct {
-	Kind   TokenKind
-	Values values
-	Loc    Location
+	kind   TokenKind
+	values values
+	loc    Location
 }
 
 func NewToken(kind TokenKind, loc Location, values ...string) Token {
 	return Token{
-		Kind:   kind,
-		Values: values,
-		Loc:    loc,
+		kind:   kind,
+		values: values,
+		loc:    loc,
 	}
 }
 
 func (token Token) isOneOfKinds(kinds ...TokenKind) bool {
 	for _, kind := range kinds {
-		if token.Kind == kind {
+		if token.kind == kind {
 			return true
 		}
 	}
@@ -91,7 +91,7 @@ func (token Token) isOneOfKinds(kinds ...TokenKind) bool {
 
 // Calculate the length of indentation
 func (token Token) Indentation() int {
-	firstCharLoc := patternBuilder(CHARACTER).FindStringIndex(token.Values[0])[0]
+	firstCharLoc := patternBuilder(CHARACTER).FindStringIndex(token.values[0])[0]
 
 	return firstCharLoc
 }
@@ -100,15 +100,15 @@ func (token Token) Debug() {
 	if token.isOneOfKinds(INLINE_PARAGRAPH, NEWLINE_PARAGRAPH, NUMBERED_LIST, LINK) {
 		fmt.Printf(
 			"%s (%s) %d",
-			TokenKindString(token.Kind),
-			token.Values.getString(),
+			TokenKindString(token.kind),
+			token.values.getString(),
 			token.Indentation(),
 		)
 	} else {
-		fmt.Printf("%s ()", TokenKindString(token.Kind))
+		fmt.Printf("%s ()", TokenKindString(token.kind))
 	}
 
-	fmt.Printf("%s\n", token.Loc.Display())
+	fmt.Printf("%s\n", token.loc.Display())
 }
 
 func TokenKindString(kind TokenKind) string {
