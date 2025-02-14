@@ -18,9 +18,8 @@ const (
 	DASH
 	NUMBERED_LIST
 
-	NEWLINE_PARAGRAPH
+	PARAGRAPH
 
-	INLINE_PARAGRAPH
 	LINK
 )
 
@@ -56,13 +55,7 @@ func NewLoc(start, end []int) Location {
 }
 
 func (loc Location) Display() string {
-	return fmt.Sprintf(
-		"    [%d,%d] - [%d,%d]",
-		loc.start[0],
-		loc.start[1],
-		loc.end[0],
-		loc.end[1],
-	)
+	return fmt.Sprintf("    [%d,%d] - [%d,%d]", loc.start[0], loc.start[1], loc.end[0], loc.end[1])
 }
 
 type Token struct {
@@ -91,19 +84,14 @@ func (token Token) isOneOfKinds(kinds ...TokenKind) bool {
 
 // Calculate the length of indentation
 func (token Token) Indentation() int {
-	firstCharLoc := patternBuilder(CHARACTER).FindStringIndex(token.values[0])[0]
+	firstCharLoc := patternBuilder(NON_WHITESPACE_CHARACTER).FindStringIndex(token.values[0])[0]
 
 	return firstCharLoc
 }
 
 func (token Token) Debug() {
-	if token.isOneOfKinds(INLINE_PARAGRAPH, NEWLINE_PARAGRAPH, NUMBERED_LIST, LINK) {
-		fmt.Printf(
-			"%s (%s) %d",
-			TokenKindString(token.kind),
-			token.values.getString(),
-			token.Indentation(),
-		)
+	if token.isOneOfKinds(PARAGRAPH, NUMBERED_LIST, LINK) {
+		fmt.Printf("%s (%s)", TokenKindString(token.kind), token.values.getString())
 	} else {
 		fmt.Printf("%s ()", TokenKindString(token.kind))
 	}
@@ -115,10 +103,8 @@ func TokenKindString(kind TokenKind) string {
 	switch kind {
 	case SOURCE_FILE:
 		return "source_file"
-	case INLINE_PARAGRAPH:
+	case PARAGRAPH:
 		return "paragraph"
-	case NEWLINE_PARAGRAPH:
-		return "newline_paragraph"
 	case LINK:
 		return "link"
 	case HEADING_1:

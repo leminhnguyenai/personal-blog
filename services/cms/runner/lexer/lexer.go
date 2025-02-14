@@ -89,8 +89,8 @@ func skipHandler(lex *lexer, regex *regexp.Regexp) {
 
 func linkHandler(lex *lexer, regex *regexp.Regexp) {
 	matchString := regex.FindString(lex.remainder())
-	placeholder := patternBuilder(`\[`, PARAGRAPH, `*`, `\]`).FindString(matchString)
-	link := patternBuilder(`\(`, PARAGRAPH, `*`, `\)`).FindString(matchString)
+	placeholder := patternBuilder(`\[`, CHARACTER, `*`, `\]`).FindString(matchString)
+	link := patternBuilder(`\(`, CHARACTER, `*`, `\)`).FindString(matchString)
 
 	placeholder = placeholder[1 : len(placeholder)-1]
 	link = link[1 : len(link)-1]
@@ -102,30 +102,20 @@ func linkHandler(lex *lexer, regex *regexp.Regexp) {
 	lex.push(NewToken(LINK, NewLoc(startLoc, endLoc), placeholder, link))
 }
 
-func paragraphHandler(lex *lexer, regex *regexp.Regexp) {
-	prevChar := lex.source[lex.pos-1]
-
-	if string(prevChar) == "\n" {
-		dynamicHandler(NEWLINE_PARAGRAPH)(lex, regex)
-	} else {
-		dynamicHandler(INLINE_PARAGRAPH)(lex, regex)
-	}
-}
-
 func CreateLexer(source string) *lexer {
 	return &lexer{
 		source: source,
 		patterns: []regexPattern{
 			{patternBuilder(`\n`, `+`), skipHandler},
 			{patternBuilder(INDENTABLE, `\d+\.\s*`), dynamicHandler(NUMBERED_LIST)},
-			{patternBuilder(`\[`, PARAGRAPH, `*`, `\]`, `\(`, PARAGRAPH, `*`, `\)`), linkHandler},
+			{patternBuilder(`\[`, CHARACTER, `*`, `\]`, `\(`, CHARACTER, `*`, `\)`), linkHandler},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `#####\s`), defaultHandler(HEADING_5, `#####\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `####\s`), defaultHandler(HEADING_4, `####\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `###\s`), defaultHandler(HEADING_3, `###\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `##\s`), defaultHandler(HEADING_2, `##\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `#\s`), defaultHandler(HEADING_1, `#\s`)},
 			{patternBuilder(INDENTABLE, `-\s`), dynamicHandler(DASH)},
-			{patternBuilder(PARAGRAPH, `+`), paragraphHandler},
+			{patternBuilder(CHARACTER, `+`), dynamicHandler(PARAGRAPH)},
 		},
 	}
 }

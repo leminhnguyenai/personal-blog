@@ -62,8 +62,8 @@ func (node *Node) findAncestor(possibleAncestor *Node) {
 		if possibleAncestor.Children[i].Self.isOneOfKinds(
 			DASH,
 			NUMBERED_LIST,
-			NEWLINE_PARAGRAPH,
-		) && (node.Self.isOneOfKinds(INLINE_PARAGRAPH, LINK) ||
+			PARAGRAPH,
+		) && (node.Self.isOneOfKinds(PARAGRAPH, LINK) ||
 			node.hasLowerPriority(possibleAncestor.Children[i])) {
 			if node.isOnSameLine(possibleAncestor.Children[i]) {
 				possibleAncestor.Children[i].addValue(node)
