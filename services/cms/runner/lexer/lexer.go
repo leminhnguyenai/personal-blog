@@ -102,19 +102,29 @@ func linkHandler(lex *lexer, regex *regexp.Regexp) {
 	lex.push(NewToken(LINK, NewLoc(startLoc, endLoc), placeholder, link))
 }
 
+func inlineCodeHandler(lex *lexer, regex *regexp.Regexp) {
+	matchString := regex.FindString(lex.remainder())
+	startLoc := lex.getLoc(lex.pos, "\n")
+	lex.advanceN(len(matchString))
+	endLoc := lex.getLoc(lex.pos-1, "\n")
+
+	lex.push(NewToken(INLINE_CODE, NewLoc(startLoc, endLoc), matchString[1:len(matchString)-1]))
+}
+
 func CreateLexer(source string) *lexer {
 	return &lexer{
 		source: source,
 		patterns: []regexPattern{
 			{patternBuilder(`\n`, `+`), skipHandler},
-			{patternBuilder(INDENTABLE, `\d+\.\s*`), dynamicHandler(NUMBERED_LIST)},
-			{patternBuilder(`\[`, CHARACTER, `*`, `\]`, `\(`, CHARACTER, `*`, `\)`), linkHandler},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `#####\s`), defaultHandler(HEADING_5, `#####\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `####\s`), defaultHandler(HEADING_4, `####\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `###\s`), defaultHandler(HEADING_3, `###\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `##\s`), defaultHandler(HEADING_2, `##\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `#\s`), defaultHandler(HEADING_1, `#\s`)},
+			{patternBuilder(INDENTABLE, `\d+\.\s*`), dynamicHandler(NUMBERED_LIST)},
 			{patternBuilder(INDENTABLE, `-\s`), dynamicHandler(DASH)},
+			{patternBuilder(`\[`, CHARACTER, `*`, `\]`, `\(`, CHARACTER, `*`, `\)`), linkHandler},
+			{patternBuilder("`", CHARACTER, `*`, "`"), inlineCodeHandler},
 			{patternBuilder(CHARACTER, `+`), dynamicHandler(PARAGRAPH)},
 		},
 	}

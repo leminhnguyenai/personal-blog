@@ -21,6 +21,7 @@ const (
 	PARAGRAPH
 
 	LINK
+	INLINE_CODE
 )
 
 type values []string
@@ -92,7 +93,7 @@ func (token Token) Indentation() int {
 func (token Token) Debug() string {
 	locDisplay := fmt.Sprintf("%s", token.loc.Display())
 
-	if token.isOneOfKinds(PARAGRAPH, NUMBERED_LIST, LINK) {
+	if token.isOneOfKinds(PARAGRAPH, NUMBERED_LIST, LINK, INLINE_CODE) {
 		return fmt.Sprintf("%s (%s)", TokenKindString(token.kind), token.values.getString()) + locDisplay
 	} else {
 		return fmt.Sprintf("%s ()", TokenKindString(token.kind)) + locDisplay
@@ -107,6 +108,8 @@ func TokenKindString(kind TokenKind) string {
 		return "paragraph"
 	case LINK:
 		return "link"
+	case INLINE_CODE:
+		return "inline_code"
 	case HEADING_1:
 		return "heading_1"
 	case HEADING_2:

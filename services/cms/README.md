@@ -12,6 +12,8 @@ skibidi toilet
 
 - Some other shit here [Ski](bidi)
 
+- Here is some ` inline code ` for you to test ya
+
 ### HEADING 1.2.1   
 
 - Yes man

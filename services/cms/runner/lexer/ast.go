@@ -76,7 +76,7 @@ func (node *Node) findAncestor(possibleAncestor *Node) {
 	possibleAncestor.addChild(node)
 }
 
-// COMMIT: Merge inline elements and block elements together
+// COMMIT: Add inline code
 
 func (node *Node) Display(str *string, level int) {
 	whitespaces := ""
