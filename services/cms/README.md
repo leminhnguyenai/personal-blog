@@ -10,7 +10,7 @@ skibidi toilet
 
 ## HEADING 1.2
 
-- Some other shit here
+- Some other shit here [Ski](bidi)
 
 ### HEADING 1.2.1   
 

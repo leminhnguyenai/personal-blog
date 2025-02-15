@@ -1,7 +1,5 @@
 package lexer
 
-import "fmt"
-
 type Node struct {
 	Self     Token
 	Values   []*Node
@@ -80,29 +78,28 @@ func (node *Node) findAncestor(possibleAncestor *Node) {
 
 // COMMIT: Merge inline elements and block elements together
 
-func (node *Node) Display(level int) {
-	space := ""
-	for i := 0; i <= level; i++ {
-		space += "   "
+func (node *Node) Display(str *string, level int) {
+	whitespaces := ""
+	for i := 0; i < level; i++ {
+		whitespaces += " "
 	}
 
-	fmt.Printf("%s", space)
-	node.Self.Debug()
+	*str += whitespaces + node.Self.Debug() + "\n"
 
 	if len(node.Values) > 0 {
-		fmt.Printf("%svalues:\n", space+"   ")
+		*str += whitespaces + " " + "values:\n"
 	}
 
 	for _, value := range node.Values {
-		value.Display(level + 2)
+		value.Display(str, level+2)
 	}
 
 	if len(node.Children) > 0 {
-		fmt.Printf("%schildren:\n", space+"   ")
+		*str += whitespaces + " " + "children:\n"
 	}
 
 	for _, child := range node.Children {
-		child.Display(level + 2)
+		child.Display(str, level+2)
 	}
 }
 

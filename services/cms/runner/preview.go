@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"text/template"
 
+	"github.com/leminhnguyenai/personal-blog/services/cms/runner/asciitree"
 	"github.com/leminhnguyenai/personal-blog/services/cms/runner/lexer"
 )
 
@@ -35,7 +36,11 @@ func Preview(filePath string) error {
 			return
 		}
 
-		sourceNode.Display(0)
+		var str string
+
+		sourceNode.Display(&str, 0)
+
+		fmt.Println(asciitree.GenerateTree(str))
 
 		content := `{{ block "content" . }}` + string(data) + `{{ end }}`
 

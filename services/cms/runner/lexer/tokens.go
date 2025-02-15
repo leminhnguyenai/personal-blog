@@ -89,14 +89,14 @@ func (token Token) Indentation() int {
 	return firstCharLoc
 }
 
-func (token Token) Debug() {
-	if token.isOneOfKinds(PARAGRAPH, NUMBERED_LIST, LINK) {
-		fmt.Printf("%s (%s)", TokenKindString(token.kind), token.values.getString())
-	} else {
-		fmt.Printf("%s ()", TokenKindString(token.kind))
-	}
+func (token Token) Debug() string {
+	locDisplay := fmt.Sprintf("%s", token.loc.Display())
 
-	fmt.Printf("%s\n", token.loc.Display())
+	if token.isOneOfKinds(PARAGRAPH, NUMBERED_LIST, LINK) {
+		return fmt.Sprintf("%s (%s)", TokenKindString(token.kind), token.values.getString()) + locDisplay
+	} else {
+		return fmt.Sprintf("%s ()", TokenKindString(token.kind)) + locDisplay
+	}
 }
 
 func TokenKindString(kind TokenKind) string {
