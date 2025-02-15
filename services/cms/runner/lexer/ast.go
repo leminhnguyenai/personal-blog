@@ -38,6 +38,7 @@ func (node *Node) isOnSameLine(otherNode *Node) bool {
 
 // Find the closest ancestor of the Node using waterfall effect
 // The node can either be a value or a child of that ancestor
+// FIX: Newline paragraph get included as value of dash list on different lines
 func (node *Node) findAncestor(possibleAncestor *Node) {
 	for i := len(possibleAncestor.Children) - 1; i >= 0; i-- {
 		// Comparison for quote
@@ -64,18 +65,22 @@ func (node *Node) findAncestor(possibleAncestor *Node) {
 		}
 
 		// Comparison for Indentable token
+		// FIX: Fix this dogshit
 		if possibleAncestor.Children[i].Self.isOneOfKinds(
 			DASH,
 			NUMBERED_LIST,
 			PARAGRAPH,
-		) && (node.Self.isOneOfKinds(PARAGRAPH, LINK) ||
-			node.hasLowerPriority(possibleAncestor.Children[i])) {
+		) {
 			if node.isOnSameLine(possibleAncestor.Children[i]) {
 				possibleAncestor.Children[i].addValue(node)
 				return
 			}
-			node.findAncestor(possibleAncestor.Children[i])
-			return
+
+			if node.Self.isOneOfKinds(PARAGRAPH, INLINE_CODE, LINK) &&
+				node.hasMoreIndentation(possibleAncestor.Children[i]) {
+				node.findAncestor(possibleAncestor.Children[i])
+				return
+			}
 		}
 
 	}
