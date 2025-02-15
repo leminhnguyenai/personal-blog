@@ -121,10 +121,11 @@ func CreateLexer(source string) *lexer {
 			{patternBuilder(INLINE_WHITESPACE, `*`, `###\s`), defaultHandler(HEADING_3, `###\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `##\s`), defaultHandler(HEADING_2, `##\s`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `#\s`), defaultHandler(HEADING_1, `#\s`)},
-			{patternBuilder(INDENTABLE, `\d+\.\s*`), dynamicHandler(NUMBERED_LIST)},
-			{patternBuilder(INDENTABLE, `-\s`), dynamicHandler(DASH)},
+			{patternBuilder(INLINE_WHITESPACE, `*`, `\d+\.\s*`), dynamicHandler(NUMBERED_LIST)},
+			{patternBuilder(INLINE_WHITESPACE, `*`, `-\s`), dynamicHandler(DASH)},
 			{patternBuilder(`\[`, CHARACTER, `*`, `\]`, `\(`, CHARACTER, `*`, `\)`), linkHandler},
 			{patternBuilder("`", CHARACTER, `*`, "`"), inlineCodeHandler},
+			{patternBuilder(INLINE_WHITESPACE, `*`, `>\s`), defaultHandler(QUOTE, `>\s`)},
 			{patternBuilder(CHARACTER, `+`), dynamicHandler(PARAGRAPH)},
 		},
 	}
@@ -140,6 +141,7 @@ func Tokenize(source string) ([]Token, error) {
 			// Find the first location that match the pattern
 			loc := pattern.regex.FindStringIndex(lex.remainder())
 			// Only match if the location is found AND the match location is at the beginning of the string (not source string) that is iterated
+			// NOTE: This remove the need for "^" regex pattern
 			if loc != nil && loc[0] == 0 {
 				pattern.handler(lex, pattern.regex)
 				matched = true

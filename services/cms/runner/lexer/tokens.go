@@ -15,6 +15,8 @@ const (
 	HEADING_4
 	HEADING_5
 
+	QUOTE
+
 	DASH
 	NUMBERED_LIST
 
@@ -95,6 +97,8 @@ func (token Token) Debug() string {
 
 	if token.isOneOfKinds(PARAGRAPH, NUMBERED_LIST, LINK, INLINE_CODE) {
 		return fmt.Sprintf("%s (%s)", TokenKindString(token.kind), token.values.getString()) + locDisplay
+	} else if token.isOneOfKinds(SOURCE_FILE) {
+		return fmt.Sprintf("%s ()", TokenKindString(token.kind))
 	} else {
 		return fmt.Sprintf("%s ()", TokenKindString(token.kind)) + locDisplay
 	}
@@ -104,6 +108,8 @@ func TokenKindString(kind TokenKind) string {
 	switch kind {
 	case SOURCE_FILE:
 		return "source_file"
+	case QUOTE:
+		return "quote"
 	case PARAGRAPH:
 		return "paragraph"
 	case LINK:

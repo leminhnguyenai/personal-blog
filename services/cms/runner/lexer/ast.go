@@ -40,6 +40,13 @@ func (node *Node) isOnSameLine(otherNode *Node) bool {
 // The node can either be a value or a child of that ancestor
 func (node *Node) findAncestor(possibleAncestor *Node) {
 	for i := len(possibleAncestor.Children) - 1; i >= 0; i-- {
+		// Comparison for quote
+		if possibleAncestor.Children[i].Self.isOneOfKinds(QUOTE) &&
+			node.isOnSameLine(possibleAncestor.Children[i]) {
+			node.findAncestor(possibleAncestor.Children[i])
+			return
+		}
+
 		// Comparision for Heading token
 		if possibleAncestor.Children[i].Self.isOneOfKinds(
 			HEADING_1,
