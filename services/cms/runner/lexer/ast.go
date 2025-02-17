@@ -32,13 +32,17 @@ func (node *Node) hasMoreIndentation(otherNode *Node) bool {
 // Compare the 2 nodes' start vertical position
 // If they are the same -> the 1st one is contained within a line
 // and the 2nd one is an inline element -> Both are on the same line
-func (node *Node) lineDiff(otherNode *Node) int {
+func (node *Node) lineDiffStart(otherNode *Node) int {
 	return node.Self.loc.start[0] - otherNode.Self.loc.start[0]
+}
+
+func (node *Node) lineDiffEnd(otherNode *Node) int {
+	return node.Self.loc.start[0] - otherNode.Self.loc.end[0]
 }
 
 // Check if the current node is a value of the other node
 func (node *Node) isValueOf(otherNode *Node) bool {
-	return node.lineDiff(otherNode) == 0 &&
+	return node.lineDiffStart(otherNode) == 0 &&
 		!otherNode.Self.isOneOfKinds(QUOTE) &&
 		node.Self.isOneOfKinds(
 			PARAGRAPH,
@@ -54,7 +58,7 @@ func (node *Node) isChildOfHeading(otherNode *Node) bool {
 		HEADING_3,
 		HEADING_4,
 		HEADING_5,
-	) && node.lineDiff(otherNode) > 0 &&
+	) && node.lineDiffStart(otherNode) > 0 &&
 		node.hasLowerPriority(otherNode)
 }
 
@@ -63,13 +67,20 @@ func (node *Node) isChildOfIndentableToken(otherNode *Node) bool {
 		DASH,
 		NUMBERED_LIST,
 		PARAGRAPH,
-	) && node.lineDiff(otherNode) > 0 &&
+	) && node.lineDiffStart(otherNode) > 0 &&
 		node.hasMoreIndentation(otherNode)
 }
 
 func (node *Node) isChildOfQuote(otherNode *Node) bool {
 	return otherNode.Self.isOneOfKinds(QUOTE) &&
-		node.lineDiff(otherNode) == 0
+		(node.lineDiffStart(otherNode) == 0 || node.lineDiffEnd(otherNode) == 0)
+}
+
+// Merge quotes if next to each other
+func (node *Node) isQuoteFragment(otherNode *Node) bool {
+	return node.Self.isOneOfKinds(QUOTE) &&
+		otherNode.Self.isOneOfKinds(QUOTE) &&
+		node.lineDiffStart(otherNode) == 1
 }
 
 // Find the closest ancestor of the Node using waterfall effect
@@ -89,6 +100,11 @@ func (node *Node) findAncestor(possibleAncestor *Node) {
 		}
 
 		// Comparison for quote
+		if node.isQuoteFragment(possibleAncestor.Children[i]) {
+			possibleAncestor.Children[i].Self.loc.end = node.Self.loc.end
+			return
+		}
+
 		if node.isChildOfQuote(possibleAncestor.Children[i]) {
 			node.findAncestor(possibleAncestor.Children[i])
 			return
@@ -103,8 +119,6 @@ func (node *Node) findAncestor(possibleAncestor *Node) {
 
 	possibleAncestor.addChild(node)
 }
-
-// COMMIT: Add inline code
 
 func (node *Node) Display(str *string, level int) {
 	whitespaces := ""
