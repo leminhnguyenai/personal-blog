@@ -88,9 +88,7 @@ func (token Token) isOneOfKinds(kinds ...TokenKind) bool {
 // Calculate the length of indentation
 // COMMIT: Adjust indentation calculation to based on position not whitesaces
 func (token Token) Indentation() int {
-	firstCharLoc := patternBuilder(NON_WHITESPACE_CHARACTER).FindStringIndex(token.values[0])[0]
-
-	return firstCharLoc + token.loc.start[1]
+	return token.loc.start[1]
 }
 
 func (token Token) Debug() string {

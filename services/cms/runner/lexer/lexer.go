@@ -121,7 +121,6 @@ func inlineCodeHandler(lex *lexer, regex *regexp.Regexp) {
 	lex.push(NewToken(INLINE_CODE, NewLoc(startLoc, endLoc), matchString[1:len(matchString)-1]))
 }
 
-// FIX: Inline paragraph get recognized as heading
 func CreateLexer(source string) *lexer {
 	return &lexer{
 		source: source,
@@ -132,8 +131,8 @@ func CreateLexer(source string) *lexer {
 			{patternBuilder(INLINE_WHITESPACE, `*`, `###\s`), headingHandler(HEADING_3)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `##\s`), headingHandler(HEADING_2)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `#\s`), headingHandler(HEADING_1)},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `\d+\.\s*`), dynamicHandler(NUMBERED_LIST)},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `-\s`), dynamicHandler(DASH)},
+			{patternBuilder(INLINE_WHITESPACE, `*`, `\d+\.\s*`), defaultHandler(NUMBERED_LIST, `\.\s*`)},
+			{patternBuilder(INLINE_WHITESPACE, `*`, `-\s`), defaultHandler(DASH, `-\s`)},
 			{patternBuilder(`\[`, CHARACTER, `*`, `\]`, `\(`, CHARACTER, `*`, `\)`), linkHandler},
 			{patternBuilder("`", CHARACTER, `*`, "`"), inlineCodeHandler},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `>\s`), defaultHandler(QUOTE, `>\s`)},
