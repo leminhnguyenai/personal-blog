@@ -8,7 +8,7 @@ skibidi toilet
 
     1. Numbah 1
 
-## HEADING 1.2
+ ## HEADING 1.2
 
 - Some other shit here [Ski](bidi)
 
@@ -16,7 +16,7 @@ skibidi toilet
 
 ### HEADING 1.2.1   
 
-- Yes man
+- Yes man - No man
 
 > - The grape is delicous
 

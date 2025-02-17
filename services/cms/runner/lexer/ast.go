@@ -39,6 +39,7 @@ func (node *Node) lineDiff(otherNode *Node) int {
 // Check if the current node is a value of the other node
 func (node *Node) isValueOf(otherNode *Node) bool {
 	return node.lineDiff(otherNode) == 0 &&
+		!otherNode.Self.isOneOfKinds(QUOTE) &&
 		node.Self.isOneOfKinds(
 			PARAGRAPH,
 			LINK,
@@ -63,8 +64,7 @@ func (node *Node) isChildOfIndentableToken(otherNode *Node) bool {
 		NUMBERED_LIST,
 		PARAGRAPH,
 	) && node.lineDiff(otherNode) > 0 &&
-		node.hasMoreIndentation(otherNode) &&
-		node.hasLowerPriority(otherNode)
+		node.hasMoreIndentation(otherNode)
 }
 
 func (node *Node) isChildOfQuote(otherNode *Node) bool {
@@ -75,6 +75,7 @@ func (node *Node) isChildOfQuote(otherNode *Node) bool {
 // Find the closest ancestor of the Node using waterfall effect
 // The node can either be a value or a child of that ancestor
 // COMMIT: Optimize and improve the parsing process for more flexibility and scalability
+// FIX: Fixing values not falling into the right node
 func (node *Node) findAncestor(possibleAncestor *Node) {
 	for i := len(possibleAncestor.Children) - 1; i >= 0; i-- {
 		// Comparison for value

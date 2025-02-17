@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	CHARACTER                string = `[^\[\]\(\)\n\x60]`
-	NON_WHITESPACE_CHARACTER string = `[^\[\]\(\)\s\x60]`
+	CHARACTER                string = `[^\n\x60]`
+	NON_WHITESPACE_CHARACTER string = `[^\s\x60]`
 	INLINE_WHITESPACE        string = `[^\S\t\r\n]`
 )
 
