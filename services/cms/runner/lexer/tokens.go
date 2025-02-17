@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"fmt"
+	"strings"
 )
 
 type TokenKind int
@@ -35,6 +36,10 @@ const (
 type values []string
 
 func (vals values) getString() string {
+	for i := range vals {
+		vals[i] = strings.Replace(vals[i], "\n", "\\n", -1)
+	}
+
 	if len(vals) == 1 {
 		return vals[0]
 	}
@@ -96,6 +101,7 @@ func (token Token) Indentation() int {
 	return token.loc.start[1]
 }
 
+// FIX: Format values of token that has newline in it
 func (token Token) Debug() string {
 	locDisplay := fmt.Sprintf("%s", token.loc.Display())
 
