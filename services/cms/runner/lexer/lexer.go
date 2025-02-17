@@ -87,6 +87,16 @@ func skipHandler(lex *lexer, regex *regexp.Regexp) {
 	lex.advanceN(matchLoc[1])
 }
 
+func headingHandler(kind TokenKind) regexHandler {
+	return func(lex *lexer, regex *regexp.Regexp) {
+		if lex.pos == 0 || string(lex.source[lex.pos-1]) == "\n" {
+			defaultHandler(kind, `#+\s`)(lex, regex)
+		} else {
+			dynamicHandler(PARAGRAPH)(lex, patternBuilder(CHARACTER, `+`))
+		}
+	}
+}
+
 func linkHandler(lex *lexer, regex *regexp.Regexp) {
 	matchString := regex.FindString(lex.remainder())
 	placeholder := patternBuilder(`\[`, CHARACTER, `*`, `\]`).FindString(matchString)
@@ -111,16 +121,17 @@ func inlineCodeHandler(lex *lexer, regex *regexp.Regexp) {
 	lex.push(NewToken(INLINE_CODE, NewLoc(startLoc, endLoc), matchString[1:len(matchString)-1]))
 }
 
+// FIX: Inline paragraph get recognized as heading
 func CreateLexer(source string) *lexer {
 	return &lexer{
 		source: source,
 		patterns: []regexPattern{
 			{patternBuilder(`\n`, `+`), skipHandler},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `#####\s`), defaultHandler(HEADING_5, `#####\s`)},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `####\s`), defaultHandler(HEADING_4, `####\s`)},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `###\s`), defaultHandler(HEADING_3, `###\s`)},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `##\s`), defaultHandler(HEADING_2, `##\s`)},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `#\s`), defaultHandler(HEADING_1, `#\s`)},
+			{patternBuilder(INLINE_WHITESPACE, `*`, `#####\s`), headingHandler(HEADING_5)},
+			{patternBuilder(INLINE_WHITESPACE, `*`, `####\s`), headingHandler(HEADING_4)},
+			{patternBuilder(INLINE_WHITESPACE, `*`, `###\s`), headingHandler(HEADING_3)},
+			{patternBuilder(INLINE_WHITESPACE, `*`, `##\s`), headingHandler(HEADING_2)},
+			{patternBuilder(INLINE_WHITESPACE, `*`, `#\s`), headingHandler(HEADING_1)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `\d+\.\s*`), dynamicHandler(NUMBERED_LIST)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `-\s`), dynamicHandler(DASH)},
 			{patternBuilder(`\[`, CHARACTER, `*`, `\]`, `\(`, CHARACTER, `*`, `\)`), linkHandler},

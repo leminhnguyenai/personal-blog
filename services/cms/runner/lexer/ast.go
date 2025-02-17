@@ -74,8 +74,6 @@ func (node *Node) isChildOfQuote(otherNode *Node) bool {
 
 // Find the closest ancestor of the Node using waterfall effect
 // The node can either be a value or a child of that ancestor
-// COMMIT: Optimize and improve the parsing process for more flexibility and scalability
-// FIX: Fixing values not falling into the right node
 func (node *Node) findAncestor(possibleAncestor *Node) {
 	for i := len(possibleAncestor.Children) - 1; i >= 0; i-- {
 		// Comparison for value

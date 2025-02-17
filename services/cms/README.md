@@ -8,11 +8,11 @@ skibidi toilet
 
     1. Numbah 1
 
- ## HEADING 1.2
+## HEADING 1.2
 
 - Some other shit here [Ski](bidi)
 
-- Here is some ` inline code ` for you to test ya
+- Here is some ` inline code ` # This shouldn't be handled as heading
 
 ### HEADING 1.2.1   
 
