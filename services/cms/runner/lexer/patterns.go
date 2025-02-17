@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	CHARACTER                string = `[^\n\x60]`
-	NON_WHITESPACE_CHARACTER string = `[^\s\x60]`
-	INLINE_WHITESPACE        string = `[^\S\t\r\n]`
+	CHAR                string = `[^\n\x60]`
+	NON_WHITESPACE_CHAR string = `[^\s\x60]`
+	INLINE_WHITESPACE   string = `[^\S\t\r\n]`
 )
 
 func patternBuilder(patterns ...string) *regexp.Regexp {

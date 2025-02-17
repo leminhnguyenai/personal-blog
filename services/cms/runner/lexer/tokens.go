@@ -15,6 +15,11 @@ const (
 	HEADING_4
 	HEADING_5
 
+	CALLOUT_NOTE
+	CALLOUT_IMPORTANT
+	CALLOUT_WARNING
+	CALLOUT_EXAMPLE
+
 	QUOTE
 
 	DASH
@@ -93,7 +98,16 @@ func (token Token) Indentation() int {
 func (token Token) Debug() string {
 	locDisplay := fmt.Sprintf("%s", token.loc.Display())
 
-	if token.isOneOfKinds(PARAGRAPH, NUMBERED_LIST, LINK, INLINE_CODE) {
+	if token.isOneOfKinds(
+		PARAGRAPH,
+		NUMBERED_LIST,
+		LINK,
+		INLINE_CODE,
+		CALLOUT_NOTE,
+		CALLOUT_IMPORTANT,
+		CALLOUT_WARNING,
+		CALLOUT_EXAMPLE,
+	) {
 		return fmt.Sprintf("%s (%s)", TokenKindString(token.kind), token.values.getString()) + locDisplay
 	} else if token.isOneOfKinds(SOURCE_FILE) {
 		return fmt.Sprintf("%s ()", TokenKindString(token.kind))
@@ -106,6 +120,14 @@ func TokenKindString(kind TokenKind) string {
 	switch kind {
 	case SOURCE_FILE:
 		return "source_file"
+	case CALLOUT_NOTE:
+		return "callout_note"
+	case CALLOUT_IMPORTANT:
+		return "callout_important"
+	case CALLOUT_WARNING:
+		return "callout_warning"
+	case CALLOUT_EXAMPLE:
+		return "callout_example"
 	case QUOTE:
 		return "quote"
 	case PARAGRAPH:

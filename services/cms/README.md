@@ -18,6 +18,19 @@ skibidi toilet
 
 - Yes man - No man
 
+> [!NOTE] skiii
+> - The grape is delicous
+>   - Tito Ortiz
+
+> [!IMPORTANT] skiii
+> - The grape is delicous
+>   - Tito Ortiz
+
+> [!WARNING]   housekeeping
+> - The grape is delicous
+>   - Tito Ortiz
+
+> [!EXAMPLE] skiii
 > - The grape is delicous
 >   - Tito Ortiz
 

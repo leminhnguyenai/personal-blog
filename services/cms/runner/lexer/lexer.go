@@ -92,15 +92,15 @@ func headingHandler(kind TokenKind) regexHandler {
 		if lex.pos == 0 || string(lex.source[lex.pos-1]) == "\n" {
 			defaultHandler(kind, `#+\s`)(lex, regex)
 		} else {
-			dynamicHandler(PARAGRAPH)(lex, patternBuilder(CHARACTER, `+`))
+			dynamicHandler(PARAGRAPH)(lex, patternBuilder(CHAR, `+`))
 		}
 	}
 }
 
 func linkHandler(lex *lexer, regex *regexp.Regexp) {
 	matchString := regex.FindString(lex.remainder())
-	placeholder := patternBuilder(`\[`, CHARACTER, `*`, `\]`).FindString(matchString)
-	link := patternBuilder(`\(`, CHARACTER, `*`, `\)`).FindString(matchString)
+	placeholder := patternBuilder(`\[`, CHAR, `*`, `\]`).FindString(matchString)
+	link := patternBuilder(`\(`, CHAR, `*`, `\)`).FindString(matchString)
 
 	placeholder = placeholder[1 : len(placeholder)-1]
 	link = link[1 : len(link)-1]
@@ -121,6 +121,23 @@ func inlineCodeHandler(lex *lexer, regex *regexp.Regexp) {
 	lex.push(NewToken(INLINE_CODE, NewLoc(startLoc, endLoc), matchString[1:len(matchString)-1]))
 }
 
+func calloutHandler(kind TokenKind, pattern string) regexHandler {
+	return func(lex *lexer, regex *regexp.Regexp) {
+		matchString := regex.FindString(lex.remainder())
+		callout := patternBuilder(pattern).FindString(matchString)
+		calloutStr := patternBuilder(`\]`, INLINE_WHITESPACE, `+`, CHAR, "+").FindString(matchString)
+		if calloutStr != "" {
+			calloutStr = patternBuilder(NON_WHITESPACE_CHAR, CHAR, `*`).FindString(calloutStr[1:])
+		}
+
+		startLoc := lex.getLoc(lex.pos+len(matchString)-len(callout), "\n")
+		lex.advanceN(len(matchString))
+		endLoc := lex.getLoc(lex.pos-1, "\n")
+
+		lex.push(NewToken(kind, NewLoc(startLoc, endLoc), calloutStr))
+	}
+}
+
 func CreateLexer(source string) *lexer {
 	return &lexer{
 		source: source,
@@ -133,10 +150,26 @@ func CreateLexer(source string) *lexer {
 			{patternBuilder(INLINE_WHITESPACE, `*`, `#\s`), headingHandler(HEADING_1)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `\d+\.\s*`), defaultHandler(NUMBERED_LIST, `\.\s*`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `-\s`), defaultHandler(DASH, `-\s`)},
-			{patternBuilder(`\[`, CHARACTER, `*`, `\]`, `\(`, CHARACTER, `*`, `\)`), linkHandler},
-			{patternBuilder("`", CHARACTER, `*`, "`"), inlineCodeHandler},
+			{patternBuilder(`\[`, CHAR, `*`, `\]`, `\(`, CHAR, `*`, `\)`), linkHandler},
+			{patternBuilder("`", CHAR, `*`, "`"), inlineCodeHandler},
+			{
+				patternBuilder(INLINE_WHITESPACE, `*`, `>\s\[!NOTE\]`, INLINE_WHITESPACE, `*`, CHAR, `*`),
+				calloutHandler(CALLOUT_NOTE, `>\s\[!NOTE\]`+INLINE_WHITESPACE+`*`+CHAR+`*`),
+			},
+			{
+				patternBuilder(INLINE_WHITESPACE, `*`, `>\s\[!IMPORTANT\]`, INLINE_WHITESPACE, `*`, CHAR, `*`),
+				calloutHandler(CALLOUT_IMPORTANT, `>\s\[!IMPORTANT\]`+INLINE_WHITESPACE+`*`+CHAR+`*`),
+			},
+			{
+				patternBuilder(INLINE_WHITESPACE, `*`, `>\s\[!WARNING\]`, INLINE_WHITESPACE, `*`, CHAR, `*`),
+				calloutHandler(CALLOUT_WARNING, `>\s\[!WARNING\]`+INLINE_WHITESPACE+`*`+CHAR+`*`),
+			},
+			{
+				patternBuilder(INLINE_WHITESPACE, `*`, `>\s\[!EXAMPLE\]`, INLINE_WHITESPACE, `*`, CHAR, `*`),
+				calloutHandler(CALLOUT_EXAMPLE, `>\s\[!EXAMPLE\]`+INLINE_WHITESPACE+`*`+CHAR+`*`),
+			},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `>\s`), defaultHandler(QUOTE, `>\s`)},
-			{patternBuilder(CHARACTER, `+`), dynamicHandler(PARAGRAPH)},
+			{patternBuilder(CHAR, `+`), dynamicHandler(PARAGRAPH)},
 		},
 	}
 }

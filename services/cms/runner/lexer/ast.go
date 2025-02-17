@@ -25,8 +25,8 @@ func (node *Node) hasLowerPriority(otherNode *Node) bool {
 }
 
 // Compare the 2 nodes' indentation size
-func (node *Node) hasMoreIndentation(otherNode *Node) bool {
-	return node.Self.Indentation() > otherNode.Self.Indentation()
+func (node *Node) indentationDiff(otherNode *Node) int {
+	return node.Self.Indentation() - otherNode.Self.Indentation()
 }
 
 // Compare the 2 nodes' start vertical position
@@ -68,19 +68,32 @@ func (node *Node) isChildOfIndentableToken(otherNode *Node) bool {
 		NUMBERED_LIST,
 		PARAGRAPH,
 	) && node.lineDiffStart(otherNode) > 0 &&
-		node.hasMoreIndentation(otherNode)
+		node.indentationDiff(otherNode) > 0
 }
 
 func (node *Node) isChildOfQuote(otherNode *Node) bool {
-	return otherNode.Self.isOneOfKinds(QUOTE) &&
+	return otherNode.Self.isOneOfKinds(
+		QUOTE,
+		CALLOUT_NOTE,
+		CALLOUT_IMPORTANT,
+		CALLOUT_WARNING,
+		CALLOUT_EXAMPLE,
+	) &&
 		(node.lineDiffStart(otherNode) == 0 || node.lineDiffEnd(otherNode) == 0)
 }
 
 // Merge quotes if next to each other
 func (node *Node) isQuoteFragment(otherNode *Node) bool {
 	return node.Self.isOneOfKinds(QUOTE) &&
-		otherNode.Self.isOneOfKinds(QUOTE) &&
-		node.lineDiffStart(otherNode) == 1
+		otherNode.Self.isOneOfKinds(
+			QUOTE,
+			CALLOUT_NOTE,
+			CALLOUT_IMPORTANT,
+			CALLOUT_WARNING,
+			CALLOUT_EXAMPLE,
+		) &&
+		(node.lineDiffStart(otherNode) == 1 || node.lineDiffEnd(otherNode) == 1) &&
+		node.indentationDiff(otherNode) == 0
 }
 
 // Find the closest ancestor of the Node using waterfall effect
