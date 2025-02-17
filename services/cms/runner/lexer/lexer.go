@@ -138,6 +138,24 @@ func calloutHandler(kind TokenKind, pattern string) regexHandler {
 	}
 }
 
+func codeBlockHandler(lex *lexer, regex *regexp.Regexp) {
+	if lex.pos == 0 || string(lex.source[lex.pos-1]) == "\n" {
+		matchString := regex.FindString(lex.remainder())
+		fileType := strings.ToLower(strings.Split(matchString, "\n")[0][3:])
+		code := strings.Split(matchString, "\n")
+		code = code[1 : len(code)-1]
+
+		startLoc := lex.getLoc(lex.pos, "\n")
+		lex.advanceN(len(matchString))
+		endLoc := lex.getLoc(lex.pos-1, "\n")
+
+		lex.push(NewToken(CODE_BLOCK, NewLoc(startLoc, endLoc), fileType, strings.Join(code, "\n")))
+
+	} else {
+		dynamicHandler(PARAGRAPH)(lex, patternBuilder(CHAR, `+`))
+	}
+}
+
 func CreateLexer(source string) *lexer {
 	return &lexer{
 		source: source,
@@ -150,6 +168,7 @@ func CreateLexer(source string) *lexer {
 			{patternBuilder(INLINE_WHITESPACE, `*`, `#\s`), headingHandler(HEADING_1)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `\d+\.\s*`), defaultHandler(NUMBERED_LIST, `\.\s*`)},
 			{patternBuilder(INLINE_WHITESPACE, `*`, `-\s`), defaultHandler(DASH, `-\s`)},
+			{patternBuilder(`\x60\x60\x60`, `(.|\n)*`, `\x60\x60\x60`), codeBlockHandler},
 			{patternBuilder(`\[`, CHAR, `*`, `\]`, `\(`, CHAR, `*`, `\)`), linkHandler},
 			{patternBuilder("`", CHAR, `*`, "`"), inlineCodeHandler},
 			{

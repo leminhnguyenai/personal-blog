@@ -24,6 +24,7 @@ const (
 
 	DASH
 	NUMBERED_LIST
+	CODE_BLOCK
 
 	PARAGRAPH
 
@@ -107,6 +108,7 @@ func (token Token) Debug() string {
 		CALLOUT_IMPORTANT,
 		CALLOUT_WARNING,
 		CALLOUT_EXAMPLE,
+		CODE_BLOCK,
 	) {
 		return fmt.Sprintf("%s (%s)", TokenKindString(token.kind), token.values.getString()) + locDisplay
 	} else if token.isOneOfKinds(SOURCE_FILE) {
@@ -150,6 +152,8 @@ func TokenKindString(kind TokenKind) string {
 		return "dash"
 	case NUMBERED_LIST:
 		return "numbered_list"
+	case CODE_BLOCK:
+		return "code_block"
 	default:
 		return ""
 	}

@@ -26,12 +26,19 @@ skibidi toilet
 > - The grape is delicous
 >   - Tito Ortiz
 
-> [!WARNING]   housekeeping
+> [!WARNING] housekeeping
 > - The grape is delicous
 >   - Tito Ortiz
 
 > [!EXAMPLE] skiii
 > - The grape is delicous
 >   - Tito Ortiz
+
+```Go
+type Node struct {
+    Self Token
+    Children []*Node
+}
+```
 
 This one should be independent
