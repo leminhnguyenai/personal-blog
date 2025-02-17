@@ -32,57 +32,74 @@ func (node *Node) hasMoreIndentation(otherNode *Node) bool {
 // Compare the 2 nodes' start vertical position
 // If they are the same -> the 1st one is contained within a line
 // and the 2nd one is an inline element -> Both are on the same line
-func (node *Node) isOnSameLine(otherNode *Node) bool {
-	return node.Self.loc.start[0] == otherNode.Self.loc.start[0]
+func (node *Node) lineDiff(otherNode *Node) int {
+	return node.Self.loc.start[0] - otherNode.Self.loc.start[0]
+}
+
+// Check if the current node is a value of the other node
+func (node *Node) isValueOf(otherNode *Node) bool {
+	return node.lineDiff(otherNode) == 0 &&
+		node.Self.isOneOfKinds(
+			PARAGRAPH,
+			LINK,
+			INLINE_CODE,
+		)
+}
+
+func (node *Node) isChildOfHeading(otherNode *Node) bool {
+	return otherNode.Self.isOneOfKinds(
+		HEADING_1,
+		HEADING_2,
+		HEADING_3,
+		HEADING_4,
+		HEADING_5,
+	) && node.lineDiff(otherNode) > 0 &&
+		node.hasLowerPriority(otherNode)
+}
+
+func (node *Node) isChildOfIndentableToken(otherNode *Node) bool {
+	return otherNode.Self.isOneOfKinds(
+		DASH,
+		NUMBERED_LIST,
+		PARAGRAPH,
+	) && node.lineDiff(otherNode) > 0 &&
+		node.hasMoreIndentation(otherNode) &&
+		node.hasLowerPriority(otherNode)
+}
+
+func (node *Node) isChildOfQuote(otherNode *Node) bool {
+	return otherNode.Self.isOneOfKinds(QUOTE) &&
+		node.lineDiff(otherNode) == 0
 }
 
 // Find the closest ancestor of the Node using waterfall effect
 // The node can either be a value or a child of that ancestor
-// FIX: Newline paragraph get included as value of dash list on different lines
+// COMMIT: Optimize and improve the parsing process for more flexibility and scalability
 func (node *Node) findAncestor(possibleAncestor *Node) {
 	for i := len(possibleAncestor.Children) - 1; i >= 0; i-- {
-		// Comparison for quote
-		if possibleAncestor.Children[i].Self.isOneOfKinds(QUOTE) &&
-			node.isOnSameLine(possibleAncestor.Children[i]) {
-			node.findAncestor(possibleAncestor.Children[i])
+		// Comparison for value
+		if node.isValueOf(possibleAncestor.Children[i]) {
+			possibleAncestor.Children[i].addValue(node)
 			return
 		}
 
 		// Comparision for Heading token
-		if possibleAncestor.Children[i].Self.isOneOfKinds(
-			HEADING_1,
-			HEADING_2,
-			HEADING_3,
-			HEADING_4,
-			HEADING_5,
-		) && node.hasLowerPriority(possibleAncestor.Children[i]) {
-			if node.isOnSameLine(possibleAncestor.Children[i]) {
-				possibleAncestor.Children[i].addValue(node)
-				return
-			}
+		if node.isChildOfHeading(possibleAncestor.Children[i]) {
+			node.findAncestor(possibleAncestor.Children[i])
+			return
+		}
+
+		// Comparison for quote
+		if node.isChildOfQuote(possibleAncestor.Children[i]) {
 			node.findAncestor(possibleAncestor.Children[i])
 			return
 		}
 
 		// Comparison for Indentable token
-		// FIX: Fix this dogshit
-		if possibleAncestor.Children[i].Self.isOneOfKinds(
-			DASH,
-			NUMBERED_LIST,
-			PARAGRAPH,
-		) {
-			if node.isOnSameLine(possibleAncestor.Children[i]) {
-				possibleAncestor.Children[i].addValue(node)
-				return
-			}
-
-			if node.Self.isOneOfKinds(PARAGRAPH, INLINE_CODE, LINK) &&
-				node.hasMoreIndentation(possibleAncestor.Children[i]) {
-				node.findAncestor(possibleAncestor.Children[i])
-				return
-			}
+		if node.isChildOfIndentableToken(possibleAncestor.Children[i]) {
+			node.findAncestor(possibleAncestor.Children[i])
+			return
 		}
-
 	}
 
 	possibleAncestor.addChild(node)
