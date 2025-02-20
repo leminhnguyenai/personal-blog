@@ -27,10 +27,10 @@ const (
 
 	CODEBLOCK_PATTERN = `\x60\x60\x60` + `(.|\n)*` + `\x60\x60\x60`
 
-	CALLOUT_NOTE_PATTERN      = INDENT + `>\s\[!NOTE\]` + INDENT + CHAR + `*`
-	CALLOUT_IMPORTANT_PATTERN = INDENT + `>\s\[!IMPORTANT\]` + INDENT + CHAR + `*`
-	CALLOUT_WARNING_PATTERN   = INDENT + `>\s\[!WARNING\]` + INLINE_WHITESPACE + CHAR + `*`
-	CALLOUT_EXAMPLE_PATTERN   = INDENT + `>\s\[!EXAMPLE\]` + INLINE_WHITESPACE + CHAR + `*`
+	CALLOUT_NOTE_PATTERN      = INDENT + `>\s\[!NOTE\]` + INDENT
+	CALLOUT_IMPORTANT_PATTERN = INDENT + `>\s\[!IMPORTANT\]` + INDENT
+	CALLOUT_WARNING_PATTERN   = INDENT + `>\s\[!WARNING\]` + INLINE_WHITESPACE
+	CALLOUT_EXAMPLE_PATTERN   = INDENT + `>\s\[!EXAMPLE\]` + INLINE_WHITESPACE
 
 	QUOTE_PATTERN = INDENT + `>` + INLINE_WHITESPACE
 
@@ -130,26 +130,6 @@ func skipHandler(lex *lexer, regex string) {
 	lex.advanceN(matchLoc[1])
 }
 
-func calloutHandler(kind TokenKind) patternHandler {
-	return func(lex *lexer, regex string) {
-		if lex.isOnNewLine() {
-			matchString := regexp.MustCompile(regex).FindString(lex.remainder())
-			calloutStr := regexp.MustCompile(`\]` + INLINE_WHITESPACE + `+` + CHAR + "+").FindString(matchString)
-			if calloutStr != "" {
-				calloutStr = regexp.MustCompile(NON_WHITESPACE_CHAR + CHAR + `*`).FindString(calloutStr[1:])
-			}
-
-			startLoc := lex.getLoc(lex.pos)
-			lex.advanceN(len(matchString))
-			endLoc := lex.getLoc(lex.pos - 1)
-
-			lex.push(NewToken(kind, NewLoc(startLoc, endLoc), calloutStr))
-		} else {
-			paragraphHandler(lex, PARAGRAPH_PATTERN)
-		}
-	}
-}
-
 func codeBlockHandler(lex *lexer, regex string) {
 	if lex.pos == 0 || string(lex.source[lex.pos-1]) == "\n" {
 		matchString := regexp.MustCompile(regex).FindString(lex.remainder())
@@ -168,6 +148,7 @@ func codeBlockHandler(lex *lexer, regex string) {
 	}
 }
 
+// COMMIT: Switch to use paragraph token as value for callout
 func CreateLexer(source string) *lexer {
 	return &lexer{
 		source: source,
@@ -181,10 +162,10 @@ func CreateLexer(source string) *lexer {
 			{(NUMBERED_LIST_PATTERN), blockHandler(NUMBERED_LIST)},
 			{(DASH_PATTERN), blockHandler(DASH)},
 			{(CODEBLOCK_PATTERN), codeBlockHandler},
-			{(CALLOUT_NOTE_PATTERN), calloutHandler(CALLOUT_NOTE)},
-			{(CALLOUT_IMPORTANT_PATTERN), calloutHandler(CALLOUT_IMPORTANT)},
-			{(CALLOUT_WARNING_PATTERN), calloutHandler(CALLOUT_WARNING)},
-			{(CALLOUT_EXAMPLE_PATTERN), calloutHandler(CALLOUT_EXAMPLE)},
+			{(CALLOUT_NOTE_PATTERN), blockHandler(CALLOUT_NOTE)},
+			{(CALLOUT_IMPORTANT_PATTERN), blockHandler(CALLOUT_IMPORTANT)},
+			{(CALLOUT_WARNING_PATTERN), blockHandler(CALLOUT_WARNING)},
+			{(CALLOUT_EXAMPLE_PATTERN), blockHandler(CALLOUT_EXAMPLE)},
 			{(QUOTE_PATTERN), blockHandler(QUOTE)},
 			{(PARAGRAPH_PATTERN), paragraphHandler},
 		},

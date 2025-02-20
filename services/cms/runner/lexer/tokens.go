@@ -101,7 +101,6 @@ func (token Token) Indentation() int {
 	return token.loc.start[1]
 }
 
-// FIX: Format values of token that has newline in it
 func (token Token) Debug() string {
 	locDisplay := fmt.Sprintf("%s", token.loc.Display())
 
@@ -110,10 +109,6 @@ func (token Token) Debug() string {
 		NUMBERED_LIST,
 		LINK,
 		INLINE_CODE,
-		CALLOUT_NOTE,
-		CALLOUT_IMPORTANT,
-		CALLOUT_WARNING,
-		CALLOUT_EXAMPLE,
 		CODE_BLOCK,
 	) {
 		return fmt.Sprintf("%s (%s)", TokenKindString(token.kind), token.values.getString()) + locDisplay
