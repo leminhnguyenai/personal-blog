@@ -159,7 +159,7 @@ func (node *Node) Display(str *string, level int) {
 }
 
 func ParseAST(source string) (*Node, error) {
-	sourceNode := NewNode(NewToken(SOURCE_FILE, NewLoc([]int{-1, -1}, []int{-1, -1})))
+	sourceNode := NewNode(NewToken(SOURCE_FILE, NewLoc([2]int{-1, -1}, [2]int{-1, -1})))
 	tokens, err := Tokenize(source)
 	if err != nil {
 		return nil, err

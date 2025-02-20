@@ -6,13 +6,44 @@ import (
 	"strings"
 )
 
+const (
+	// Common patterns
+	CHAR                = `[^\n]`
+	NON_WHITESPACE_CHAR = `[^\s]`
+	INLINE_WHITESPACE   = `[^\S\t\r\n]`
+	INDENT              = INLINE_WHITESPACE + `*`
+
+	// Actual patterns for tokens
+	SKIP_NEWLINE_PATTERN = `\n+`
+
+	HEADING_5_PATTERN = INDENT + `#####` + INLINE_WHITESPACE
+	HEADING_4_PATTERN = INDENT + `####` + INLINE_WHITESPACE
+	HEADING_3_PATTERN = INDENT + `###` + INLINE_WHITESPACE
+	HEADING_2_PATTERN = INDENT + `##` + INLINE_WHITESPACE
+	HEADING_1_PATTERN = INDENT + `#` + INLINE_WHITESPACE
+
+	NUMBERED_LIST_PATTERN = INDENT + `\d+\.` + INLINE_WHITESPACE
+	DASH_PATTERN          = INDENT + `-` + INLINE_WHITESPACE
+
+	CODEBLOCK_PATTERN = `\x60\x60\x60` + `(.|\n)*` + `\x60\x60\x60`
+
+	CALLOUT_NOTE_PATTERN      = INDENT + `>\s\[!NOTE\]` + INDENT + CHAR + `*`
+	CALLOUT_IMPORTANT_PATTERN = INDENT + `>\s\[!IMPORTANT\]` + INDENT + CHAR + `*`
+	CALLOUT_WARNING_PATTERN   = INDENT + `>\s\[!WARNING\]` + INLINE_WHITESPACE + CHAR + `*`
+	CALLOUT_EXAMPLE_PATTERN   = INDENT + `>\s\[!EXAMPLE\]` + INLINE_WHITESPACE + CHAR + `*`
+
+	QUOTE_PATTERN = INDENT + `>` + INLINE_WHITESPACE
+
+	PARAGRAPH_PATTERN = CHAR + `+`
+)
+
 // Function to modifier the lexer
-type regexHandler func(lex *lexer, regex *regexp.Regexp)
+type patternHandler func(lex *lexer, regex string)
 
 // Contain the regex pattern for identifying and the handler to modify the lexer
 type regexPattern struct {
-	regex   *regexp.Regexp
-	handler regexHandler
+	regex   string
+	handler patternHandler
 }
 
 type lexer struct {
@@ -45,114 +76,95 @@ func (lex *lexer) at_eof() bool {
 }
 
 // Get the xy-plane location of the current position
-func (lex *lexer) getLoc(pos int, separator string) []int {
+func (lex *lexer) getLoc(pos int) [2]int {
 	tokenizedString := lex.source[:pos]
-	lines := strings.Split(tokenizedString, separator)
+	lines := strings.Split(tokenizedString, "\n")
 	lastLine := lines[len(lines)-1]
 
-	return []int{len(lines) - 1, len(lastLine)}
+	return [2]int{len(lines) - 1, len(lastLine)}
+}
+
+func (lex *lexer) isOnNewLine() bool {
+	return lex.pos == 0 || string(lex.source[lex.pos-1]) == "\n"
 }
 
 // Handler for tokens that have a fixed length
 // The handler remove the left side whitespace of the matched string
-func defaultHandler(kind TokenKind, pattern string) regexHandler {
-	return func(lex *lexer, regex *regexp.Regexp) {
-		matchString := regex.FindString(lex.remainder())
-		actualToken := patternBuilder(pattern).FindString(matchString)
+func blockHandler(kind TokenKind) patternHandler {
+	return func(lex *lexer, regex string) {
+		if lex.isOnNewLine() ||
+			(kind != HEADING_1 &&
+				kind != HEADING_2 &&
+				kind != HEADING_3 &&
+				kind != HEADING_4 &&
+				kind != HEADING_5 &&
+				lex.tokens[len(lex.tokens)-1].kind == QUOTE) {
+			matchString := regexp.MustCompile(regex).FindString(lex.remainder())
+			rightside_indent := regexp.MustCompile(`^` + INLINE_WHITESPACE + `*`).FindString(matchString)
 
-		startLoc := lex.getLoc(lex.pos+len(matchString)-len(actualToken), "\n")
-		lex.advanceN(len(matchString))
-		endLoc := lex.getLoc(lex.pos-1, "\n")
+			startLoc := lex.getLoc(lex.pos + len(rightside_indent))
+			lex.advanceN(len(matchString))
+			endLoc := lex.getLoc(lex.pos - 1)
 
-		lex.push(NewToken(kind, NewLoc(startLoc, endLoc), actualToken))
+			lex.push(NewToken(kind, NewLoc(startLoc, endLoc), matchString[len(rightside_indent):]))
+		} else {
+			paragraphHandler(lex, PARAGRAPH_PATTERN)
+		}
 	}
 }
 
 // Handler for tokens that doesn't have a predefined length (e.g string)
 // This handler will take the whole matched string as the value
-func dynamicHandler(kind TokenKind) regexHandler {
-	return func(lex *lexer, regex *regexp.Regexp) {
-		matchString := regex.FindString(lex.remainder())
-		startLoc := lex.getLoc(lex.pos, "\n")
-		lex.advanceN(len(matchString))
-		endLoc := lex.getLoc(lex.pos-1, "\n")
+func paragraphHandler(lex *lexer, regex string) {
+	matchString := regexp.MustCompile(regex).FindString(lex.remainder())
+	startLoc := lex.getLoc(lex.pos)
+	lex.advanceN(len(matchString))
+	endLoc := lex.getLoc(lex.pos - 1)
 
-		lex.push(NewToken(kind, NewLoc(startLoc, endLoc), matchString))
-	}
+	lex.push(NewToken(PARAGRAPH, NewLoc(startLoc, endLoc), matchString))
 }
 
 // Handler to skip through newlines
-func skipHandler(lex *lexer, regex *regexp.Regexp) {
-	matchLoc := regex.FindStringIndex(lex.remainder())
+func skipHandler(lex *lexer, regex string) {
+	matchLoc := regexp.MustCompile(regex).FindStringIndex(lex.remainder())
 	lex.advanceN(matchLoc[1])
 }
 
-func headingHandler(kind TokenKind) regexHandler {
-	return func(lex *lexer, regex *regexp.Regexp) {
-		if lex.pos == 0 || string(lex.source[lex.pos-1]) == "\n" {
-			defaultHandler(kind, `#+\s`)(lex, regex)
+func calloutHandler(kind TokenKind) patternHandler {
+	return func(lex *lexer, regex string) {
+		if lex.isOnNewLine() {
+			matchString := regexp.MustCompile(regex).FindString(lex.remainder())
+			calloutStr := regexp.MustCompile(`\]` + INLINE_WHITESPACE + `+` + CHAR + "+").FindString(matchString)
+			if calloutStr != "" {
+				calloutStr = regexp.MustCompile(NON_WHITESPACE_CHAR + CHAR + `*`).FindString(calloutStr[1:])
+			}
+
+			startLoc := lex.getLoc(lex.pos)
+			lex.advanceN(len(matchString))
+			endLoc := lex.getLoc(lex.pos - 1)
+
+			lex.push(NewToken(kind, NewLoc(startLoc, endLoc), calloutStr))
 		} else {
-			dynamicHandler(PARAGRAPH)(lex, patternBuilder(CHAR, `+`))
+			paragraphHandler(lex, PARAGRAPH_PATTERN)
 		}
 	}
 }
 
-func linkHandler(lex *lexer, regex *regexp.Regexp) {
-	matchString := regex.FindString(lex.remainder())
-	placeholder := patternBuilder(`\[`, CHAR, `*`, `\]`).FindString(matchString)
-	link := patternBuilder(`\(`, CHAR, `*`, `\)`).FindString(matchString)
-
-	placeholder = placeholder[1 : len(placeholder)-1]
-	link = link[1 : len(link)-1]
-
-	startLoc := lex.getLoc(lex.pos, "\n")
-	lex.advanceN(len(matchString))
-	endLoc := lex.getLoc(lex.pos-1, "\n")
-
-	lex.push(NewToken(LINK, NewLoc(startLoc, endLoc), placeholder, link))
-}
-
-func inlineCodeHandler(lex *lexer, regex *regexp.Regexp) {
-	matchString := regex.FindString(lex.remainder())
-	startLoc := lex.getLoc(lex.pos, "\n")
-	lex.advanceN(len(matchString))
-	endLoc := lex.getLoc(lex.pos-1, "\n")
-
-	lex.push(NewToken(INLINE_CODE, NewLoc(startLoc, endLoc), matchString[1:len(matchString)-1]))
-}
-
-func calloutHandler(kind TokenKind, pattern string) regexHandler {
-	return func(lex *lexer, regex *regexp.Regexp) {
-		matchString := regex.FindString(lex.remainder())
-		callout := patternBuilder(pattern).FindString(matchString)
-		calloutStr := patternBuilder(`\]`, INLINE_WHITESPACE, `+`, CHAR, "+").FindString(matchString)
-		if calloutStr != "" {
-			calloutStr = patternBuilder(NON_WHITESPACE_CHAR, CHAR, `*`).FindString(calloutStr[1:])
-		}
-
-		startLoc := lex.getLoc(lex.pos+len(matchString)-len(callout), "\n")
-		lex.advanceN(len(matchString))
-		endLoc := lex.getLoc(lex.pos-1, "\n")
-
-		lex.push(NewToken(kind, NewLoc(startLoc, endLoc), calloutStr))
-	}
-}
-
-func codeBlockHandler(lex *lexer, regex *regexp.Regexp) {
+func codeBlockHandler(lex *lexer, regex string) {
 	if lex.pos == 0 || string(lex.source[lex.pos-1]) == "\n" {
-		matchString := regex.FindString(lex.remainder())
+		matchString := regexp.MustCompile(regex).FindString(lex.remainder())
 		fileType := strings.ToLower(strings.Split(matchString, "\n")[0][3:])
 		code := strings.Split(matchString, "\n")
 		code = code[1 : len(code)-1]
 
-		startLoc := lex.getLoc(lex.pos, "\n")
+		startLoc := lex.getLoc(lex.pos)
 		lex.advanceN(len(matchString))
-		endLoc := lex.getLoc(lex.pos-1, "\n")
+		endLoc := lex.getLoc(lex.pos - 1)
 
 		lex.push(NewToken(CODE_BLOCK, NewLoc(startLoc, endLoc), fileType, strings.Join(code, "\n")))
 
 	} else {
-		dynamicHandler(PARAGRAPH)(lex, patternBuilder(CHAR, `+`))
+		paragraphHandler(lex, PARAGRAPH_PATTERN)
 	}
 }
 
@@ -160,35 +172,21 @@ func CreateLexer(source string) *lexer {
 	return &lexer{
 		source: source,
 		patterns: []regexPattern{
-			{patternBuilder(`\n`, `+`), skipHandler},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `#####\s`), headingHandler(HEADING_5)},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `####\s`), headingHandler(HEADING_4)},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `###\s`), headingHandler(HEADING_3)},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `##\s`), headingHandler(HEADING_2)},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `#\s`), headingHandler(HEADING_1)},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `\d+\.\s*`), defaultHandler(NUMBERED_LIST, `\.\s*`)},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `-\s`), defaultHandler(DASH, `-\s`)},
-			{patternBuilder(`\x60\x60\x60`, `(.|\n)*`, `\x60\x60\x60`), codeBlockHandler},
-			{patternBuilder(`\[`, CHAR, `*`, `\]`, `\(`, CHAR, `*`, `\)`), linkHandler},
-			{patternBuilder("`", CHAR, `*`, "`"), inlineCodeHandler},
-			{
-				patternBuilder(INLINE_WHITESPACE, `*`, `>\s\[!NOTE\]`, INLINE_WHITESPACE, `*`, CHAR, `*`),
-				calloutHandler(CALLOUT_NOTE, `>\s\[!NOTE\]`+INLINE_WHITESPACE+`*`+CHAR+`*`),
-			},
-			{
-				patternBuilder(INLINE_WHITESPACE, `*`, `>\s\[!IMPORTANT\]`, INLINE_WHITESPACE, `*`, CHAR, `*`),
-				calloutHandler(CALLOUT_IMPORTANT, `>\s\[!IMPORTANT\]`+INLINE_WHITESPACE+`*`+CHAR+`*`),
-			},
-			{
-				patternBuilder(INLINE_WHITESPACE, `*`, `>\s\[!WARNING\]`, INLINE_WHITESPACE, `*`, CHAR, `*`),
-				calloutHandler(CALLOUT_WARNING, `>\s\[!WARNING\]`+INLINE_WHITESPACE+`*`+CHAR+`*`),
-			},
-			{
-				patternBuilder(INLINE_WHITESPACE, `*`, `>\s\[!EXAMPLE\]`, INLINE_WHITESPACE, `*`, CHAR, `*`),
-				calloutHandler(CALLOUT_EXAMPLE, `>\s\[!EXAMPLE\]`+INLINE_WHITESPACE+`*`+CHAR+`*`),
-			},
-			{patternBuilder(INLINE_WHITESPACE, `*`, `>\s`), defaultHandler(QUOTE, `>\s`)},
-			{patternBuilder(CHAR, `+`), dynamicHandler(PARAGRAPH)},
+			{SKIP_NEWLINE_PATTERN, skipHandler},
+			{(HEADING_5_PATTERN), blockHandler(HEADING_5)},
+			{(HEADING_4_PATTERN), blockHandler(HEADING_4)},
+			{(HEADING_3_PATTERN), blockHandler(HEADING_3)},
+			{(HEADING_2_PATTERN), blockHandler(HEADING_2)},
+			{(HEADING_1_PATTERN), blockHandler(HEADING_1)},
+			{(NUMBERED_LIST_PATTERN), blockHandler(NUMBERED_LIST)},
+			{(DASH_PATTERN), blockHandler(DASH)},
+			{(CODEBLOCK_PATTERN), codeBlockHandler},
+			{(CALLOUT_NOTE_PATTERN), calloutHandler(CALLOUT_NOTE)},
+			{(CALLOUT_IMPORTANT_PATTERN), calloutHandler(CALLOUT_IMPORTANT)},
+			{(CALLOUT_WARNING_PATTERN), calloutHandler(CALLOUT_WARNING)},
+			{(CALLOUT_EXAMPLE_PATTERN), calloutHandler(CALLOUT_EXAMPLE)},
+			{(QUOTE_PATTERN), blockHandler(QUOTE)},
+			{(PARAGRAPH_PATTERN), paragraphHandler},
 		},
 	}
 }
@@ -199,10 +197,12 @@ func Tokenize(source string) ([]Token, error) {
 	for !lex.at_eof() {
 		matched := false
 
-		for _, pattern := range lex.patterns { // Iterate the pattern, not the source string
+		// Iterate the pattern, not the source string
+		for _, pattern := range lex.patterns {
 			// Find the first location that match the pattern
-			loc := pattern.regex.FindStringIndex(lex.remainder())
-			// Only match if the location is found AND the match location is at the beginning of the string (not source string) that is iterated
+			loc := regexp.MustCompile(pattern.regex).FindStringIndex(lex.remainder())
+			// Only match if the location is found AND the match location is
+			// at the beginning of the string (not source string) that is iterated
 			// NOTE: This remove the need for "^" regex pattern
 			if loc != nil && loc[0] == 0 {
 				pattern.handler(lex, pattern.regex)
@@ -212,7 +212,7 @@ func Tokenize(source string) ([]Token, error) {
 		}
 
 		if !matched {
-			loc := lex.getLoc(lex.pos, "\n")
+			loc := lex.getLoc(lex.pos)
 
 			return nil, fmt.Errorf(
 				"Lexer::error -> unrecognized token near\n %s\nat [%d:%d]\n",

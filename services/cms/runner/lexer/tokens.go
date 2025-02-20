@@ -57,11 +57,11 @@ func (vals values) getString() string {
 }
 
 type Location struct {
-	start []int
-	end   []int
+	start [2]int
+	end   [2]int
 }
 
-func NewLoc(start, end []int) Location {
+func NewLoc(start, end [2]int) Location {
 	return Location{
 		start: start,
 		end:   end,
