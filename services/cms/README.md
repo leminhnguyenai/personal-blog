@@ -10,7 +10,7 @@ skibidi toilet
 
 ## HEADING 1.2
 
-- Some other shit here [Ski](bidi)
+- [Ski](bidi) bap bap [bam](bam)
 
 - Here is some ` inline code ` # This shouldn't be handled as heading
 
@@ -33,12 +33,12 @@ skibidi toilet
 > [!EXAMPLE] skiii
 > - The grape is delicous
 >   - Tito Ortiz
-
 ```Go
 type Node struct {
     Self Token
     Children []*Node
 }
 ```
+
 
 This one should be independent

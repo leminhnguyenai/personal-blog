@@ -23,7 +23,7 @@ const (
 
 	QUOTE
 
-	DASH
+	HYPHEN_LIST
 	NUMBERED_LIST
 	CODE_BLOCK
 
@@ -149,8 +149,8 @@ func TokenKindString(kind TokenKind) string {
 		return "heading_4"
 	case HEADING_5:
 		return "heading_5"
-	case DASH:
-		return "dash"
+	case HYPHEN_LIST:
+		return "hyphen_list"
 	case NUMBERED_LIST:
 		return "numbered_list"
 	case CODE_BLOCK:

@@ -64,7 +64,7 @@ func (node *Node) isChildOfHeading(otherNode *Node) bool {
 
 func (node *Node) isChildOfIndentableToken(otherNode *Node) bool {
 	return otherNode.Self.isOneOfKinds(
-		DASH,
+		HYPHEN_LIST,
 		NUMBERED_LIST,
 		PARAGRAPH,
 	) && node.lineDiffStart(otherNode) > 0 &&
