@@ -65,6 +65,18 @@ type regexConstructor struct {
 	handler regexHandler
 }
 
+// Range over the regex constructor and only yield once when the pattern is match at first
+func matchPattern(lex *lexer, arr []regexConstructor) func(func(regexHandler, regexPattern) bool) {
+	return func(yield func(regexHandler, regexPattern) bool) {
+		for _, constructor := range arr {
+			if constructor.regex.isMatchAtFirst(lex.remainder()) {
+				yield(constructor.handler, constructor.regex)
+				return
+			}
+		}
+	}
+}
+
 type lexer struct {
 	patterns []regexConstructor
 	tokens   []Token
@@ -166,7 +178,6 @@ func codeBlockHandler(lex *lexer, pattern regexPattern) {
 	}
 }
 
-// COMMIT: Add inline tokens back in
 func CreateBlockElementLexer(source string) *lexer {
 	return &lexer{
 		source: source,
@@ -226,11 +237,9 @@ func tokenizeParagraph(source string, paraLoc [2]int) []Token {
 	prevLoc := [2]int{0, 0}
 
 	for !lex.at_eof() {
-		for _, patternConstructor := range lex.patterns {
-			if !patternConstructor.regex.isMatchAtFirst(lex.remainder()) {
-				continue
-			}
+		match := false
 
+		for handler, regex := range matchPattern(lex, lex.patterns) {
 			currentLoc := lex.getLoc(lex.pos)
 
 			if currentLoc[1] != prevLoc[1] {
@@ -241,17 +250,14 @@ func tokenizeParagraph(source string, paraLoc [2]int) []Token {
 				))
 			}
 
-			patternConstructor.handler(lex, patternConstructor.regex)
+			handler(lex, regex)
 			prevLoc = lex.getLoc(lex.pos)
-			goto CONTINUE
+			match = true
 		}
 
-		goto ADVANCE
-
-	CONTINUE:
-		continue
-	ADVANCE:
-		lex.pos++
+		if !match {
+			lex.pos++
+		}
 	}
 
 	if prevLoc[1] < len(source) {
@@ -276,25 +282,21 @@ func Tokenize(source string) ([]Token, error) {
 	lex := CreateBlockElementLexer(source)
 
 	for !lex.at_eof() {
-		for _, pattern := range lex.patterns {
-			if !pattern.regex.isMatchAtFirst(lex.remainder()) {
-				continue
-			}
+		match := false
 
-			pattern.handler(lex, pattern.regex)
-			goto CONTINUE
+		for handler, regex := range matchPattern(lex, lex.patterns) {
+			handler(lex, regex)
+			match = true
 		}
-		goto ERROR
 
-	CONTINUE:
-		continue
-	ERROR:
-		loc := lex.getLoc(lex.pos)
+		if !match {
+			loc := lex.getLoc(lex.pos)
 
-		return nil, fmt.Errorf(
-			"Lexer::error -> unrecognized token near\n %s\nat [%d:%d]\n",
-			lex.remainder(), loc[0], loc[1],
-		)
+			return nil, fmt.Errorf(
+				"Lexer::error -> unrecognized token near\n %s\nat [%d:%d]\n",
+				lex.remainder(), loc[0], loc[1],
+			)
+		}
 	}
 
 	newTokens := []Token{}
