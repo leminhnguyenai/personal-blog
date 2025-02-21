@@ -110,6 +110,7 @@ func (token Token) Debug() string {
 		LINK,
 		INLINE_CODE,
 		CODE_BLOCK,
+		SOURCE_FILE,
 	) {
 		return fmt.Sprintf("%s (%s)", TokenKindString(token.kind), token.values.getString()) + locDisplay
 	} else if token.isOneOfKinds(SOURCE_FILE) {

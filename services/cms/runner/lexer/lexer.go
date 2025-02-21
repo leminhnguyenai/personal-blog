@@ -40,7 +40,7 @@ const (
 	NUMBERED_LIST_PATTERN = INDENT + `\d+\.` + INLINE_WHITESPACE
 	HYPHEN_LIST_PATTERN   = INDENT + `-` + INLINE_WHITESPACE
 
-	CODEBLOCK_PATTERN regexPattern = `\x60\x60\x60` + `(.|\n)*` + `\x60\x60\x60`
+	CODEBLOCK_DELIMITER_PATTERN regexPattern = `\x60\x60\x60` + CHAR + `*`
 
 	CALLOUT_NOTE_PATTERN      = INDENT + `>\s\[!NOTE\]` + INDENT
 	CALLOUT_IMPORTANT_PATTERN = INDENT + `>\s\[!IMPORTANT\]` + INDENT
@@ -66,7 +66,7 @@ type regexConstructor struct {
 }
 
 // Range over the regex constructor and only yield once when the pattern is match at first
-func matchPattern(lex *lexer, arr []regexConstructor) func(func(regexHandler, regexPattern) bool) {
+func matchPatternAtFirst(lex *lexer, arr []regexConstructor) func(func(regexHandler, regexPattern) bool) {
 	return func(yield func(regexHandler, regexPattern) bool) {
 		for _, constructor := range arr {
 			if constructor.regex.isMatchAtFirst(lex.remainder()) {
@@ -119,17 +119,20 @@ func (lex *lexer) isOnNewLine() bool {
 	return lex.pos == 0 || string(lex.source[lex.pos-1]) == "\n"
 }
 
+func (lex *lexer) isChildOfQuote(kind TokenKind) bool {
+	return (kind != HEADING_1 &&
+		kind != HEADING_2 &&
+		kind != HEADING_3 &&
+		kind != HEADING_4 &&
+		kind != HEADING_5 &&
+		lex.tokens[len(lex.tokens)-1].kind == QUOTE)
+}
+
 // Handler for tokens that have a fixed length
 // The handler remove the left side whitespace of the matched string
 func blockHandler(kind TokenKind) regexHandler {
 	return func(lex *lexer, pattern regexPattern) {
-		if lex.isOnNewLine() ||
-			(kind != HEADING_1 &&
-				kind != HEADING_2 &&
-				kind != HEADING_3 &&
-				kind != HEADING_4 &&
-				kind != HEADING_5 &&
-				lex.tokens[len(lex.tokens)-1].kind == QUOTE) {
+		if lex.isOnNewLine() || lex.isChildOfQuote(kind) {
 			matchString := pattern.findString(lex.remainder())
 			rightside_indent := regexPattern(`^` + INLINE_WHITESPACE + `*`).findString(matchString)
 
@@ -160,44 +163,22 @@ func skipHandler(lex *lexer, pattern regexPattern) {
 	lex.advanceN(pattern.findStringIndex(lex.remainder())[1])
 }
 
-func codeBlockHandler(lex *lexer, pattern regexPattern) {
-	if lex.pos == 0 || string(lex.source[lex.pos-1]) == "\n" {
+// FIX: Codeblock can't detect the boundary
+func codeBlockDelimiterHandler(lex *lexer, pattern regexPattern) {
+	if lex.isOnNewLine() || lex.isChildOfQuote(CODE_BLOCK) {
 		matchString := pattern.findString(lex.remainder())
 		fileType := strings.ToLower(strings.Split(matchString, "\n")[0][3:])
-		code := strings.Split(matchString, "\n")
-		code = code[1 : len(code)-1]
+		// code := strings.Split(matchString, "\n")
+		// code = code[1 : len(code)-1]
 
 		startLoc := lex.getLoc(lex.pos)
 		lex.advanceN(len(matchString))
 		endLoc := lex.getLoc(lex.pos - 1)
 
-		lex.push(NewToken(CODE_BLOCK, NewLoc(startLoc, endLoc), fileType, strings.Join(code, "\n")))
+		lex.push(NewToken(CODE_BLOCK, NewLoc(startLoc, endLoc), fileType))
 
 	} else {
 		paragraphHandler(lex, PARAGRAPH_PATTERN)
-	}
-}
-
-func CreateBlockElementLexer(source string) *lexer {
-	return &lexer{
-		source: source,
-		patterns: []regexConstructor{
-			{SKIP_NEWLINE_PATTERN, skipHandler},
-			{HEADING_5_PATTERN, blockHandler(HEADING_5)},
-			{HEADING_4_PATTERN, blockHandler(HEADING_4)},
-			{HEADING_3_PATTERN, blockHandler(HEADING_3)},
-			{HEADING_2_PATTERN, blockHandler(HEADING_2)},
-			{HEADING_1_PATTERN, blockHandler(HEADING_1)},
-			{NUMBERED_LIST_PATTERN, blockHandler(NUMBERED_LIST)},
-			{HYPHEN_LIST_PATTERN, blockHandler(HYPHEN_LIST)},
-			{CODEBLOCK_PATTERN, codeBlockHandler},
-			{CALLOUT_NOTE_PATTERN, blockHandler(CALLOUT_NOTE)},
-			{CALLOUT_IMPORTANT_PATTERN, blockHandler(CALLOUT_IMPORTANT)},
-			{CALLOUT_WARNING_PATTERN, blockHandler(CALLOUT_WARNING)},
-			{CALLOUT_EXAMPLE_PATTERN, blockHandler(CALLOUT_EXAMPLE)},
-			{QUOTE_PATTERN, blockHandler(QUOTE)},
-			{PARAGRAPH_PATTERN, paragraphHandler},
-		},
 	}
 }
 
@@ -226,7 +207,73 @@ func inlineCodeHandler(lex *lexer, pattern regexPattern) {
 	lex.push(NewToken(INLINE_CODE, NewLoc(startLoc, endLoc), matchString[1:len(matchString)-1]))
 }
 
-func tokenizeParagraph(source string, paraLoc [2]int) []Token {
+func NewLexer(source string) *lexer {
+	return &lexer{
+		source: source,
+		patterns: []regexConstructor{
+			{SKIP_NEWLINE_PATTERN, skipHandler},
+			{HEADING_5_PATTERN, blockHandler(HEADING_5)},
+			{HEADING_4_PATTERN, blockHandler(HEADING_4)},
+			{HEADING_3_PATTERN, blockHandler(HEADING_3)},
+			{HEADING_2_PATTERN, blockHandler(HEADING_2)},
+			{HEADING_1_PATTERN, blockHandler(HEADING_1)},
+			{NUMBERED_LIST_PATTERN, blockHandler(NUMBERED_LIST)},
+			{HYPHEN_LIST_PATTERN, blockHandler(HYPHEN_LIST)},
+			{CODEBLOCK_DELIMITER_PATTERN, codeBlockDelimiterHandler},
+			{CALLOUT_NOTE_PATTERN, blockHandler(CALLOUT_NOTE)},
+			{CALLOUT_IMPORTANT_PATTERN, blockHandler(CALLOUT_IMPORTANT)},
+			{CALLOUT_WARNING_PATTERN, blockHandler(CALLOUT_WARNING)},
+			{CALLOUT_EXAMPLE_PATTERN, blockHandler(CALLOUT_EXAMPLE)},
+			{QUOTE_PATTERN, blockHandler(QUOTE)},
+			{PARAGRAPH_PATTERN, paragraphHandler},
+		},
+	}
+}
+
+func codeBlockMerger(tokens []Token, startIndex int) (Token, int, int) {
+	codeBlock := tokens[startIndex]
+	codeBlock.values = append(codeBlock.values, "")
+
+	for i := startIndex + 1; i < len(tokens); i++ {
+		if tokens[i].kind == CODE_BLOCK {
+			codeBlock.loc.end = tokens[i].loc.end
+			return codeBlock, startIndex, i
+		}
+
+		codeBlock.values[len(codeBlock.values)-1] += tokens[i].values[0] + "\n"
+	}
+
+	return codeBlock, startIndex, len(tokens) - 1
+}
+
+// Scan and merge tokens that supposed to be one together
+func blockTokensScanner(tokens []Token) []Token {
+	cpy := []Token{}
+
+	for i := 0; i < len(tokens); i++ {
+		// In this code, a merged token will return the start and end index of the range where
+		// tokens are merged, which will be used to appropriately plug into the copy slice,
+		// the reason for this is that some merged tokens (like table) not only merge the below tokens
+		// but also the above tokens
+		switch tokens[i].kind {
+		case CODE_BLOCK:
+			mergedToken, start, end := codeBlockMerger(tokens, i)
+			if len(cpy) >= start {
+				cpy = append(cpy[:start], mergedToken)
+			} else {
+				cpy = append(cpy, mergedToken)
+			}
+			i = end
+		default:
+			cpy = append(cpy, tokens[i])
+		}
+	}
+
+	return cpy
+}
+
+// Scan and split paragraph toksn into multiple inline tokens
+func inlineTokensScanner(source string, paraLoc [2]int) []Token {
 	lex := &lexer{
 		source: source,
 		patterns: []regexConstructor{
@@ -239,7 +286,7 @@ func tokenizeParagraph(source string, paraLoc [2]int) []Token {
 	for !lex.at_eof() {
 		match := false
 
-		for handler, regex := range matchPattern(lex, lex.patterns) {
+		for handler, regex := range matchPatternAtFirst(lex, lex.patterns) {
 			currentLoc := lex.getLoc(lex.pos)
 
 			if currentLoc[1] != prevLoc[1] {
@@ -279,12 +326,12 @@ func tokenizeParagraph(source string, paraLoc [2]int) []Token {
 }
 
 func Tokenize(source string) ([]Token, error) {
-	lex := CreateBlockElementLexer(source)
+	lex := NewLexer(source)
 
 	for !lex.at_eof() {
 		match := false
 
-		for handler, regex := range matchPattern(lex, lex.patterns) {
+		for handler, regex := range matchPatternAtFirst(lex, lex.patterns) {
 			handler(lex, regex)
 			match = true
 		}
@@ -301,9 +348,10 @@ func Tokenize(source string) ([]Token, error) {
 
 	newTokens := []Token{}
 
-	for _, token := range lex.tokens {
+	for _, token := range blockTokensScanner(lex.tokens) {
+		fmt.Println(token.kind)
 		if token.kind == PARAGRAPH {
-			newTokens = append(newTokens, tokenizeParagraph(token.values[0], token.loc.start)...)
+			newTokens = append(newTokens, inlineTokensScanner(token.values[0], token.loc.start)...)
 		} else {
 			newTokens = append(newTokens, token)
 		}
