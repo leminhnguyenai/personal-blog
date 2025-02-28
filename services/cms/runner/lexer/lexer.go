@@ -65,18 +65,6 @@ type regexConstructor struct {
 	handler regexHandler
 }
 
-// Range over the regex constructor and only yield once when the pattern is match at first
-func matchPatternAtFirst(lex *lexer, arr []regexConstructor) func(func(regexHandler, regexPattern) bool) {
-	return func(yield func(regexHandler, regexPattern) bool) {
-		for _, constructor := range arr {
-			if constructor.regex.isMatchAtFirst(lex.remainder()) {
-				yield(constructor.handler, constructor.regex)
-				return
-			}
-		}
-	}
-}
-
 type lexer struct {
 	patterns []regexConstructor
 	tokens   []Token
@@ -91,10 +79,6 @@ func (lex *lexer) advanceN(n int) {
 
 func (lex *lexer) push(token Token) {
 	lex.tokens = append(lex.tokens, token)
-}
-
-func (lex *lexer) at() byte {
-	return lex.source[lex.pos]
 }
 
 // Return the rest of the source string
@@ -113,6 +97,18 @@ func (lex *lexer) getLoc(pos int) [2]int {
 	lastLine := lines[len(lines)-1]
 
 	return [2]int{len(lines) - 1, len(lastLine)}
+}
+
+// Range over the regex constructor and return the handler and regex pattern of
+// the constructor that match at first is match at first
+func (lex *lexer) findMatchPatternAtFirst() (regexHandler, regexPattern) {
+	for _, constructor := range lex.patterns {
+		if constructor.regex.isMatchAtFirst(lex.remainder()) {
+			return constructor.handler, constructor.regex
+		}
+	}
+
+	return nil, ""
 }
 
 func (lex *lexer) isOnNewLine() bool {
@@ -134,13 +130,21 @@ func blockHandler(kind TokenKind) regexHandler {
 	return func(lex *lexer, pattern regexPattern) {
 		if lex.isOnNewLine() || lex.isChildOfQuote(kind) {
 			matchString := pattern.findString(lex.remainder())
-			rightside_indent := regexPattern(`^` + INLINE_WHITESPACE + `*`).findString(matchString)
+			rightside_indent := regexPattern(
+				`^` + INLINE_WHITESPACE + `*`,
+			).findString(matchString)
 
 			startLoc := lex.getLoc(lex.pos + len(rightside_indent))
 			lex.advanceN(len(matchString))
 			endLoc := lex.getLoc(lex.pos - 1)
 
-			lex.push(NewToken(kind, NewLoc(startLoc, endLoc), matchString[len(rightside_indent):]))
+			lex.push(
+				NewToken(
+					kind,
+					NewLoc(startLoc, endLoc),
+					matchString[len(rightside_indent):],
+				),
+			)
 		} else {
 			paragraphHandler(lex, PARAGRAPH_PATTERN)
 		}
@@ -184,7 +188,9 @@ func codeBlockDelimiterHandler(lex *lexer, pattern regexPattern) {
 
 func linkHandler(lex *lexer, pattern regexPattern) {
 	matchString := pattern.findString(lex.remainder())
-	placeholder := regexPattern(`\[` + CHAR + `*` + `\]`).findString(matchString)
+	placeholder := regexPattern(
+		`\[` + CHAR + `*` + `\]`,
+	).findString(matchString)
 	link := regexPattern(`\(` + CHAR + `*` + `\)`).findString(matchString)
 
 	placeholder = placeholder[1 : len(placeholder)-1]
@@ -204,7 +210,13 @@ func inlineCodeHandler(lex *lexer, pattern regexPattern) {
 	lex.advanceN(len(matchString))
 	endLoc := lex.getLoc(lex.pos - 1)
 
-	lex.push(NewToken(INLINE_CODE, NewLoc(startLoc, endLoc), matchString[1:len(matchString)-1]))
+	lex.push(
+		NewToken(
+			INLINE_CODE,
+			NewLoc(startLoc, endLoc),
+			matchString[1:len(matchString)-1],
+		),
+	)
 }
 
 func NewLexer(source string) *lexer {
@@ -284,27 +296,24 @@ func inlineTokensScanner(source string, paraLoc [2]int) []Token {
 	prevLoc := [2]int{0, 0}
 
 	for !lex.at_eof() {
-		match := false
-
-		for handler, regex := range matchPatternAtFirst(lex, lex.patterns) {
-			currentLoc := lex.getLoc(lex.pos)
-
-			if currentLoc[1] != prevLoc[1] {
-				lex.push(NewToken(
-					PARAGRAPH,
-					NewLoc(prevLoc, [2]int{0, currentLoc[1] - 1}),
-					source[prevLoc[1]:currentLoc[1]],
-				))
-			}
-
-			handler(lex, regex)
-			prevLoc = lex.getLoc(lex.pos)
-			match = true
-		}
-
-		if !match {
+		handler, regex := lex.findMatchPatternAtFirst()
+		if handler == nil || regex == "" {
 			lex.pos++
+			continue
 		}
+
+		currentLoc := lex.getLoc(lex.pos)
+
+		if currentLoc[1] != prevLoc[1] {
+			lex.push(NewToken(
+				PARAGRAPH,
+				NewLoc(prevLoc, [2]int{0, currentLoc[1] - 1}),
+				source[prevLoc[1]:currentLoc[1]],
+			))
+		}
+
+		handler(lex, regex)
+		prevLoc = lex.getLoc(lex.pos)
 	}
 
 	if prevLoc[1] < len(source) {
@@ -329,14 +338,8 @@ func Tokenize(source string) ([]Token, error) {
 	lex := NewLexer(source)
 
 	for !lex.at_eof() {
-		match := false
-
-		for handler, regex := range matchPatternAtFirst(lex, lex.patterns) {
-			handler(lex, regex)
-			match = true
-		}
-
-		if !match {
+		handler, regex := lex.findMatchPatternAtFirst()
+		if handler == nil || regex == "" {
 			loc := lex.getLoc(lex.pos)
 
 			return nil, fmt.Errorf(
@@ -344,14 +347,17 @@ func Tokenize(source string) ([]Token, error) {
 				lex.remainder(), loc[0], loc[1],
 			)
 		}
+
+		handler(lex, regex)
 	}
 
 	newTokens := []Token{}
 
 	for _, token := range blockTokensScanner(lex.tokens) {
-		fmt.Println(token.kind)
 		if token.kind == PARAGRAPH {
-			newTokens = append(newTokens, inlineTokensScanner(token.values[0], token.loc.start)...)
+			newTokens = append(
+				newTokens,
+				inlineTokensScanner(token.values[0], token.loc.start)...)
 		} else {
 			newTokens = append(newTokens, token)
 		}
