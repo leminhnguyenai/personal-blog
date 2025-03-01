@@ -21,7 +21,7 @@ func (node *Node) addValue(newNode *Node) {
 // Compare the 2 nodes' priorities
 // e.g heading 2 has lower priority than heading 1
 func (node *Node) hasLowerPriority(otherNode *Node) bool {
-	return node.Self.kind > otherNode.Self.kind
+	return node.Self.Kind > otherNode.Self.Kind
 }
 
 // Compare the 2 nodes' indentation size
@@ -33,11 +33,11 @@ func (node *Node) indentationDiff(otherNode *Node) int {
 // If they are the same -> the 1st one is contained within a line
 // and the 2nd one is an inline element -> Both are on the same line
 func (node *Node) lineDiffStart(otherNode *Node) int {
-	return node.Self.loc.start[0] - otherNode.Self.loc.start[0]
+	return node.Self.Loc.start[0] - otherNode.Self.Loc.start[0]
 }
 
 func (node *Node) lineDiffEnd(otherNode *Node) int {
-	return node.Self.loc.start[0] - otherNode.Self.loc.end[0]
+	return node.Self.Loc.start[0] - otherNode.Self.Loc.end[0]
 }
 
 // Check if the current node is a value of the other node
@@ -114,7 +114,7 @@ func (node *Node) findAncestor(possibleAncestor *Node) {
 
 		// Comparison for quote
 		if node.isQuoteFragment(possibleAncestor.Children[i]) {
-			possibleAncestor.Children[i].Self.loc.end = node.Self.loc.end
+			possibleAncestor.Children[i].Self.Loc.end = node.Self.Loc.end
 			return
 		}
 

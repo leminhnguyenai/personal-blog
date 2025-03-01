@@ -73,22 +73,22 @@ func (loc Location) Display() string {
 }
 
 type Token struct {
-	kind   TokenKind
-	values values
-	loc    Location
+	Kind   TokenKind
+	Values values
+	Loc    Location
 }
 
 func NewToken(kind TokenKind, loc Location, values ...string) Token {
 	return Token{
-		kind:   kind,
-		values: values,
-		loc:    loc,
+		Kind:   kind,
+		Values: values,
+		Loc:    loc,
 	}
 }
 
 func (token Token) isOneOfKinds(kinds ...TokenKind) bool {
 	for _, kind := range kinds {
-		if token.kind == kind {
+		if token.Kind == kind {
 			return true
 		}
 	}
@@ -98,11 +98,11 @@ func (token Token) isOneOfKinds(kinds ...TokenKind) bool {
 
 // Calculate the length of indentation
 func (token Token) Indentation() int {
-	return token.loc.start[1]
+	return token.Loc.start[1]
 }
 
 func (token Token) Debug() string {
-	locDisplay := fmt.Sprintf("%s", token.loc.Display())
+	locDisplay := fmt.Sprintf("%s", token.Loc.Display())
 
 	if token.isOneOfKinds(
 		PARAGRAPH,
@@ -112,11 +112,11 @@ func (token Token) Debug() string {
 		CODE_BLOCK,
 		SOURCE_FILE,
 	) {
-		return fmt.Sprintf("%s (%s)", TokenKindString(token.kind), token.values.getString()) + locDisplay
+		return fmt.Sprintf("%s (%s)", TokenKindString(token.Kind), token.Values.getString()) + locDisplay
 	} else if token.isOneOfKinds(SOURCE_FILE) {
-		return fmt.Sprintf("%s ()", TokenKindString(token.kind))
+		return fmt.Sprintf("%s ()", TokenKindString(token.Kind))
 	} else {
-		return fmt.Sprintf("%s ()", TokenKindString(token.kind)) + locDisplay
+		return fmt.Sprintf("%s ()", TokenKindString(token.Kind)) + locDisplay
 	}
 }
 

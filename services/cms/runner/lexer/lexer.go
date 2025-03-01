@@ -121,7 +121,7 @@ func (lex *lexer) isChildOfQuote(kind TokenKind) bool {
 		kind != HEADING_3 &&
 		kind != HEADING_4 &&
 		kind != HEADING_5 &&
-		lex.tokens[len(lex.tokens)-1].kind == QUOTE)
+		lex.tokens[len(lex.tokens)-1].Kind == QUOTE)
 }
 
 // Handler for tokens that have a fixed length
@@ -149,6 +149,29 @@ func blockHandler(kind TokenKind) regexHandler {
 			paragraphHandler(lex, PARAGRAPH_PATTERN)
 		}
 	}
+}
+
+// COMMIT: Add a custom handler for numbered list
+func numberedListHandler(lex *lexer, pattern regexPattern) {
+	if lex.isOnNewLine() || lex.isChildOfQuote(NUMBERED_LIST) {
+		matchString := pattern.findString(lex.remainder())
+		numberLoc := regexp.MustCompile(`[0-9]+`).FindStringIndex(matchString)
+
+		startLoc := lex.getLoc(lex.pos + numberLoc[0])
+		lex.advanceN(len(matchString))
+		endLoc := lex.getLoc(lex.pos - 1)
+
+		lex.push(
+			NewToken(
+				NUMBERED_LIST,
+				NewLoc(startLoc, endLoc),
+				matchString[numberLoc[0]:numberLoc[1]],
+			),
+		)
+	} else {
+		paragraphHandler(lex, PARAGRAPH_PATTERN)
+	}
+
 }
 
 // Handler for tokens that doesn't have a predefined length (e.g string)
@@ -229,7 +252,7 @@ func NewLexer(source string) *lexer {
 			{HEADING_3_PATTERN, blockHandler(HEADING_3)},
 			{HEADING_2_PATTERN, blockHandler(HEADING_2)},
 			{HEADING_1_PATTERN, blockHandler(HEADING_1)},
-			{NUMBERED_LIST_PATTERN, blockHandler(NUMBERED_LIST)},
+			{NUMBERED_LIST_PATTERN, numberedListHandler},
 			{HYPHEN_LIST_PATTERN, blockHandler(HYPHEN_LIST)},
 			{CODEBLOCK_DELIMITER_PATTERN, codeBlockDelimiterHandler},
 			{CALLOUT_NOTE_PATTERN, blockHandler(CALLOUT_NOTE)},
@@ -244,15 +267,15 @@ func NewLexer(source string) *lexer {
 
 func codeBlockMerger(tokens []Token, startIndex int) (Token, int, int) {
 	codeBlock := tokens[startIndex]
-	codeBlock.values = append(codeBlock.values, "")
+	codeBlock.Values = append(codeBlock.Values, "")
 
 	for i := startIndex + 1; i < len(tokens); i++ {
-		if tokens[i].kind == CODE_BLOCK {
-			codeBlock.loc.end = tokens[i].loc.end
+		if tokens[i].Kind == CODE_BLOCK {
+			codeBlock.Loc.end = tokens[i].Loc.end
 			return codeBlock, startIndex, i
 		}
 
-		codeBlock.values[len(codeBlock.values)-1] += tokens[i].values[0] + "\n"
+		codeBlock.Values[len(codeBlock.Values)-1] += tokens[i].Values[0] + "\n"
 	}
 
 	return codeBlock, startIndex, len(tokens) - 1
@@ -267,7 +290,7 @@ func blockTokensScanner(tokens []Token) []Token {
 		// tokens are merged, which will be used to appropriately plug into the copy slice,
 		// the reason for this is that some merged tokens (like table) not only merge the below tokens
 		// but also the above tokens
-		switch tokens[i].kind {
+		switch tokens[i].Kind {
 		case CODE_BLOCK:
 			mergedToken, start, end := codeBlockMerger(tokens, i)
 			if len(cpy) >= start {
@@ -325,10 +348,10 @@ func inlineTokensScanner(source string, paraLoc [2]int) []Token {
 	}
 
 	for i := range lex.tokens {
-		lex.tokens[i].loc.start[0] = paraLoc[0]
-		lex.tokens[i].loc.end[0] = paraLoc[0]
-		lex.tokens[i].loc.start[1] += paraLoc[1]
-		lex.tokens[i].loc.end[1] += paraLoc[1]
+		lex.tokens[i].Loc.start[0] = paraLoc[0]
+		lex.tokens[i].Loc.end[0] = paraLoc[0]
+		lex.tokens[i].Loc.start[1] += paraLoc[1]
+		lex.tokens[i].Loc.end[1] += paraLoc[1]
 	}
 
 	return lex.tokens
@@ -354,10 +377,10 @@ func Tokenize(source string) ([]Token, error) {
 	newTokens := []Token{}
 
 	for _, token := range blockTokensScanner(lex.tokens) {
-		if token.kind == PARAGRAPH {
+		if token.Kind == PARAGRAPH {
 			newTokens = append(
 				newTokens,
-				inlineTokensScanner(token.values[0], token.loc.start)...)
+				inlineTokensScanner(token.Values[0], token.Loc.start)...)
 		} else {
 			newTokens = append(newTokens, token)
 		}
