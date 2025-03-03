@@ -151,7 +151,6 @@ func blockHandler(kind TokenKind) regexHandler {
 	}
 }
 
-// COMMIT: Add a custom handler for numbered list
 func numberedListHandler(lex *lexer, pattern regexPattern) {
 	if lex.isOnNewLine() || lex.isChildOfQuote(NUMBERED_LIST) {
 		matchString := pattern.findString(lex.remainder())
@@ -190,7 +189,6 @@ func skipHandler(lex *lexer, pattern regexPattern) {
 	lex.advanceN(pattern.findStringIndex(lex.remainder())[1])
 }
 
-// FIX: Codeblock can't detect the boundary
 func codeBlockDelimiterHandler(lex *lexer, pattern regexPattern) {
 	if lex.isOnNewLine() || lex.isChildOfQuote(CODE_BLOCK) {
 		matchString := pattern.findString(lex.remainder())

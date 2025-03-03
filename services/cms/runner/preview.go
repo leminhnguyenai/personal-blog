@@ -42,7 +42,9 @@ func Preview(filePath string) error {
 
 		fmt.Println(asciitree.GenerateTree(str))
 
-		content := `{{ block "content" . }}` + string(data) + `{{ end }}`
+		_, html := Traverse(sourceNode)
+
+		content := `{{ block "content" . }}` + html + `{{ end }}`
 
 		baseTempl, err := template.ParseFiles("index.html")
 		if err != nil {
