@@ -2,6 +2,7 @@ package runner
 
 import (
 	"fmt"
+	"html/template"
 
 	"github.com/leminhnguyenai/personal-blog/services/cms/runner/lexer"
 )
@@ -96,7 +97,11 @@ func calloutRenderer(node *lexer.Node) string {
 }
 
 func codeBlockRenderer(node *lexer.Node) string {
-	return fmt.Sprintf(`<pre data-lange="%s">%s</pre>`, node.Self.Values[0], node.Self.Values[1])
+	return fmt.Sprintf(
+		`<pre data-lang="%s">%s</pre>`,
+		node.Self.Values[0],
+		template.HTMLEscapeString(node.Self.Values[1]),
+	)
 }
 
 func inlineParagraphRenderer(node *lexer.Node) string {

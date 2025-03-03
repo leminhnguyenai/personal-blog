@@ -38,6 +38,26 @@ type Node struct {
     Self Token
     Children []*Node
 }
+
+foo = bar()
+```
+
+```Pseudocode
+function hyphenListRender(node *Node) string:
+    childrenRenderer = generalRenderer( node.children ) || ""
+    valuesRenderer = "<ul>{{ generalRenderer( node.values ) }}</ul>" || ""
+
+    return `<li> valuesRenderer
+        childrenRenderer
+    </li>`
+
+function hyphenListRender(node *Node) string:
+    childrenRenderer = generalRenderer( node.children ) || ""
+    valuesRenderer = "<ul>{{ generalRenderer( node.values ) }}</ul>" || ""
+
+    return `<li> valuesRenderer
+        childrenRenderer
+    </li>`
 ```
 
 

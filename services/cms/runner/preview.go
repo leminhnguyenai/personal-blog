@@ -3,16 +3,20 @@ package runner
 import (
 	"errors"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-	"text/template"
 
 	"github.com/leminhnguyenai/personal-blog/services/cms/runner/asciitree"
 	"github.com/leminhnguyenai/personal-blog/services/cms/runner/lexer"
 )
+
+type Data struct {
+	Content template.HTML
+}
 
 func Preview(filePath string) error {
 	_, err := GetFreePort()
@@ -44,21 +48,13 @@ func Preview(filePath string) error {
 
 		_, html := Traverse(sourceNode)
 
-		content := `{{ block "content" . }}` + html + `{{ end }}`
-
-		baseTempl, err := template.ParseFiles("index.html")
+		templ, err := template.ParseFiles("index.html")
 		if err != nil {
 			HandleError(w, err)
 			return
 		}
 
-		templ, err := baseTempl.Parse(content)
-		if err != nil {
-			HandleError(w, err)
-			return
-		}
-
-		templ.ExecuteTemplate(w, "index", struct{}{})
+		templ.ExecuteTemplate(w, "index", Data{Content: template.HTML(html)})
 	})
 
 	errChan := make(chan error)
