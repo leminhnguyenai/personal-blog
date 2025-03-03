@@ -14,6 +14,8 @@ func Traverse(node *lexer.Node) (string, string) {
 		switch value.Self.Kind {
 		case lexer.PARAGRAPH:
 			values += inlineParagraphRenderer(value)
+		case lexer.LINK:
+			values += linkRenderer(value)
 		}
 	}
 
@@ -41,10 +43,6 @@ func paragraphRenderer(node *lexer.Node) string {
 	return fmt.Sprintf(`<p>%s</p>`, node.Self.Values[0])
 }
 
-func inlineParagraphRenderer(node *lexer.Node) string {
-	return fmt.Sprintf(`<span>%s</span>`, node.Self.Values[0])
-}
-
 func listRenderer(node *lexer.Node) string {
 	values, children := Traverse(node)
 
@@ -61,4 +59,12 @@ func listRenderer(node *lexer.Node) string {
 	}
 
 	return fmt.Sprintf(`<li><span class="list">%s</span>%s%s</li>`, listNotation, values, children)
+}
+
+func inlineParagraphRenderer(node *lexer.Node) string {
+	return fmt.Sprintf(`<span>%s</span>`, node.Self.Values[0])
+}
+
+func linkRenderer(node *lexer.Node) string {
+	return fmt.Sprintf(`<a href="%s">%s</a>`, node.Self.Values[1], node.Self.Values[0])
 }
