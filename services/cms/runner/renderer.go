@@ -21,6 +21,7 @@ func Traverse(node *lexer.Node) (string, string) {
 		}
 	}
 
+	// COMMIT: Add support for codeblock
 	for _, child := range node.Children {
 		switch child.Self.Kind {
 		case lexer.HEADING_1, lexer.HEADING_2, lexer.HEADING_3, lexer.HEADING_4, lexer.HEADING_5:
@@ -29,6 +30,8 @@ func Traverse(node *lexer.Node) (string, string) {
 			children += paragraphRenderer(child)
 		case lexer.HYPHEN_LIST, lexer.NUMBERED_LIST:
 			children += listRenderer(child)
+		case lexer.CODE_BLOCK:
+			children += codeBlockRenderer(child)
 		}
 	}
 
@@ -61,6 +64,10 @@ func listRenderer(node *lexer.Node) string {
 	}
 
 	return fmt.Sprintf(`<li><span class="list">%s</span>%s%s</li>`, listNotation, values, children)
+}
+
+func codeBlockRenderer(node *lexer.Node) string {
+	return fmt.Sprintf(`<pre data-lange="%s">%s</pre>`, node.Self.Values[0], node.Self.Values[1])
 }
 
 func inlineParagraphRenderer(node *lexer.Node) string {

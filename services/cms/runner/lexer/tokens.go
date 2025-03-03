@@ -33,22 +33,23 @@ const (
 	INLINE_CODE
 )
 
-type values []string
+func getString(vals []string) string {
+	cpy := make([]string, len(vals))
+	copy(cpy, vals)
 
-func (vals values) getString() string {
-	for i := range vals {
-		vals[i] = strings.Replace(vals[i], "\n", "\\n", -1)
+	for i := range cpy {
+		cpy[i] = strings.Replace(cpy[i], "\n", "\\n", -1)
 	}
 
-	if len(vals) == 1 {
-		return vals[0]
+	if len(cpy) == 1 {
+		return cpy[0]
 	}
 
 	str := ""
 
-	for i, val := range vals {
+	for i, val := range cpy {
 		str += val
-		if i < len(vals)-1 {
+		if i < len(cpy)-1 {
 			str += " - "
 		}
 	}
@@ -74,7 +75,7 @@ func (loc Location) Display() string {
 
 type Token struct {
 	Kind   TokenKind
-	Values values
+	Values []string
 	Loc    Location
 }
 
@@ -112,7 +113,7 @@ func (token Token) Debug() string {
 		CODE_BLOCK,
 		SOURCE_FILE,
 	) {
-		return fmt.Sprintf("%s (%s)", TokenKindString(token.Kind), token.Values.getString()) + locDisplay
+		return fmt.Sprintf("%s (%s)", TokenKindString(token.Kind), getString(token.Values)) + locDisplay
 	} else if token.isOneOfKinds(SOURCE_FILE) {
 		return fmt.Sprintf("%s ()", TokenKindString(token.Kind))
 	} else {
