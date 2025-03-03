@@ -32,6 +32,8 @@ func Traverse(node *lexer.Node) (string, string) {
 			children += listRenderer(child)
 		case lexer.CODE_BLOCK:
 			children += codeBlockRenderer(child)
+		case lexer.QUOTE:
+			children += quoteRenderer(child)
 		}
 	}
 
@@ -64,6 +66,12 @@ func listRenderer(node *lexer.Node) string {
 	}
 
 	return fmt.Sprintf(`<li><span class="list">%s</span>%s%s</li>`, listNotation, values, children)
+}
+
+func quoteRenderer(node *lexer.Node) string {
+	_, children := Traverse(node)
+
+	return fmt.Sprintf(`<blockquote>%s</blockquote>`, children)
 }
 
 func codeBlockRenderer(node *lexer.Node) string {
