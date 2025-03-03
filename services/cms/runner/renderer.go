@@ -34,6 +34,8 @@ func Traverse(node *lexer.Node) (string, string) {
 			children += codeBlockRenderer(child)
 		case lexer.QUOTE:
 			children += quoteRenderer(child)
+		case lexer.CALLOUT_NOTE, lexer.CALLOUT_IMPORTANT, lexer.CALLOUT_WARNING, lexer.CALLOUT_EXAMPLE:
+			children += calloutRenderer(child)
 		}
 	}
 
@@ -72,6 +74,25 @@ func quoteRenderer(node *lexer.Node) string {
 	_, children := Traverse(node)
 
 	return fmt.Sprintf(`<blockquote>%s</blockquote>`, children)
+}
+
+func calloutRenderer(node *lexer.Node) string {
+	values, children := Traverse(node)
+
+	if values == "" {
+		switch node.Self.Kind {
+		case lexer.CALLOUT_NOTE:
+			values = "Note"
+		case lexer.CALLOUT_IMPORTANT:
+			values = "Important"
+		case lexer.CALLOUT_WARNING:
+			values = "Warning"
+		case lexer.CALLOUT_EXAMPLE:
+			values = "Example"
+		}
+	}
+
+	return fmt.Sprintf(`<div><p>%s</p>%s</div>`, values, children)
 }
 
 func codeBlockRenderer(node *lexer.Node) string {
