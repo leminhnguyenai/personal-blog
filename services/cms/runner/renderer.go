@@ -16,6 +16,8 @@ func Traverse(node *lexer.Node) (string, string) {
 			values += inlineParagraphRenderer(value)
 		case lexer.LINK:
 			values += linkRenderer(value)
+		case lexer.INLINE_CODE:
+			values += inlineCodeRenderer(value)
 		}
 	}
 
@@ -67,4 +69,8 @@ func inlineParagraphRenderer(node *lexer.Node) string {
 
 func linkRenderer(node *lexer.Node) string {
 	return fmt.Sprintf(`<a href="%s">%s</a>`, node.Self.Values[1], node.Self.Values[0])
+}
+
+func inlineCodeRenderer(node *lexer.Node) string {
+	return fmt.Sprintf(`<code>%s</code>`, node.Self.Values[0])
 }
