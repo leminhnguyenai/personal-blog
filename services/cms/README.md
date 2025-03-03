@@ -26,7 +26,7 @@ skibidi toilet
 > - The grape is delicous
 >   - Tito Ortiz
 
-> [!WARNING] housekeeping
+> [!WARNING]
 > - The grape is delicous
 >   - Tito Ortiz
 
