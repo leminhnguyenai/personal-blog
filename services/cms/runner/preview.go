@@ -34,7 +34,7 @@ func Preview(filePath string) error {
 			return
 		}
 
-		sourceNode, err := lexer.ParseAST(string(data))
+		frontmatter, err := lexer.ParseAST(string(data))
 		if err != nil {
 			HandleError(w, err)
 			return
@@ -42,11 +42,12 @@ func Preview(filePath string) error {
 
 		var str string
 
-		sourceNode.Display(&str, 0)
+		frontmatter.Display(&str, 0)
 
 		fmt.Println(asciitree.GenerateTree(str))
 
-		_, html := Traverse(sourceNode)
+		values, children := Traverse(frontmatter)
+		html := values + children
 
 		templ, err := template.ParseFiles("index.html")
 		if err != nil {

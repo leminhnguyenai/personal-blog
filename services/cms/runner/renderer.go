@@ -3,6 +3,7 @@ package runner
 import (
 	"fmt"
 	"html/template"
+	"strings"
 
 	"github.com/leminhnguyenai/personal-blog/services/cms/runner/lexer"
 )
@@ -10,6 +11,11 @@ import (
 func Traverse(node *lexer.Node) (string, string) {
 	values := ""
 	children := ""
+
+	if node.Self.Kind == lexer.FRONTMATTER {
+		fmt.Println(node.Self.Kind)
+		values += frontmatterRenderer(node)
+	}
 
 	for _, value := range node.Values {
 		switch value.Self.Kind {
@@ -41,6 +47,37 @@ func Traverse(node *lexer.Node) (string, string) {
 	}
 
 	return values, children
+}
+
+func frontmatterRenderer(node *lexer.Node) string {
+	data := ""
+
+	for i := 0; i < len(node.Self.Values); i += 2 {
+		propertyName := node.Self.Values[i]
+		propertyValue := node.Self.Values[i+1]
+		switch propertyName {
+		case "id", "date":
+			data += fmt.Sprintf(
+				"<p><span>%s</span><span>: </span><span>%s</span></p>",
+				propertyName,
+				propertyValue,
+			)
+		case "tags":
+			tags := strings.Split(propertyValue[1:len(propertyValue)-1], ",")
+			for i := range tags {
+				tags[i] = strings.Replace(tags[i], `"`, ``, -1)
+			}
+
+			data += fmt.Sprintf(
+				"<p><span>%s</span><span>: </span><span>%s</span></p>",
+				propertyName,
+				strings.Join(tags, "  "),
+			)
+		}
+
+	}
+
+	return "<hr>" + data + "<hr>"
 }
 
 func headingRenderer(node *lexer.Node) string {

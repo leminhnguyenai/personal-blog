@@ -8,7 +8,7 @@ import (
 type TokenKind int
 
 const (
-	SOURCE_FILE TokenKind = iota
+	FRONTMATTER TokenKind = iota
 
 	HEADING_1
 	HEADING_2
@@ -111,10 +111,10 @@ func (token Token) Debug() string {
 		LINK,
 		INLINE_CODE,
 		CODE_BLOCK,
-		SOURCE_FILE,
+		FRONTMATTER,
 	) {
 		return fmt.Sprintf("%s (%s)", TokenKindString(token.Kind), getString(token.Values)) + locDisplay
-	} else if token.isOneOfKinds(SOURCE_FILE) {
+	} else if token.isOneOfKinds(FRONTMATTER) {
 		return fmt.Sprintf("%s ()", TokenKindString(token.Kind))
 	} else {
 		return fmt.Sprintf("%s ()", TokenKindString(token.Kind)) + locDisplay
@@ -123,8 +123,8 @@ func (token Token) Debug() string {
 
 func TokenKindString(kind TokenKind) string {
 	switch kind {
-	case SOURCE_FILE:
-		return "source_file"
+	case FRONTMATTER:
+		return "frontmatter"
 	case CALLOUT_NOTE:
 		return "callout_note"
 	case CALLOUT_IMPORTANT:

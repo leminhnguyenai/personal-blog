@@ -3,6 +3,7 @@ package lexer
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -26,28 +27,30 @@ const (
 	CHAR                regexPattern = `[^\n]`
 	NON_WHITESPACE_CHAR regexPattern = `[^\s]`
 	INLINE_WHITESPACE   regexPattern = `[^\S\t\r\n]`
-	INDENT                           = INLINE_WHITESPACE + `*`
 
 	// Pattern for block elements
 	SKIP_NEWLINE_PATTERN regexPattern = `\n+`
 
-	HEADING_5_PATTERN = INDENT + `#####` + INLINE_WHITESPACE
-	HEADING_4_PATTERN = INDENT + `####` + INLINE_WHITESPACE
-	HEADING_3_PATTERN = INDENT + `###` + INLINE_WHITESPACE
-	HEADING_2_PATTERN = INDENT + `##` + INLINE_WHITESPACE
-	HEADING_1_PATTERN = INDENT + `#` + INLINE_WHITESPACE
+	// NOTE: Due to Go's lack of negative lockahead, frontmatter currently won't support hyphen in the content
+	FRONTMATTER_PATTERN regexPattern = `(^---)([^-]*)(\n---)`
 
-	NUMBERED_LIST_PATTERN = INDENT + `\d+\.` + INLINE_WHITESPACE
-	HYPHEN_LIST_PATTERN   = INDENT + `-` + INLINE_WHITESPACE
+	HEADING_5_PATTERN = INLINE_WHITESPACE + `*` + `#####` + INLINE_WHITESPACE
+	HEADING_4_PATTERN = INLINE_WHITESPACE + `*` + `####` + INLINE_WHITESPACE
+	HEADING_3_PATTERN = INLINE_WHITESPACE + `*` + `###` + INLINE_WHITESPACE
+	HEADING_2_PATTERN = INLINE_WHITESPACE + `*` + `##` + INLINE_WHITESPACE
+	HEADING_1_PATTERN = INLINE_WHITESPACE + `*` + `#` + INLINE_WHITESPACE
+
+	NUMBERED_LIST_PATTERN = INLINE_WHITESPACE + `*` + `\d+\.` + INLINE_WHITESPACE
+	HYPHEN_LIST_PATTERN   = INLINE_WHITESPACE + `*` + `-` + INLINE_WHITESPACE
 
 	CODEBLOCK_DELIMITER_PATTERN regexPattern = `\x60\x60\x60` + CHAR + `*`
 
-	CALLOUT_NOTE_PATTERN      = INDENT + `>\s\[!NOTE\]` + INDENT
-	CALLOUT_IMPORTANT_PATTERN = INDENT + `>\s\[!IMPORTANT\]` + INDENT
-	CALLOUT_WARNING_PATTERN   = INDENT + `>\s\[!WARNING\]` + INDENT
-	CALLOUT_EXAMPLE_PATTERN   = INDENT + `>\s\[!EXAMPLE\]` + INDENT
+	CALLOUT_NOTE_PATTERN      = INLINE_WHITESPACE + `*` + `>\s\[!NOTE\]` + INLINE_WHITESPACE + `*`
+	CALLOUT_IMPORTANT_PATTERN = INLINE_WHITESPACE + `*` + `>\s\[!IMPORTANT\]` + INLINE_WHITESPACE + `*`
+	CALLOUT_WARNING_PATTERN   = INLINE_WHITESPACE + `*` + `>\s\[!WARNING\]` + INLINE_WHITESPACE + `*`
+	CALLOUT_EXAMPLE_PATTERN   = INLINE_WHITESPACE + `*` + `>\s\[!EXAMPLE\]` + INLINE_WHITESPACE + `*`
 
-	QUOTE_PATTERN = INDENT + `>` + INLINE_WHITESPACE
+	QUOTE_PATTERN = INLINE_WHITESPACE + `*` + `>` + INLINE_WHITESPACE
 
 	PARAGRAPH_PATTERN = CHAR + `+`
 
@@ -207,6 +210,32 @@ func codeBlockDelimiterHandler(lex *lexer, pattern regexPattern) {
 	}
 }
 
+func frontmatterHandler(lex *lexer, pattern regexPattern) {
+	matchString := pattern.findString(lex.remainder())
+	lines := strings.Split(matchString, "\n")
+	values := []string{}
+
+	supportedProperty := []string{"id", "date", "tags"}
+
+	for _, line := range lines[1 : len(lines)-1] {
+		propertyName := regexp.MustCompile(`^[^\s:]+`).FindString(line)
+		if propertyName == "" || !slices.Contains(supportedProperty, propertyName) {
+			continue
+		}
+
+		rightsideWhitespace := regexp.MustCompile("^" + string(INLINE_WHITESPACE) + "*").
+			FindString(line[len(propertyName)+1:])
+
+		values = append(values, propertyName, line[len(propertyName)+1+len(rightsideWhitespace):])
+	}
+
+	startLoc := lex.getLoc(lex.pos)
+	lex.advanceN(len(matchString))
+	endLoc := lex.getLoc(lex.pos - 1)
+
+	lex.push(NewToken(FRONTMATTER, NewLoc(startLoc, endLoc), values...))
+}
+
 func linkHandler(lex *lexer, pattern regexPattern) {
 	matchString := pattern.findString(lex.remainder())
 	placeholder := regexPattern(
@@ -244,6 +273,7 @@ func NewLexer(source string) *lexer {
 	return &lexer{
 		source: source,
 		patterns: []regexConstructor{
+			{FRONTMATTER_PATTERN, frontmatterHandler},
 			{SKIP_NEWLINE_PATTERN, skipHandler},
 			{HEADING_5_PATTERN, blockHandler(HEADING_5)},
 			{HEADING_4_PATTERN, blockHandler(HEADING_4)},
@@ -369,7 +399,24 @@ func Tokenize(source string) ([]Token, error) {
 			)
 		}
 
+		// Handling for frontmatter
+		if regex == FRONTMATTER_PATTERN {
+			if lex.pos == 0 {
+				handler(lex, regex)
+			} else {
+				paragraphHandler(lex, PARAGRAPH_PATTERN)
+			}
+
+			continue
+		}
+
 		handler(lex, regex)
+	}
+
+	if !slices.ContainsFunc(lex.tokens, func(t Token) bool {
+		return t.Kind == FRONTMATTER
+	}) {
+		return nil, fmt.Errorf("Failed locating frontmatter\n")
 	}
 
 	newTokens := []Token{}

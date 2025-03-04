@@ -159,18 +159,18 @@ func (node *Node) Display(str *string, level int) {
 }
 
 func ParseAST(source string) (*Node, error) {
-	sourceNode := NewNode(
-		NewToken(SOURCE_FILE, NewLoc([2]int{-1, -1}, [2]int{-1, -1})),
-	)
+	// COMMIT: Add support for frontmatter
 	tokens, err := Tokenize(source)
 	if err != nil {
 		return nil, err
 	}
 
+	frontmatter := NewNode(tokens[0])
+
 	// Each node will be organized after initialized immediately
-	for _, token := range tokens {
-		NewNode(token).findAncestor(sourceNode)
+	for _, token := range tokens[1:] {
+		NewNode(token).findAncestor(frontmatter)
 	}
 
-	return sourceNode, nil
+	return frontmatter, nil
 }
