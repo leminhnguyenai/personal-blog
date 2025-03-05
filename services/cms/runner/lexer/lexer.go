@@ -3,36 +3,20 @@ package lexer
 import (
 	"fmt"
 	"regexp"
-	"slices"
 	"strings"
 )
 
-type regexPattern string
-
-func (r regexPattern) isMatchAtFirst(str string) bool {
-	loc := regexp.MustCompile(string(r)).FindStringIndex(str)
-	return loc != nil && loc[0] == 0
-}
-
-func (r regexPattern) findString(str string) string {
-	return regexp.MustCompile(string(r)).FindString(str)
-}
-
-func (r regexPattern) findStringIndex(str string) []int {
-	return regexp.MustCompile(string(r)).FindStringIndex(str)
-}
-
 const (
 	// Common patterns
-	CHAR                regexPattern = `[^\n]`
-	NON_WHITESPACE_CHAR regexPattern = `[^\s]`
-	INLINE_WHITESPACE   regexPattern = `[^\S\t\r\n]`
+	CHAR                = `[^\n]`
+	NON_WHITESPACE_CHAR = `[^\s]`
+	INLINE_WHITESPACE   = `[^\S\t\r\n]`
 
 	// Pattern for block elements
-	SKIP_NEWLINE_PATTERN regexPattern = `\n+`
+	SKIP_NEWLINE_PATTERN = `\n+`
 
 	// NOTE: Due to Go's lack of negative lockahead, frontmatter currently won't support hyphen in the content
-	FRONTMATTER_PATTERN regexPattern = `(^---)([^-]*)(\n---)`
+	FRONTMATTER_PATTERN = `(^---)([^-]*)(\n---)`
 
 	HEADING_5_PATTERN = INLINE_WHITESPACE + `*` + `#####` + INLINE_WHITESPACE
 	HEADING_4_PATTERN = INLINE_WHITESPACE + `*` + `####` + INLINE_WHITESPACE
@@ -43,7 +27,7 @@ const (
 	NUMBERED_LIST_PATTERN = INLINE_WHITESPACE + `*` + `\d+\.` + INLINE_WHITESPACE
 	HYPHEN_LIST_PATTERN   = INLINE_WHITESPACE + `*` + `-` + INLINE_WHITESPACE
 
-	CODEBLOCK_DELIMITER_PATTERN regexPattern = `\x60\x60\x60` + CHAR + `*`
+	CODEBLOCK_DELIMITER_PATTERN = `\x60\x60\x60` + CHAR + `*`
 
 	CALLOUT_NOTE_PATTERN      = INLINE_WHITESPACE + `*` + `>\s\[!NOTE\]` + INLINE_WHITESPACE + `*`
 	CALLOUT_IMPORTANT_PATTERN = INLINE_WHITESPACE + `*` + `>\s\[!IMPORTANT\]` + INLINE_WHITESPACE + `*`
@@ -55,24 +39,31 @@ const (
 	PARAGRAPH_PATTERN = CHAR + `+`
 
 	// Patterns for inline elements
-	LINK_PATTERN        regexPattern = `\[[^\n\[\]\(\)]*\]\([^\n\[\]\(\)]*\)`
-	INLINE_CODE_PATTERN regexPattern = `\x60` + CHAR + `*` + `\x60`
+	LINK_PATTERN        = `\[[^\n\[\]\(\)]*\]\([^\n\[\]\(\)]*\)`
+	INLINE_CODE_PATTERN = `\x60` + CHAR + `*` + `\x60`
 )
 
-// Function to modifier the lexer
-type regexHandler func(lex *lexer, pattern regexPattern)
+type match func(lex *lexer) string
 
-// Contain the regex pattern for identifying and the handler to modify the lexer
-type regexConstructor struct {
-	regex   regexPattern
-	handler regexHandler
+type patternHandler func(lex *lexer, matchStr string)
+
+type patternConstructor struct {
+	match   match
+	handler patternHandler
 }
 
 type lexer struct {
-	patterns []regexConstructor
-	tokens   []Token
-	source   string
-	pos      int
+	constructors []patternConstructor
+	tokens       []Token
+	source       string
+	pos          int
+}
+
+func NewLexer(source string, constructors []patternConstructor) *lexer {
+	return &lexer{
+		source:       source,
+		constructors: constructors,
+	}
 }
 
 // Advance the current position of the lexer by n
@@ -93,6 +84,10 @@ func (lex *lexer) at_eof() bool {
 	return lex.pos >= len(lex.source)
 }
 
+func (lex *lexer) isOnNewLine() bool {
+	return lex.pos == 0 || string(lex.source[lex.pos-1]) == "\n"
+}
+
 // Get the xy-plane location of the current position
 func (lex *lexer) getLoc(pos int) [2]int {
 	tokenizedString := lex.source[:pos]
@@ -102,334 +97,98 @@ func (lex *lexer) getLoc(pos int) [2]int {
 	return [2]int{len(lines) - 1, len(lastLine)}
 }
 
-// Range over the regex constructor and return the handler and regex pattern of
-// the constructor that match at first is match at first
-func (lex *lexer) findMatchPatternAtFirst() (regexHandler, regexPattern) {
-	for _, constructor := range lex.patterns {
-		if constructor.regex.isMatchAtFirst(lex.remainder()) {
-			return constructor.handler, constructor.regex
-		}
-	}
+func blockTokenMatch(regex string) match {
+	return func(lex *lexer) string {
+		matchLoc := regexp.MustCompile(regex).FindStringIndex(lex.remainder())
 
-	return nil, ""
-}
-
-func (lex *lexer) isOnNewLine() bool {
-	return lex.pos == 0 || string(lex.source[lex.pos-1]) == "\n"
-}
-
-func (lex *lexer) isChildOfQuote(kind TokenKind) bool {
-	return (kind != HEADING_1 &&
-		kind != HEADING_2 &&
-		kind != HEADING_3 &&
-		kind != HEADING_4 &&
-		kind != HEADING_5 &&
-		lex.tokens[len(lex.tokens)-1].Kind == QUOTE)
-}
-
-// Handler for tokens that have a fixed length
-// The handler remove the left side whitespace of the matched string
-func blockHandler(kind TokenKind) regexHandler {
-	return func(lex *lexer, pattern regexPattern) {
-		if lex.isOnNewLine() || lex.isChildOfQuote(kind) {
-			matchString := pattern.findString(lex.remainder())
-			rightside_indent := regexPattern(
-				`^` + INLINE_WHITESPACE + `*`,
-			).findString(matchString)
-
-			startLoc := lex.getLoc(lex.pos + len(rightside_indent))
-			lex.advanceN(len(matchString))
-			endLoc := lex.getLoc(lex.pos - 1)
-
-			lex.push(
-				NewToken(
-					kind,
-					NewLoc(startLoc, endLoc),
-					matchString[len(rightside_indent):],
-				),
-			)
+		if matchLoc != nil && matchLoc[0] == 0 && lex.isOnNewLine() {
+			return lex.remainder()[matchLoc[0]:matchLoc[1]]
 		} else {
-			paragraphHandler(lex, PARAGRAPH_PATTERN)
+			return ""
 		}
 	}
 }
 
-func numberedListHandler(lex *lexer, pattern regexPattern) {
-	if lex.isOnNewLine() || lex.isChildOfQuote(NUMBERED_LIST) {
-		matchString := pattern.findString(lex.remainder())
-		numberLoc := regexp.MustCompile(`[0-9]+`).FindStringIndex(matchString)
+func blockTokenHandler(kind TokenKind) patternHandler {
+	return func(lex *lexer, matchStr string) {
+		rightside_indent := regexp.MustCompile(`^` + INLINE_WHITESPACE + `*`).FindString(matchStr)
 
-		startLoc := lex.getLoc(lex.pos + numberLoc[0])
-		lex.advanceN(len(matchString))
+		startLoc := lex.getLoc(lex.pos + len(rightside_indent))
+		lex.advanceN(len(matchStr))
 		endLoc := lex.getLoc(lex.pos - 1)
 
-		lex.push(
-			NewToken(
-				NUMBERED_LIST,
-				NewLoc(startLoc, endLoc),
-				matchString[numberLoc[0]:numberLoc[1]],
-			),
-		)
+		lex.push(NewToken(kind, NewLoc(startLoc, endLoc), matchStr[len(rightside_indent):]))
+	}
+}
+
+func paragraphMatch(lex *lexer) string {
+	matchLoc := regexp.MustCompile(PARAGRAPH_PATTERN).FindStringIndex(lex.remainder())
+
+	if matchLoc != nil && matchLoc[0] == 0 {
+		return lex.remainder()[matchLoc[0]:matchLoc[1]]
 	} else {
-		paragraphHandler(lex, PARAGRAPH_PATTERN)
+		return ""
 	}
-
 }
 
-// Handler for tokens that doesn't have a predefined length (e.g string)
-// This handler will take the whole matched string as the value
-func paragraphHandler(lex *lexer, pattern regexPattern) {
-	matchString := pattern.findString(lex.remainder())
+func paragraphHandler(lex *lexer, matchStr string) {
 	startLoc := lex.getLoc(lex.pos)
-	lex.advanceN(len(matchString))
+	lex.advanceN(len(matchStr))
 	endLoc := lex.getLoc(lex.pos - 1)
 
-	lex.push(NewToken(PARAGRAPH, NewLoc(startLoc, endLoc), matchString))
+	lex.push(NewToken(PARAGRAPH, NewLoc(startLoc, endLoc), matchStr))
 }
 
-// Handler to skip through newlines
-func skipHandler(lex *lexer, pattern regexPattern) {
-	lex.advanceN(pattern.findStringIndex(lex.remainder())[1])
-}
+func skipLinesMatch(lex *lexer) string {
+	matchLoc := regexp.MustCompile(SKIP_NEWLINE_PATTERN).FindStringIndex(lex.remainder())
 
-func codeBlockDelimiterHandler(lex *lexer, pattern regexPattern) {
-	if lex.isOnNewLine() || lex.isChildOfQuote(CODE_BLOCK) {
-		matchString := pattern.findString(lex.remainder())
-		fileType := strings.ToLower(strings.Split(matchString, "\n")[0][3:])
-		// code := strings.Split(matchString, "\n")
-		// code = code[1 : len(code)-1]
-
-		startLoc := lex.getLoc(lex.pos)
-		lex.advanceN(len(matchString))
-		endLoc := lex.getLoc(lex.pos - 1)
-
-		lex.push(NewToken(CODE_BLOCK, NewLoc(startLoc, endLoc), fileType))
-
+	if matchLoc != nil && matchLoc[0] == 0 {
+		return lex.remainder()[matchLoc[0]:matchLoc[1]]
 	} else {
-		paragraphHandler(lex, PARAGRAPH_PATTERN)
+		return ""
 	}
 }
 
-func frontmatterHandler(lex *lexer, pattern regexPattern) {
-	matchString := pattern.findString(lex.remainder())
-	lines := strings.Split(matchString, "\n")
-	values := []string{}
-
-	supportedProperty := []string{"id", "date", "tags"}
-
-	for _, line := range lines[1 : len(lines)-1] {
-		propertyName := regexp.MustCompile(`^[^\s:]+`).FindString(line)
-		if propertyName == "" || !slices.Contains(supportedProperty, propertyName) {
-			continue
-		}
-
-		rightsideWhitespace := regexp.MustCompile("^" + string(INLINE_WHITESPACE) + "*").
-			FindString(line[len(propertyName)+1:])
-
-		values = append(values, propertyName, line[len(propertyName)+1+len(rightsideWhitespace):])
-	}
-
-	startLoc := lex.getLoc(lex.pos)
-	lex.advanceN(len(matchString))
-	endLoc := lex.getLoc(lex.pos - 1)
-
-	lex.push(NewToken(FRONTMATTER, NewLoc(startLoc, endLoc), values...))
+func skipLinesHandler(lex *lexer, matchStr string) {
+	lex.advanceN(len(matchStr))
 }
 
-func linkHandler(lex *lexer, pattern regexPattern) {
-	matchString := pattern.findString(lex.remainder())
-	placeholder := regexPattern(
-		`\[` + CHAR + `*` + `\]`,
-	).findString(matchString)
-	link := regexPattern(`\(` + CHAR + `*` + `\)`).findString(matchString)
-
-	placeholder = placeholder[1 : len(placeholder)-1]
-	link = link[1 : len(link)-1]
-
-	startLoc := lex.getLoc(lex.pos)
-	lex.advanceN(len(matchString))
-	endLoc := lex.getLoc(lex.pos - 1)
-
-	lex.push(NewToken(LINK, NewLoc(startLoc, endLoc), placeholder, link))
-}
-
-func inlineCodeHandler(lex *lexer, pattern regexPattern) {
-	matchString := pattern.findString(lex.remainder())
-
-	startLoc := lex.getLoc(lex.pos)
-	lex.advanceN(len(matchString))
-	endLoc := lex.getLoc(lex.pos - 1)
-
-	lex.push(
-		NewToken(
-			INLINE_CODE,
-			NewLoc(startLoc, endLoc),
-			matchString[1:len(matchString)-1],
-		),
-	)
-}
-
-func NewLexer(source string) *lexer {
-	return &lexer{
-		source: source,
-		patterns: []regexConstructor{
-			{FRONTMATTER_PATTERN, frontmatterHandler},
-			{SKIP_NEWLINE_PATTERN, skipHandler},
-			{HEADING_5_PATTERN, blockHandler(HEADING_5)},
-			{HEADING_4_PATTERN, blockHandler(HEADING_4)},
-			{HEADING_3_PATTERN, blockHandler(HEADING_3)},
-			{HEADING_2_PATTERN, blockHandler(HEADING_2)},
-			{HEADING_1_PATTERN, blockHandler(HEADING_1)},
-			{NUMBERED_LIST_PATTERN, numberedListHandler},
-			{HYPHEN_LIST_PATTERN, blockHandler(HYPHEN_LIST)},
-			{CODEBLOCK_DELIMITER_PATTERN, codeBlockDelimiterHandler},
-			{CALLOUT_NOTE_PATTERN, blockHandler(CALLOUT_NOTE)},
-			{CALLOUT_IMPORTANT_PATTERN, blockHandler(CALLOUT_IMPORTANT)},
-			{CALLOUT_WARNING_PATTERN, blockHandler(CALLOUT_WARNING)},
-			{CALLOUT_EXAMPLE_PATTERN, blockHandler(CALLOUT_EXAMPLE)},
-			{QUOTE_PATTERN, blockHandler(QUOTE)},
-			{PARAGRAPH_PATTERN, paragraphHandler},
-		},
-	}
-}
-
-func codeBlockMerger(tokens []Token, startIndex int) (Token, int, int) {
-	codeBlock := tokens[startIndex]
-	codeBlock.Values = append(codeBlock.Values, "")
-
-	for i := startIndex + 1; i < len(tokens); i++ {
-		if tokens[i].Kind == CODE_BLOCK {
-			codeBlock.Loc.end = tokens[i].Loc.end
-			return codeBlock, startIndex, i
-		}
-
-		codeBlock.Values[len(codeBlock.Values)-1] += tokens[i].Values[0] + "\n"
-	}
-
-	return codeBlock, startIndex, len(tokens) - 1
-}
-
-// Scan and merge tokens that supposed to be one together
-func blockTokensScanner(tokens []Token) []Token {
-	cpy := []Token{}
-
-	for i := 0; i < len(tokens); i++ {
-		// In this code, a merged token will return the start and end index of the range where
-		// tokens are merged, which will be used to appropriately plug into the copy slice,
-		// the reason for this is that some merged tokens (like table) not only merge the below tokens
-		// but also the above tokens
-		switch tokens[i].Kind {
-		case CODE_BLOCK:
-			mergedToken, start, end := codeBlockMerger(tokens, i)
-			if len(cpy) >= start {
-				cpy = append(cpy[:start], mergedToken)
-			} else {
-				cpy = append(cpy, mergedToken)
-			}
-			i = end
-		default:
-			cpy = append(cpy, tokens[i])
-		}
-	}
-
-	return cpy
-}
-
-// Scan and split paragraph toksn into multiple inline tokens
-func inlineTokensScanner(source string, paraLoc [2]int) []Token {
-	lex := &lexer{
-		source: source,
-		patterns: []regexConstructor{
-			{LINK_PATTERN, linkHandler},
-			{INLINE_CODE_PATTERN, inlineCodeHandler},
-		},
-	}
-	prevLoc := [2]int{0, 0}
-
-	for !lex.at_eof() {
-		handler, regex := lex.findMatchPatternAtFirst()
-		if handler == nil || regex == "" {
-			lex.pos++
-			continue
-		}
-
-		currentLoc := lex.getLoc(lex.pos)
-
-		if currentLoc[1] != prevLoc[1] {
-			lex.push(NewToken(
-				PARAGRAPH,
-				NewLoc(prevLoc, [2]int{0, currentLoc[1] - 1}),
-				source[prevLoc[1]:currentLoc[1]],
-			))
-		}
-
-		handler(lex, regex)
-		prevLoc = lex.getLoc(lex.pos)
-	}
-
-	if prevLoc[1] < len(source) {
-		lex.push(NewToken(
-			PARAGRAPH,
-			NewLoc(prevLoc, [2]int{0, len(source) - 1}),
-			source[prevLoc[1]:],
-		))
-	}
-
-	for i := range lex.tokens {
-		lex.tokens[i].Loc.start[0] = paraLoc[0]
-		lex.tokens[i].Loc.end[0] = paraLoc[0]
-		lex.tokens[i].Loc.start[1] += paraLoc[1]
-		lex.tokens[i].Loc.end[1] += paraLoc[1]
-	}
-
-	return lex.tokens
-}
-
+// COMMIT: Rewrite the lexer with support for block tokens
 func Tokenize(source string) ([]Token, error) {
-	lex := NewLexer(source)
+	lex := NewLexer(source, []patternConstructor{
+		{skipLinesMatch, skipLinesHandler},
+		{blockTokenMatch(HEADING_5_PATTERN), blockTokenHandler(HEADING_5)},
+		{blockTokenMatch(HEADING_4_PATTERN), blockTokenHandler(HEADING_4)},
+		{blockTokenMatch(HEADING_3_PATTERN), blockTokenHandler(HEADING_3)},
+		{blockTokenMatch(HEADING_2_PATTERN), blockTokenHandler(HEADING_2)},
+		{blockTokenMatch(HEADING_1_PATTERN), blockTokenHandler(HEADING_1)},
+		{blockTokenMatch(HYPHEN_LIST_PATTERN), blockTokenHandler(HYPHEN_LIST)},
+		{blockTokenMatch(NUMBERED_LIST_PATTERN), blockTokenHandler(NUMBERED_LIST)},
+		{paragraphMatch, paragraphHandler},
+	})
 
 	for !lex.at_eof() {
-		handler, regex := lex.findMatchPatternAtFirst()
-		if handler == nil || regex == "" {
-			loc := lex.getLoc(lex.pos)
+		for _, constructor := range lex.constructors {
+			matchStr := constructor.match(lex)
 
-			return nil, fmt.Errorf(
-				"Lexer::error -> unrecognized token near\n %s\nat [%d:%d]\n",
-				lex.remainder(), loc[0], loc[1],
-			)
-		}
-
-		// Handling for frontmatter
-		if regex == FRONTMATTER_PATTERN {
-			if lex.pos == 0 {
-				handler(lex, regex)
-			} else {
-				paragraphHandler(lex, PARAGRAPH_PATTERN)
+			// NOTE: Match should assure that both the match status and the match location
+			if matchStr != "" {
+				constructor.handler(lex, matchStr)
+				goto CONTINUE
 			}
-
-			continue
 		}
+		goto ERROR
 
-		handler(lex, regex)
+	CONTINUE:
+		continue
+	ERROR:
+		loc := lex.getLoc(lex.pos)
+
+		return nil, fmt.Errorf(
+			"Lexer::error -> unrecognized token near\n %s\nat [%d:%d]\n",
+			lex.remainder(), loc[0], loc[1],
+		)
 	}
 
-	if !slices.ContainsFunc(lex.tokens, func(t Token) bool {
-		return t.Kind == FRONTMATTER
-	}) {
-		return nil, fmt.Errorf("Failed locating frontmatter\n")
-	}
-
-	newTokens := []Token{}
-
-	for _, token := range blockTokensScanner(lex.tokens) {
-		if token.Kind == PARAGRAPH {
-			newTokens = append(
-				newTokens,
-				inlineTokensScanner(token.Values[0], token.Loc.start)...)
-		} else {
-			newTokens = append(newTokens, token)
-		}
-	}
-
-	return newTokens, nil
+	return lex.tokens, nil
 }
