@@ -27,7 +27,6 @@ func Traverse(node *lexer.Node) (string, string) {
 		}
 	}
 
-	// COMMIT: Add support for codeblock
 	for _, child := range node.Children {
 		switch child.Self.Kind {
 		case lexer.HEADING_1, lexer.HEADING_2, lexer.HEADING_3, lexer.HEADING_4, lexer.HEADING_5:

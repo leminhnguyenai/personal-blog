@@ -88,6 +88,10 @@ func (lex *lexer) isOnNewLine() bool {
 	return lex.pos == 0 || string(lex.source[lex.pos-1]) == "\n"
 }
 
+func (lex *lexer) isChildOfQuote() bool {
+	return lex.tokens[len(lex.tokens)-1].Kind == QUOTE
+}
+
 // Get the xy-plane location of the current position
 func (lex *lexer) getLoc(pos int) [2]int {
 	tokenizedString := lex.source[:pos]
@@ -101,7 +105,7 @@ func blockTokenMatch(regex string) patternMatch {
 	return func(lex *lexer) string {
 		matchLoc := regexp.MustCompile(regex).FindStringIndex(lex.remainder())
 
-		if matchLoc != nil && matchLoc[0] == 0 && lex.isOnNewLine() {
+		if matchLoc != nil && matchLoc[0] == 0 && (lex.isOnNewLine() || lex.isChildOfQuote()) {
 			return lex.remainder()[matchLoc[0]:matchLoc[1]]
 		} else {
 			return ""
@@ -130,6 +134,18 @@ func blockTokenHandler(kind TokenKind) patternHandler {
 		endLoc := lex.getLoc(lex.pos - 1)
 
 		lex.push(NewToken(kind, NewLoc(startLoc, endLoc), matchStr[len(rightside_indent):]))
+	}
+}
+
+func headingMatch(regex string) patternMatch {
+	return func(lex *lexer) string {
+		matchLoc := regexp.MustCompile(regex).FindStringIndex(lex.remainder())
+
+		if matchLoc != nil && matchLoc[0] == 0 && lex.isOnNewLine() {
+			return lex.remainder()[matchLoc[0]:matchLoc[1]]
+		} else {
+			return ""
+		}
 	}
 }
 
@@ -222,17 +238,17 @@ func skipLinesHandler(lex *lexer, matchStr string) {
 	lex.advanceN(len(matchStr))
 }
 
-// COMMIT: Rewrite the lexer with support for block tokens
 func Tokenize(source string) ([]Token, error) {
 	lex := NewLexer(source, []patternConstructor{
 		{skipLinesMatch, skipLinesHandler},
-		{blockTokenMatch(HEADING_5_PATTERN), blockTokenHandler(HEADING_5)},
-		{blockTokenMatch(HEADING_4_PATTERN), blockTokenHandler(HEADING_4)},
-		{blockTokenMatch(HEADING_3_PATTERN), blockTokenHandler(HEADING_3)},
-		{blockTokenMatch(HEADING_2_PATTERN), blockTokenHandler(HEADING_2)},
-		{blockTokenMatch(HEADING_1_PATTERN), blockTokenHandler(HEADING_1)},
+		{headingMatch(HEADING_5_PATTERN), blockTokenHandler(HEADING_5)},
+		{headingMatch(HEADING_4_PATTERN), blockTokenHandler(HEADING_4)},
+		{headingMatch(HEADING_3_PATTERN), blockTokenHandler(HEADING_3)},
+		{headingMatch(HEADING_2_PATTERN), blockTokenHandler(HEADING_2)},
+		{headingMatch(HEADING_1_PATTERN), blockTokenHandler(HEADING_1)},
 		{blockTokenMatch(HYPHEN_LIST_PATTERN), blockTokenHandler(HYPHEN_LIST)},
 		{blockTokenMatch(NUMBERED_LIST_PATTERN), blockTokenHandler(NUMBERED_LIST)},
+		{blockTokenMatch(QUOTE_PATTERN), blockTokenHandler(QUOTE)},
 		{inlineTokenMatch(PARAGRAPH_PATTERN), paragraphHandler},
 	})
 
