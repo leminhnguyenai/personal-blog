@@ -224,6 +224,42 @@ func paragraphHandler(lex *lexer, matchStr string) {
 	lex.tokens = append(lex.tokens, inlineLex.tokens...)
 }
 
+func codeBlockMatch(lex *lexer) string {
+	codeBlockDelimPattern := `^\x60\x60\x60` + INLINE_WHITESPACE + `*` + `[a-zA-Z]+`
+	codeBlockDelimBeginLoc := regexp.MustCompile(codeBlockDelimPattern).FindStringIndex(lex.remainder())
+
+	if codeBlockDelimBeginLoc != nil && codeBlockDelimBeginLoc[0] == 0 &&
+		(lex.isOnNewLine() || lex.isChildOfQuote()) {
+		matchStr := lex.remainder()[codeBlockDelimBeginLoc[0]:codeBlockDelimBeginLoc[1]] + "\n"
+
+		lines := strings.Split(lex.remainder(), "\n")[1:]
+		for _, line := range lines {
+			if regexp.MustCompile(`^\x60\x60\x60`).FindString(line) != "" {
+				matchStr += line
+				return matchStr
+			}
+
+			matchStr += line + "\n"
+		}
+
+		return matchStr
+	} else {
+		return ""
+	}
+}
+
+func codeBlockHandler(lex *lexer, matchStr string) {
+	lines := strings.Split(matchStr, "\n")
+	language := regexp.MustCompile(`[a-zA-Z]+`).FindString(lines[0])
+	code := strings.Join(lines[1:len(lines)-1], "\n")
+
+	startLoc := lex.getLoc(lex.pos)
+	lex.advanceN(len(matchStr))
+	endLoc := lex.getLoc(lex.pos - 1)
+
+	lex.push(NewToken(CODE_BLOCK, NewLoc(startLoc, endLoc), language, code))
+}
+
 func skipLinesMatch(lex *lexer) string {
 	matchLoc := regexp.MustCompile(SKIP_NEWLINE_PATTERN).FindStringIndex(lex.remainder())
 
@@ -248,6 +284,7 @@ func Tokenize(source string) ([]Token, error) {
 		{headingMatch(HEADING_1_PATTERN), blockTokenHandler(HEADING_1)},
 		{blockTokenMatch(HYPHEN_LIST_PATTERN), blockTokenHandler(HYPHEN_LIST)},
 		{blockTokenMatch(NUMBERED_LIST_PATTERN), blockTokenHandler(NUMBERED_LIST)},
+		{codeBlockMatch, codeBlockHandler},
 		{blockTokenMatch(CALLOUT_NOTE_PATTERN), blockTokenHandler(CALLOUT_NOTE)},
 		{blockTokenMatch(CALLOUT_IMPORTANT_PATTERN), blockTokenHandler(CALLOUT_IMPORTANT)},
 		{blockTokenMatch(CALLOUT_WARNING_PATTERN), blockTokenHandler(CALLOUT_WARNING)},
