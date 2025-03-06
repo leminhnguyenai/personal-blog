@@ -248,6 +248,10 @@ func Tokenize(source string) ([]Token, error) {
 		{headingMatch(HEADING_1_PATTERN), blockTokenHandler(HEADING_1)},
 		{blockTokenMatch(HYPHEN_LIST_PATTERN), blockTokenHandler(HYPHEN_LIST)},
 		{blockTokenMatch(NUMBERED_LIST_PATTERN), blockTokenHandler(NUMBERED_LIST)},
+		{blockTokenMatch(CALLOUT_NOTE_PATTERN), blockTokenHandler(CALLOUT_NOTE)},
+		{blockTokenMatch(CALLOUT_IMPORTANT_PATTERN), blockTokenHandler(CALLOUT_IMPORTANT)},
+		{blockTokenMatch(CALLOUT_WARNING_PATTERN), blockTokenHandler(CALLOUT_WARNING)},
+		{blockTokenMatch(CALLOUT_EXAMPLE_PATTERN), blockTokenHandler(CALLOUT_EXAMPLE)},
 		{blockTokenMatch(QUOTE_PATTERN), blockTokenHandler(QUOTE)},
 		{inlineTokenMatch(PARAGRAPH_PATTERN), paragraphHandler},
 	})
