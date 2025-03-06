@@ -13,7 +13,6 @@ func Traverse(node *lexer.Node) (string, string) {
 	children := ""
 
 	if node.Self.Kind == lexer.FRONTMATTER {
-		fmt.Println(node.Self.Kind)
 		values += frontmatterRenderer(node)
 	}
 

@@ -40,15 +40,15 @@ const (
 
 	// Patterns for inline elements
 	LINK_PATTERN        = `\[[^\n\[\]\(\)]*\]\([^\n\[\]\(\)]*\)`
-	INLINE_CODE_PATTERN = `\x60` + CHAR + `*` + `\x60`
+	INLINE_CODE_PATTERN = `\x60` + `[^\n\x60]` + `*` + `\x60`
 )
 
-type match func(lex *lexer) string
+type patternMatch func(lex *lexer) string
 
 type patternHandler func(lex *lexer, matchStr string)
 
 type patternConstructor struct {
-	match   match
+	match   patternMatch
 	handler patternHandler
 }
 
@@ -97,11 +97,23 @@ func (lex *lexer) getLoc(pos int) [2]int {
 	return [2]int{len(lines) - 1, len(lastLine)}
 }
 
-func blockTokenMatch(regex string) match {
+func blockTokenMatch(regex string) patternMatch {
 	return func(lex *lexer) string {
 		matchLoc := regexp.MustCompile(regex).FindStringIndex(lex.remainder())
 
 		if matchLoc != nil && matchLoc[0] == 0 && lex.isOnNewLine() {
+			return lex.remainder()[matchLoc[0]:matchLoc[1]]
+		} else {
+			return ""
+		}
+	}
+}
+
+func inlineTokenMatch(regex string) patternMatch {
+	return func(lex *lexer) string {
+		matchLoc := regexp.MustCompile(regex).FindStringIndex(lex.remainder())
+
+		if matchLoc != nil && matchLoc[0] == 0 {
 			return lex.remainder()[matchLoc[0]:matchLoc[1]]
 		} else {
 			return ""
@@ -121,22 +133,79 @@ func blockTokenHandler(kind TokenKind) patternHandler {
 	}
 }
 
-func paragraphMatch(lex *lexer) string {
-	matchLoc := regexp.MustCompile(PARAGRAPH_PATTERN).FindStringIndex(lex.remainder())
+func inlineCodeHandler(lex *lexer, matchStr string) {
+	startLoc := lex.getLoc(lex.pos)
+	lex.advanceN(len(matchStr))
+	endLoc := lex.getLoc(lex.pos - 1)
 
-	if matchLoc != nil && matchLoc[0] == 0 {
-		return lex.remainder()[matchLoc[0]:matchLoc[1]]
-	} else {
-		return ""
-	}
+	lex.push(NewToken(INLINE_CODE, NewLoc(startLoc, endLoc), matchStr[1:len(matchStr)-1]))
+}
+
+func linkHandler(lex *lexer, matchStr string) {
+	placeholder := regexp.MustCompile(`\[` + CHAR + `*` + `\]`).FindString(matchStr)
+	link := regexp.MustCompile(`\(` + CHAR + `*` + `\)`).FindString(matchStr)
+
+	placeholder = placeholder[1 : len(placeholder)-1]
+	link = link[1 : len(link)-1]
+
+	startLoc := lex.getLoc(lex.pos)
+	lex.advanceN(len(matchStr))
+	endLoc := lex.getLoc(lex.pos - 1)
+
+	lex.push(NewToken(LINK, NewLoc(startLoc, endLoc), placeholder, link))
 }
 
 func paragraphHandler(lex *lexer, matchStr string) {
 	startLoc := lex.getLoc(lex.pos)
 	lex.advanceN(len(matchStr))
-	endLoc := lex.getLoc(lex.pos - 1)
 
-	lex.push(NewToken(PARAGRAPH, NewLoc(startLoc, endLoc), matchStr))
+	inlineLex := NewLexer(matchStr, []patternConstructor{
+		{inlineTokenMatch(INLINE_CODE_PATTERN), inlineCodeHandler},
+		{inlineTokenMatch(LINK_PATTERN), linkHandler},
+	})
+
+	prevLoc := 0
+
+	for !inlineLex.at_eof() {
+		for _, constructor := range inlineLex.constructors {
+			inlineMatchStr := constructor.match(inlineLex)
+			if inlineMatchStr != "" {
+				currentLoc := inlineLex.pos
+
+				if currentLoc != prevLoc {
+					inlineLex.push(
+						NewToken(PARAGRAPH, NewLoc([2]int{0, prevLoc}, [2]int{0, currentLoc - 1}),
+							inlineLex.source[prevLoc:currentLoc]))
+				}
+
+				constructor.handler(inlineLex, inlineMatchStr)
+				prevLoc = inlineLex.pos
+				goto CONTINUE
+			}
+		}
+		inlineLex.pos++
+		continue
+
+	CONTINUE:
+		continue
+	}
+
+	if prevLoc < len(inlineLex.source) {
+		inlineLex.push(NewToken(
+			PARAGRAPH,
+			NewLoc([2]int{0, prevLoc}, [2]int{0, len(inlineLex.source) - 1}),
+			inlineLex.source[prevLoc:],
+		))
+	}
+
+	for i := range inlineLex.tokens {
+		inlineLex.tokens[i].Loc.start[0] = startLoc[0]
+		inlineLex.tokens[i].Loc.end[0] = startLoc[0]
+		inlineLex.tokens[i].Loc.start[1] += startLoc[1]
+		inlineLex.tokens[i].Loc.end[1] += startLoc[1]
+	}
+
+	lex.tokens = append(lex.tokens, inlineLex.tokens...)
 }
 
 func skipLinesMatch(lex *lexer) string {
@@ -164,7 +233,7 @@ func Tokenize(source string) ([]Token, error) {
 		{blockTokenMatch(HEADING_1_PATTERN), blockTokenHandler(HEADING_1)},
 		{blockTokenMatch(HYPHEN_LIST_PATTERN), blockTokenHandler(HYPHEN_LIST)},
 		{blockTokenMatch(NUMBERED_LIST_PATTERN), blockTokenHandler(NUMBERED_LIST)},
-		{paragraphMatch, paragraphHandler},
+		{inlineTokenMatch(PARAGRAPH_PATTERN), paragraphHandler},
 	})
 
 	for !lex.at_eof() {
