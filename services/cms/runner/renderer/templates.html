@@ -62,3 +62,7 @@
 <a href="{{ .Link }}">{{ .Placeholder }}</a>
 {{ end }}
 
+{{ block "inline-code" . }}
+<code>{{ .Value }}</code>
+{{ end }}
+
