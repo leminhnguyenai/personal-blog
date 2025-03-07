@@ -12,6 +12,7 @@ import (
 
 	"github.com/leminhnguyenai/personal-blog/services/cms/runner/asciitree"
 	"github.com/leminhnguyenai/personal-blog/services/cms/runner/lexer"
+	"github.com/leminhnguyenai/personal-blog/services/cms/runner/renderer"
 )
 
 type Data struct {
@@ -49,7 +50,13 @@ func Preview(filePath string) error {
 
 		fmt.Println(asciitree.GenerateTree(str))
 
-		values, children := Traverse(frontmatter)
+		markdownRenderer, err := renderer.NewRenderer()
+		if err != nil {
+			HandleError(w, err)
+			return
+		}
+
+		values, children := markdownRenderer.Traverse(frontmatter)
 		html := values + children
 
 		templ, err := template.ParseFiles("index.html")

@@ -1,0 +1,64 @@
+{{ block "frontmatter" . }}
+<hr>
+    {{ range .Properties }}
+    <p>
+        <span>{{ .PropertyName }}</span>
+        <span>: </span>
+        <!--NOTE: Property value is expected to be HTML-->
+        {{ .PropertyValue }}
+    </p>
+    {{ end}}
+<hr>
+{{ end }}
+
+{{ block "heading" . }}
+<h{{ .Type }}>{{ .Value }}</h{{ .Type }}>
+{{ .Children }}
+{{ end }}
+
+{{ block "paragraph" . }}
+<p>{{ .Value }}</p> 
+{{ end }}
+
+{{ block "hyphen-list" . }}
+<li>
+    <span class="list">– </span>
+    {{ .Values }} 
+    {{ .Children }}
+</li>
+{{ end }}
+
+{{ block "numbered-list" . }}
+<li>
+    <span class="list">{{ .Number }}</span>
+    {{ .Values }}
+    {{ .Children }}
+</li>
+{{ end }}
+
+{{ block "quote" . }}
+<blockquote>{{ .Values }}</blockquote>
+{{ end }}
+
+{{ block "callout" . }}
+<div>
+    <p>{{ .Values }}</p>
+    {{ .Children }}
+</div>
+{{ end }}
+
+
+{{ block "codeblock" . }}
+<pre data-lang="{{ .Language }}">
+{{ .Code }}
+</pre>
+{{ end }}
+
+{{ block "inline-paragraph" . }}
+<span>{{ .Value }}</span>
+{{ end }}
+
+{{ block "link" . }}
+<a href="{{ .Link }}">{{ .Placeholder }}</a>
+{{ end }}
+

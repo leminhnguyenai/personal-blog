@@ -1,3 +1,12 @@
+---
+id: "Note"
+date: "2025.01.01"
+aliases: []
+tags:
+  - GO
+  - HTMl
+---
+
 # HEADING 1
 
 skibidi toilet
@@ -17,6 +26,8 @@ skibidi toilet
 ### HEADING 1.2.1   
 
 - Yes man - No man
+
+> Fuck you
 
 > [!NOTE] skiii
 > - The grape is delicous
