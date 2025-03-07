@@ -133,10 +133,6 @@ func (r *Renderer) paragraphRenderer(node *lexer.Node) string {
 func (r *Renderer) listRenderer(node *lexer.Node) string {
 	values, children := r.Traverse(node)
 
-	if children != "" {
-		children = "<ul>" + children + "</ul>"
-	}
-
 	if node.Self.Kind == lexer.HYPHEN_LIST {
 		r.templates.ExecuteTemplate(r.writer, "hyphen-list", struct {
 			Values   template.HTML
