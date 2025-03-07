@@ -24,9 +24,12 @@ func Preview(filePath string) error {
 		return err
 	}
 
-	srv := &http.Server{Addr: ":3000"}
+	mux := http.NewServeMux()
 
-	http.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+	fs := http.FileServer(http.Dir("./static"))
+
+	mux.Handle("GET /static/", http.StripPrefix("/static/", fs))
+	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Connected")
 		data, err := os.ReadFile(filePath)
 		if err != nil {
@@ -57,6 +60,8 @@ func Preview(filePath string) error {
 
 		templ.ExecuteTemplate(w, "index", Data{Content: template.HTML(html)})
 	})
+
+	srv := &http.Server{Addr: ":3000", Handler: mux}
 
 	errChan := make(chan error)
 
