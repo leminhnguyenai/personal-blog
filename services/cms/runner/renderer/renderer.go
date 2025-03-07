@@ -203,7 +203,7 @@ func (r *Renderer) inlineParagraphRenderer(node *lexer.Node) string {
 }
 
 func (r *Renderer) linkRenderer(node *lexer.Node) string {
-	r.templates.ExecuteTemplate(r.writer, "inline-paragraph", struct {
+	r.templates.ExecuteTemplate(r.writer, "link", struct {
 		Link        string
 		Placeholder string
 	}{node.Self.Values[1], node.Self.Values[0]})
@@ -212,7 +212,7 @@ func (r *Renderer) linkRenderer(node *lexer.Node) string {
 }
 
 func (r *Renderer) inlineCodeRenderer(node *lexer.Node) string {
-	r.templates.ExecuteTemplate(r.writer, "inline-paragraph", struct{ Value string }{node.Self.Values[0]})
+	r.templates.ExecuteTemplate(r.writer, "inline-code", struct{ Value string }{node.Self.Values[0]})
 
 	return r.writer.String()
 }
