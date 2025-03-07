@@ -15,9 +15,6 @@ const (
 	// Pattern for block elements
 	SKIP_NEWLINE_PATTERN = `\n+`
 
-	// NOTE: Due to Go's lack of negative lockahead, frontmatter currently won't support hyphen in the content
-	FRONTMATTER_PATTERN = `(^---)([^-]*)(\n---)`
-
 	HEADING_5_PATTERN = INLINE_WHITESPACE + `*` + `#####` + INLINE_WHITESPACE
 	HEADING_4_PATTERN = INLINE_WHITESPACE + `*` + `####` + INLINE_WHITESPACE
 	HEADING_3_PATTERN = INLINE_WHITESPACE + `*` + `###` + INLINE_WHITESPACE
@@ -225,7 +222,7 @@ func paragraphHandler(lex *lexer, matchStr string) {
 }
 
 func codeBlockMatch(lex *lexer) string {
-	codeBlockDelimPattern := `^\x60\x60\x60` + INLINE_WHITESPACE + `*` + `[a-zA-Z]+`
+	codeBlockDelimPattern := `\x60\x60\x60` + INLINE_WHITESPACE + `*` + `[a-zA-Z]+`
 	codeBlockDelimBeginLoc := regexp.MustCompile(codeBlockDelimPattern).FindStringIndex(lex.remainder())
 
 	if codeBlockDelimBeginLoc != nil && codeBlockDelimBeginLoc[0] == 0 &&
@@ -260,6 +257,72 @@ func codeBlockHandler(lex *lexer, matchStr string) {
 	lex.push(NewToken(CODE_BLOCK, NewLoc(startLoc, endLoc), language, code))
 }
 
+func frontmatterMatch(lex *lexer) string {
+	horizontalRuleLoc := regexp.MustCompile(`---`).FindStringIndex(lex.remainder())
+
+	if horizontalRuleLoc != nil && horizontalRuleLoc[0] == 0 && lex.isOnNewLine() {
+		matchStr := lex.remainder()[horizontalRuleLoc[0]:horizontalRuleLoc[1]] + "\n"
+
+		lines := strings.Split(lex.remainder(), "\n")[1:]
+		for _, line := range lines {
+			if regexp.MustCompile(`^---`).FindString(line) != "" {
+				matchStr += line
+				return matchStr
+			}
+
+			matchStr += line + "\n"
+		}
+
+		return matchStr
+	} else {
+		return ""
+	}
+}
+
+func frontmatterHandler(lex *lexer, matchStr string) {
+	lines := strings.Split(matchStr, "\n")
+	linesOfContent := lines[1 : len(lines)-1]
+
+	values := []string{}
+
+	for i, line := range linesOfContent {
+		propertyName := regexp.MustCompile(`^[a-zA-Z]+:`).FindString(line)
+
+		if propertyName == "" {
+			continue
+		}
+
+		switch propertyName[:len(propertyName)-1] {
+		case "id":
+			values = append(values, "id", line[3:])
+		case "date":
+			values = append(values, "date", line[5:])
+		case "tags":
+			tags := ""
+
+			for j := i + 1; j < len(linesOfContent); j++ {
+				str := regexp.MustCompile(INLINE_WHITESPACE + `+` + `- [a-zA-Z0-9]+`).
+					FindString(linesOfContent[j])
+				tagName := regexp.MustCompile(`[a-zA-Z0-9]+`).FindString(str)
+
+				if tagName == "" {
+					break
+				}
+
+				tags += tagName + ","
+			}
+
+			values = append(values, "tags", tags)
+		}
+	}
+
+	startLoc := lex.getLoc(lex.pos)
+	lex.advanceN(len(matchStr))
+	endLoc := lex.getLoc(lex.pos - 1)
+
+	lex.push(NewToken(FRONTMATTER, NewLoc(startLoc, endLoc), values...))
+}
+
 func skipLinesMatch(lex *lexer) string {
 	matchLoc := regexp.MustCompile(SKIP_NEWLINE_PATTERN).FindStringIndex(lex.remainder())
 
@@ -276,6 +339,7 @@ func skipLinesHandler(lex *lexer, matchStr string) {
 
 func Tokenize(source string) ([]Token, error) {
 	lex := NewLexer(source, []patternConstructor{
+		{frontmatterMatch, frontmatterHandler},
 		{skipLinesMatch, skipLinesHandler},
 		{headingMatch(HEADING_5_PATTERN), blockTokenHandler(HEADING_5)},
 		{headingMatch(HEADING_4_PATTERN), blockTokenHandler(HEADING_4)},

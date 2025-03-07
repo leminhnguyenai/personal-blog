@@ -61,15 +61,15 @@ func frontmatterRenderer(node *lexer.Node) string {
 				propertyValue,
 			)
 		case "tags":
-			tags := strings.Split(propertyValue[1:len(propertyValue)-1], ",")
-			for i := range tags {
-				tags[i] = strings.Replace(tags[i], `"`, ``, -1)
+			tags := strings.Split(propertyValue, ",")
+			for i := range tags[:len(tags)-1] {
+				tags[i] = `<span>` + tags[i] + `</span>`
 			}
 
 			data += fmt.Sprintf(
-				"<p><span>%s</span><span>: </span><span>%s</span></p>",
+				"<p><span>%s</span><span>: </span><div>%s</div></p>",
 				propertyName,
-				strings.Join(tags, "  "),
+				strings.Join(tags, " "),
 			)
 		}
 
