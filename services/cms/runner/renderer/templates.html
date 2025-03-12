@@ -3,11 +3,15 @@
         class="mt-8 mb-2 text-5xl text-title-red" 
     >{{ .Title }}</h1>
     <p class="text-sm text-gray-400">{{ .Date }}</p>
+    <!--COMMIT: Add visual to the tags-->
     <div
         class="my-6"
     > 
         {{ range .Tags }}
-            <span class="text-sm"> {{ . }}</span> 
+        <a 
+            href="?tag={{ . }}" 
+            class="mr-1 px-1 py-[2px] rounded-sm text-sm  text-code-orange bg-code-orange/30 hover:underline"
+        >#{{ . }}</a> 
         {{ end }}
     </div>
     <hr class="text-gray-400">
@@ -78,8 +82,7 @@
     <a href="{{ .Link }}">{{ .Placeholder }}</a>
 {{ end }}
 
-<!--COMMIT: Add visual for inline codes-->
 {{ block "inline-code" . }}
-    <code class="whitespace-pre border-2 border-code-grey rounded-sm bg-code-grey text-code-red">{{ .Value }}</code>
+    <code class="whitespace-pre border-2 border-code-grey rounded-sm bg-code-grey text-code-lime font-jetbrains">{{ .Value }}</code>
 {{ end }}
 

@@ -27,13 +27,13 @@
 @theme {
   --font-jetbrains: JetBrains;
   --color-title-red: #ff7b72;
-  --color-rich-black: #001514;
-  --color-french-mauve: #ca61c3;
-  --color-egg-blue: #4ecdc4;
+  --color-rich-black: #181818;
   --color-mint-cream: #f7fff7;
-  --color-napies-yellow: #ffe66d;
   --color-code-red: #ff3131;
   --color-code-grey: #1d2a37;
+  --color-code-yellow: #e19450;
+  --color-code-orange: #f39f53;
+  --color-code-lime: #cefe86;
 }
 
 pre {
