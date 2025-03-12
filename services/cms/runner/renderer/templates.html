@@ -1,25 +1,27 @@
+<!--COMMIT: Reformat the frontmatter to display data in a more readable way-->
 {{ block "frontmatter" . }}
-    <hr>
-        {{ range .Properties }}
-            <p>
-                <span>{{ .PropertyName }}</span>
-                <span>: </span>
-                <!--NOTE: Property value is expected to be HTML-->
-                {{ .PropertyValue }}
-            </p>
-        {{ end}}
-    <hr>
+    <h1
+        class="my-8 text-4xl" 
+    >{{ .Title }}</h1>
+    <p class="text-sm">{{ .Date }}</p>
+    <div
+        class="my-6"
+    > 
+        {{ range .Tags }}
+            <span class="text-sm mx-2"> {{ . }}</span> 
+        {{ end }}
+    </div>
 {{ end }}
 
 {{ block "heading" . }}
     {{ if eq .Type 1 }}
-        <h1 class="my-6 text-4xl">{{ .Value }}</h1>
+        <h1 class="my-6 text-3xl">{{ .Value }}</h1>
     {{ else if eq .Type 2 }}
-        <h2 class="my-4 text-3xl">{{ .Value }}</h2>
+        <h2 class="my-4 text-2xl">{{ .Value }}</h2>
     {{ else if eq .Type 3 }}
-        <h3 class="my-4 text-2xl">{{ .Value }}</h3>
+        <h3 class="my-4 text-xl">{{ .Value }}</h3>
     {{ else if eq .Type 4 }}
-        <h4 class="my-2 text-xl">{{ .Value }}</h4>
+        <h4 class="my-2 text-lg">{{ .Value }}</h4>
     {{ else if eq .Type 5 }}
         <h5 class="my-2 text-lg">{{ .Value }}</h5>
     {{ end }}

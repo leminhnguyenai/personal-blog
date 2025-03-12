@@ -77,38 +77,29 @@ func (r *Renderer) Traverse(node *lexer.Node) (string, string) {
 }
 
 func (r *Renderer) frontmatterRenderer(node *lexer.Node) string {
-	type property struct {
-		PropertyName  string
-		PropertyValue template.HTML
+	type Data struct {
+		Title string
+		Date  string
+		Tags  []string
 	}
 
-	properties := []property{}
+	data := Data{}
 
 	for i := 0; i < len(node.Self.Values); i += 2 {
 		propertyName := node.Self.Values[i]
 		propertyValue := node.Self.Values[i+1]
 		switch propertyName {
-		case "id", "date":
-			properties = append(properties, property{
-				PropertyName:  propertyName,
-				PropertyValue: template.HTML(`<span>` + propertyValue + `</span>`),
-			})
-
+		case "id":
+			data.Title = propertyValue[1 : len(propertyValue)-1]
+		case "date":
+			data.Date = propertyValue[1 : len(propertyValue)-1]
 		case "tags":
 			tags := strings.Split(propertyValue, ",")
-			for i := range tags[:len(tags)-1] {
-				tags[i] = `<span>` + tags[i] + `</span>`
-			}
-
-			properties = append(properties, property{
-				PropertyName:  propertyName,
-				PropertyValue: template.HTML(strings.Join(tags, " ")),
-			})
+			data.Tags = tags[:len(tags)-1]
 		}
 	}
 
-	r.templates.ExecuteTemplate(r.writer, "frontmatter", struct{ Properties []property }{properties})
-
+	r.templates.ExecuteTemplate(r.writer, "frontmatter", data)
 	return r.writer.String()
 }
 

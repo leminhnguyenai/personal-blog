@@ -294,9 +294,9 @@ func frontmatterHandler(lex *lexer, matchStr string) {
 
 		switch propertyName[:len(propertyName)-1] {
 		case "id":
-			values = append(values, "id", line[3:])
+			values = append(values, "id", line[4:])
 		case "date":
-			values = append(values, "date", line[5:])
+			values = append(values, "date", line[6:])
 		case "tags":
 			tags := ""
 
