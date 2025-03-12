@@ -1,16 +1,16 @@
-<!--COMMIT: Reformat the frontmatter to display data in a more readable way-->
 {{ block "frontmatter" . }}
     <h1
-        class="my-8 text-4xl" 
+        class="mt-8 mb-2 text-5xl" 
     >{{ .Title }}</h1>
-    <p class="text-sm">{{ .Date }}</p>
+    <p class="text-sm text-gray-400">{{ .Date }}</p>
     <div
         class="my-6"
     > 
         {{ range .Tags }}
-            <span class="text-sm mx-2"> {{ . }}</span> 
+            <span class="text-sm"> {{ . }}</span> 
         {{ end }}
     </div>
+    <hr>
 {{ end }}
 
 {{ block "heading" . }}
@@ -78,7 +78,8 @@
     <a href="{{ .Link }}">{{ .Placeholder }}</a>
 {{ end }}
 
+<!--COMMIT: Add visual for inline codes-->
 {{ block "inline-code" . }}
-    <code>{{ .Value }}</code>
+    <code class="whitespace-pre border-2 border-code-grey rounded-sm bg-code-grey text-code-red">{{ .Value }}</code>
 {{ end }}
 
