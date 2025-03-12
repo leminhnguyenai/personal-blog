@@ -1,5 +1,33 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: JetBrains;
+  font-style: normal;
+  font-weight: 300;
+  font-display: auto;
+  src: url("/static/fonts/JetBrainsMono-Light.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: JetBrains;
+  font-style: normal;
+  font-weight: 400;
+  font-display: auto;
+  src: url("/static/fonts/JetBrainsMono-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: JetBrains;
+  font-style: normal;
+  font-weight: 700;
+  font-display: auto;
+  src: url("/static/fonts/JetBrainsMono-Bold.ttf") format("truetype");
+}
+
+@theme {
+  --font-jetbrains: JetBrains;
+}
+
 pre {
   white-space: pre-wrap; /* Since CSS 2.1 */
   white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
