@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @font-face {
-  font-family: JetBrains;
+  font-family: JetBrainsMono;
   font-style: normal;
   font-weight: 300;
   font-display: auto;
@@ -9,7 +9,7 @@
 }
 
 @font-face {
-  font-family: JetBrains;
+  font-family: JetBrainsMono;
   font-style: normal;
   font-weight: 400;
   font-display: auto;
@@ -17,15 +17,41 @@
 }
 
 @font-face {
-  font-family: JetBrains;
+  font-family: JetBrainsMono;
   font-style: normal;
   font-weight: 700;
   font-display: auto;
   src: url("/static/fonts/JetBrainsMono-Bold.woff") format("woff");
 }
 
+@font-face {
+  font-family: JetBrainsMonoNerdFontMono;
+  font-style: normal;
+  font-weight: 300;
+  font-display: auto;
+  src: url("/static/fonts/JetBrainsMonoNerdFontMono-Light.woff") format("woff");
+}
+
+@font-face {
+  font-family: JetBrainsMonoNerdFontMono;
+  font-style: normal;
+  font-weight: 400;
+  font-display: auto;
+  src: url("/static/fonts/JetBrainsMonoNerdFontMono-Regular.woff")
+    format("woff");
+}
+
+@font-face {
+  font-family: JetBrainsMonoNerdFontMono;
+  font-style: normal;
+  font-weight: 700;
+  font-display: auto;
+  src: url("/static/fonts/JetBrainsMonoNerdFontMono-Bold.woff") format("woff");
+}
+
 @theme {
-  --font-jetbrains: JetBrains;
+  --font-jetbrains: JetBrainsMono;
+  --font-jetbrainsmono: JetBrainsMonoNerdFontMono;
   --color-title-red: #ff7b72;
   --color-rich-black: #181818;
   --color-mint-cream: #f7fff7;

@@ -248,7 +248,7 @@ func codeBlockMatch(lex *lexer) string {
 
 func codeBlockHandler(lex *lexer, matchStr string) {
 	lines := strings.Split(matchStr, "\n")
-	language := regexp.MustCompile(`[a-zA-Z]+`).FindString(lines[0])
+	language := strings.ToLower(regexp.MustCompile(`[a-zA-Z]+`).FindString(lines[0]))
 	code := strings.Join(lines[1:len(lines)-1], "\n")
 
 	startLoc := lex.getLoc(lex.pos)
