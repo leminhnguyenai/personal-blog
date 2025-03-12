@@ -3,17 +3,9 @@
 @font-face {
   font-family: JetBrainsMono;
   font-style: normal;
-  font-weight: 300;
-  font-display: auto;
-  src: url("/static/fonts/JetBrainsMono-Light.woff") format("woff");
-}
-
-@font-face {
-  font-family: JetBrainsMono;
-  font-style: normal;
   font-weight: 400;
   font-display: auto;
-  src: url("/static/fonts/JetBrainsMono-Regular.woff") format("woff");
+  src: url("/static/fonts/JetBrainsMono-Light.woff") format("woff");
 }
 
 @font-face {
@@ -27,18 +19,9 @@
 @font-face {
   font-family: JetBrainsMonoNerdFontMono;
   font-style: normal;
-  font-weight: 300;
-  font-display: auto;
-  src: url("/static/fonts/JetBrainsMonoNerdFontMono-Light.woff") format("woff");
-}
-
-@font-face {
-  font-family: JetBrainsMonoNerdFontMono;
-  font-style: normal;
   font-weight: 400;
   font-display: auto;
-  src: url("/static/fonts/JetBrainsMonoNerdFontMono-Regular.woff")
-    format("woff");
+  src: url("/static/fonts/JetBrainsMonoNerdFontMono-Light.woff") format("woff");
 }
 
 @font-face {
