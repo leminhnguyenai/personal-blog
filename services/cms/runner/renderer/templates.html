@@ -10,7 +10,7 @@
         {{ range .Tags }}
         <a 
             href="?tag={{ . }}" 
-            class="mr-1 px-1 py-[2px] rounded-sm text-sm  text-code-orange bg-code-orange/30 hover:underline"
+            class="px-1 py-[2px] rounded-sm text-sm  text-code-orange bg-code-orange/30 hover:underline"
         >#{{ . }}</a> 
         {{ end }}
     </div>
@@ -38,7 +38,7 @@
 
 {{ block "hyphen-list" . }}
     <li class="ml-2 list-none">
-        <span class="whitespace-pre">– </span>
+        <span>–</span>
             {{ .Values }} 
         {{ if ne .Children "" }}
             <ul class="pl-4 list-inside">{{ .Children }}</ul>
@@ -48,7 +48,7 @@
 
 {{ block "numbered-list" . }}
     <li class="ml-2 list-none">
-        <span class="whitespace-pre">{{ .Number }}</span>
+        <span>{{ .Number }}</span>
             {{ .Values }}
         {{ if ne .Children "" }}
             <ul class="pl-4 list-inside">{{ .Children }}</ul>
