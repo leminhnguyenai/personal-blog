@@ -73,27 +73,27 @@
         class="relative flex ml-4 my-8 p-8 pt-12 bg-code-grey"
     >
         {{ if eq .Language "go" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#05a5d0]"><span class="font-jetbrainsmono"></span> {{ .Language }}</p>
+            <p class="absolute top-3 left-3 font-jetbrains text-[#05a5d0]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "html" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#dc4a25]"><span class="font-jetbrainsmono"></span> {{ .Language }}</p>
+            <p class="absolute top-3 left-3 font-jetbrains text-[#dc4a25]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "css" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#623194]"><span class="font-jetbrainsmono"></span> {{ .Language }}</p>
+            <p class="absolute top-3 left-3 font-jetbrains text-[#623194]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "javascript" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#e8d44e]"><span class="font-jetbrainsmono"></span> {{ .Language }}</p>
+            <p class="absolute top-3 left-3 font-jetbrains text-[#e8d44e]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "zig" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#f7a41d]"><span class="font-jetbrainsmono"></span> {{ .Language }}</p>
+            <p class="absolute top-3 left-3 font-jetbrains text-[#f7a41d]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "json" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#cbcb41]"><span class="font-jetbrainsmono"></span> {{ .Language }}</p>
+            <p class="absolute top-3 left-3 font-jetbrains text-[#cbcb41]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "toml" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#a1a1aa]"><span class="font-jetbrainsmono"></span> {{ .Language }}</p>
+            <p class="absolute top-3 left-3 font-jetbrains text-[#a1a1aa]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "bash" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#89e051]"><span class="font-jetbrainsmono"></span> {{ .Language }}</p>
+            <p class="absolute top-3 left-3 font-jetbrains text-[#89e051]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "config" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#6d8086]"><span class="font-jetbrainsmono"></span> {{ .Language }}</p>
+            <p class="absolute top-3 left-3 font-jetbrains text-[#6d8086]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "lua" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#000080]"><span class="font-jetbrainsmono"></span> {{ .Language }}</p>
+            <p class="absolute top-3 left-3 font-jetbrains text-[#000080]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else }}
-            <p class="absolute top-3 left-3 font-jetbrains text-gray-400"><span class="font-jetbrainsmono"></span> {{ .Language }}</p>
+            <p class="absolute top-3 left-3 font-jetbrains text-gray-400"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ end }}
         <pre>{{ .Code }}</pre>
     </div>
