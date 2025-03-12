@@ -169,10 +169,11 @@ func linkHandler(lex *lexer, matchStr string) {
 }
 
 func paragraphHandler(lex *lexer, matchStr string) {
-	startLoc := lex.getLoc(lex.pos)
+	rightside_indent := regexp.MustCompile(`^` + INLINE_WHITESPACE + `*`).FindString(matchStr)
+	startLoc := lex.getLoc(lex.pos + len(rightside_indent))
 	lex.advanceN(len(matchStr))
 
-	inlineLex := NewLexer(matchStr, []patternConstructor{
+	inlineLex := NewLexer(matchStr[len(rightside_indent):], []patternConstructor{
 		{inlineTokenMatch(INLINE_CODE_PATTERN), inlineCodeHandler},
 		{inlineTokenMatch(LINK_PATTERN), linkHandler},
 	})
