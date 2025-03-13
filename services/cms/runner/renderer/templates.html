@@ -68,11 +68,10 @@
     </div>
 {{ end }}
 
-<!--COMMIT: Disable wrap for mobile version-->
 <!--COMMIT: Add clipboard button-->
 {{ block "codeblock" . }}
     <div
-        class="relative flex ml-4 my-8 p-4 pt-12 bg-code-grey"
+        class="codeblock relative flex ml-4 my-8 p-4 sm:p-8 pt-12 sm:pt-14 bg-code-grey"
     >
         {{ if eq .Language "go" }}
             <p class="absolute top-3 left-3 font-jetbrains text-[#05a5d0]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
@@ -97,6 +96,9 @@
         {{ else }}
             <p class="absolute top-3 left-3 font-jetbrains text-gray-400"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ end }}
+        <button
+            class="clipboard absolute top-3 right-3 size-8 bg-code-grey text-gray-400 border font-jetbrainsmono cursor-pointer text-lg hover:brightness-125 active:brightness-90"   
+        ></button>
         <pre class="overflow-x-auto sm:whitespace-pre-wrap sm:break-normal">{{ .Code }}</pre>
     </div>
 {{ end }}
