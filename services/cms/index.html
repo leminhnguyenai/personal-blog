@@ -6,15 +6,24 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="data:," />
         <link rel="stylesheet" href="/static/output.css" />
+        <link rel="stylesheet" href="https://www.nerdfonts.com/assets/css/webfont.css">
         <title>Blog preview</title>
     </head>
-    <body class="bg-rich-black text-mint-cream font-jetbrains">
-        <div
-            class="grid grid-cols-5"
-        >
-            <div class=""></div>
-            <div class="col-span-5 sm:col-span-3 p-3" id="content">{{ .Content }}</div>
-            <div class=""></div>
+    <body class="bg-rich-black text-mint-cream font-jetbrains text-sm">
+        <div class="fixed w-screen grid grid-cols-5">
+            <div 
+                class="hidden sm:flex sm:flex-col sm:h-screen sm:p-8"
+            >
+                {{ .TOC }}
+            </div>
+            <div class="col-span-5 h-screen sm:col-span-4 p-3 overflow-y-auto">
+                <div 
+                    id="content"
+                    class="w-full sm:w-3/4"
+                >
+                    {{ .Content }}
+                </div>
+            </div>
         </div>
     </body>
 </html>

@@ -168,12 +168,17 @@ func linkHandler(lex *lexer, matchStr string) {
 	lex.push(NewToken(LINK, NewLoc(startLoc, endLoc), placeholder, link))
 }
 
+func leftsideWhitespacesHandler(lex *lexer, matchStr string) {
+	lex.advanceN(len(matchStr))
+}
+
 func paragraphHandler(lex *lexer, matchStr string) {
 	rightside_indent := regexp.MustCompile(`^` + INLINE_WHITESPACE + `*`).FindString(matchStr)
 	startLoc := lex.getLoc(lex.pos + len(rightside_indent))
 	lex.advanceN(len(matchStr))
 
 	inlineLex := NewLexer(matchStr[len(rightside_indent):], []patternConstructor{
+		{inlineTokenMatch(`\s*$`), leftsideWhitespacesHandler},
 		{inlineTokenMatch(INLINE_CODE_PATTERN), inlineCodeHandler},
 		{inlineTokenMatch(LINK_PATTERN), linkHandler},
 	})

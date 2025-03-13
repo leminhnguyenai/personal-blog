@@ -161,7 +161,6 @@ func (node *Node) Display(str *string, level int) {
 }
 
 func ParseAST(source string) (*Node, error) {
-	// COMMIT: Add support for frontmatter
 	tokens, err := Tokenize(source)
 	if err != nil {
 		return nil, err

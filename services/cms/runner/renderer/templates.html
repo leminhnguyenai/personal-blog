@@ -3,31 +3,32 @@
         class="mt-8 mb-2 text-5xl text-title-red" 
     >{{ .Title }}</h1>
     <p class="text-sm text-gray-400">{{ .Date }}</p>
-    <!--COMMIT: Add visual to the tags-->
     <div
         class="my-6"
     > 
         {{ range .Tags }}
         <a 
             href="?tag={{ . }}" 
-            class="px-1 py-[2px] rounded-sm text-sm  text-code-orange bg-code-orange/30 hover:underline"
+            class="px-1 py-[2px] text-sm  text-code-orange bg-code-orange/30 hover:underline active:underline"
         >#{{ . }}</a> 
         {{ end }}
     </div>
     <hr class="text-gray-400">
+    <div class="flex flex-col sm:hidden p-2 my-4 bg-code-grey">{{ .TOC }}</div>
+    <hr class="block sm:hidden text-gray-400"> 
 {{ end }}
 
 {{ block "heading" . }}
     {{ if eq .Type 1 }}
-        <h1 class="my-6 text-3xl text-title-red">{{ .Value }}</h1>
+        <h1 id="{{ .Link }}" class="my-6 text-3xl text-title-red">{{ .Value }}</h1>
     {{ else if eq .Type 2 }}
-        <h2 class="my-4 text-2xl text-title-red">{{ .Value }}</h2>
+        <h2 id="{{ .Link }}" class="my-4 text-2xl text-title-red">{{ .Value }}</h2>
     {{ else if eq .Type 3 }}
-        <h3 class="my-4 text-xl text-title-red">{{ .Value }}</h3>
+        <h3 id="{{ .Link }}" class="my-4 text-xl text-title-red">{{ .Value }}</h3>
     {{ else if eq .Type 4 }}
-        <h4 class="my-2 text-lg text-title-red">{{ .Value }}</h4>
+        <h4 id="{{ .Link }}" class="my-2 text-lg text-title-red">{{ .Value }}</h4>
     {{ else if eq .Type 5 }}
-        <h5 class="my-2 text-lg text-title-red">{{ .Value }}</h5>
+        <h5 id="{{ .Link }}" class="my-2 text-lg text-title-red">{{ .Value }}</h5>
     {{ end }}
     {{ .Children }}
 {{ end }}
@@ -38,7 +39,7 @@
 
 {{ block "hyphen-list" . }}
     <li class="ml-2 list-none">
-        <span>–</span>
+        <span class="text-gray-400">–</span>
             {{ .Values }} 
         {{ if ne .Children "" }}
             <ul class="pl-4 list-inside">{{ .Children }}</ul>
@@ -48,7 +49,7 @@
 
 {{ block "numbered-list" . }}
     <li class="ml-2 list-none">
-        <span>{{ .Number }}</span>
+        <span class="text-gray-400">{{ .Number }}</span>
             {{ .Values }}
         {{ if ne .Children "" }}
             <ul class="pl-4 list-inside">{{ .Children }}</ul>
@@ -67,7 +68,8 @@
     </div>
 {{ end }}
 
-
+<!--COMMIT: Disable wrap for mobile version-->
+<!--COMMIT: Add clipboard button-->
 {{ block "codeblock" . }}
     <div
         class="relative flex ml-4 my-8 p-8 pt-12 bg-code-grey"
@@ -108,6 +110,35 @@
 {{ end }}
 
 {{ block "inline-code" . }}
-    <code class="whitespace-pre border-2 border-code-grey rounded-sm bg-code-grey text-code-lime font-jetbrains">{{ .Value }}</code>
+    <code class="whitespace-pre border-2 border-code-grey bg-code-grey text-code-lime font-jetbrains">{{ .Value }}</code>
 {{ end }}
 
+{{ block "TOC" . }}
+    {{ if eq .Type 1 }}
+        <a 
+            href="#{{ .Link }}" 
+            class="text-md text-title-red hover:underline active:underline cursor-pointer">{{ .Value }}
+        </a>
+    {{ else if eq .Type 2 }}
+        <a 
+            href="#{{ .Link }}" 
+            class="text-md ml-2 text-title-red hover:underline active:underline cursor-pointer">{{ .Value }}
+        </a>
+    {{ else if eq .Type 3 }}
+        <a 
+            href="#{{ .Link }}" 
+            class="text-md ml-2 text-title-red hover:underline active:underline cursor-pointer">{{ .Value }}
+        </a>
+    {{ else if eq .Type 4 }}
+        <a 
+            href="#{{ .Link }}" 
+            class="text-md ml-2 text-title-red hover:underline active:underline cursor-pointer">{{ .Value }}
+        </a>
+    {{ else if eq .Type 5 }}
+        <a 
+            href="#{{ .Link }}" 
+            class="text-md ml-2 text-title-red hover:underline active:underline cursor-pointer">{{ .Value }}
+        </a>
+    {{ end }}
+    {{ .Children }}
+{{ end }}

@@ -17,6 +17,7 @@ import (
 
 type Data struct {
 	Content template.HTML
+	TOC     template.HTML
 }
 
 func Preview(filePath string) error {
@@ -38,7 +39,7 @@ func Preview(filePath string) error {
 			return
 		}
 
-		frontmatter, err := lexer.ParseAST(string(data))
+		sourceNode, err := lexer.ParseAST(string(data))
 		if err != nil {
 			HandleError(w, err)
 			return
@@ -46,7 +47,7 @@ func Preview(filePath string) error {
 
 		var str string
 
-		frontmatter.Display(&str, 0)
+		sourceNode.Display(&str, 0)
 
 		fmt.Println(asciitree.GenerateTree(str))
 
@@ -56,7 +57,8 @@ func Preview(filePath string) error {
 			return
 		}
 
-		values, children := markdownRenderer.Traverse(frontmatter)
+		toc := markdownRenderer.GenerateTOC(sourceNode)
+		values, children := markdownRenderer.Traverse(sourceNode)
 		html := values + children
 
 		templ, err := template.ParseFiles("index.html")
@@ -65,7 +67,10 @@ func Preview(filePath string) error {
 			return
 		}
 
-		templ.ExecuteTemplate(w, "index", Data{Content: template.HTML(html)})
+		templ.ExecuteTemplate(w, "index", Data{
+			Content: template.HTML(html),
+			TOC:     template.HTML(toc),
+		})
 	})
 
 	srv := &http.Server{Addr: ":3000", Handler: mux}

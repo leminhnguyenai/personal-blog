@@ -24,7 +24,7 @@ skibidi toilet
 
 - Here is some ` inline code ` # This shouldn't be handled as heading
 
-### HEADING 1.2.1   
+### HEADING 1.2.1 Skibidi baamm skrrrrrt
 
 - Yes man - No man
 

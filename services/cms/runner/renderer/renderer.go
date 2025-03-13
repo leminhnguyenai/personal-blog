@@ -37,6 +37,45 @@ func NewRenderer() (*Renderer, error) {
 	return &Renderer{templates, &writer{}}, nil
 }
 
+func (r *Renderer) GenerateTOC(node *lexer.Node) string {
+	children := ""
+
+	for _, child := range node.Children {
+		switch child.Self.Kind {
+		case lexer.HEADING_1, lexer.HEADING_2, lexer.HEADING_3, lexer.HEADING_4, lexer.HEADING_5:
+			children += r.tocRenderer(child)
+		}
+	}
+
+	return children
+}
+
+// Get the string representation of the value in plain text
+func getStringRepresentation(node *lexer.Node) string {
+	values := ""
+	for _, value := range node.Values {
+		values += value.Self.Values[0]
+	}
+
+	return strings.ToLower(values)
+}
+
+func (r *Renderer) tocRenderer(node *lexer.Node) string {
+	children := r.GenerateTOC(node)
+	strRepresentation := getStringRepresentation(node)
+	values, _ := r.Traverse(node)
+	link := strings.Replace(strRepresentation, " ", "-", -1)
+
+	r.templates.ExecuteTemplate(r.writer, "TOC", struct {
+		Type     int
+		Value    template.HTML
+		Link     string
+		Children template.HTML
+	}{int(node.Self.Kind), template.HTML(values), link, template.HTML(children)})
+
+	return r.writer.String()
+}
+
 func (r *Renderer) Traverse(node *lexer.Node) (string, string) {
 	values := ""
 	children := ""
@@ -81,6 +120,7 @@ func (r *Renderer) frontmatterRenderer(node *lexer.Node) string {
 		Title string
 		Date  string
 		Tags  []string
+		TOC   template.HTML
 	}
 
 	data := Data{}
@@ -99,18 +139,23 @@ func (r *Renderer) frontmatterRenderer(node *lexer.Node) string {
 		}
 	}
 
+	data.TOC = template.HTML(r.GenerateTOC(node))
+
 	r.templates.ExecuteTemplate(r.writer, "frontmatter", data)
 	return r.writer.String()
 }
 
 func (r *Renderer) headingRenderer(node *lexer.Node) string {
 	values, children := r.Traverse(node)
+	strRepresentation := getStringRepresentation(node)
+	link := strings.Replace(strRepresentation, " ", "-", -1)
 
 	r.templates.ExecuteTemplate(r.writer, "heading", struct {
 		Type     int
 		Value    template.HTML
+		Link     string
 		Children template.HTML
-	}{int(node.Self.Kind), template.HTML(values), template.HTML(children)})
+	}{int(node.Self.Kind), template.HTML(values), link, template.HTML(children)})
 
 	return r.writer.String()
 }
