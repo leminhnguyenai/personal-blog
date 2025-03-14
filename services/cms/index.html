@@ -8,14 +8,16 @@
         <link rel="stylesheet" href="/static/output.css" />
         <title>Blog preview</title>
     </head>
-    <body class="bg-rich-black text-mint-cream font-jetbrains text-sm">
+    <body class="bg-rich-black text-mint-cream font-jetbrains text-sm scroll-auto">
         <div class="fixed w-screen grid grid-cols-5">
             <div 
-                class="hidden sm:flex sm:flex-col sm:h-screen sm:p-8"
+                class="side-bar toc hidden sm:flex sm:flex-col sm:h-screen sm:p-8"
             >
                 {{ .TOC }}
             </div>
-            <div class="col-span-5 h-screen sm:col-span-4 p-3 overflow-y-auto">
+            <div 
+                id="main"
+                class="col-span-5 h-screen sm:col-span-4 p-3 overflow-y-auto">
                 <div 
                     id="content"
                     class="w-full sm:w-3/4"

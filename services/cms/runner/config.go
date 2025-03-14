@@ -22,7 +22,7 @@ func NewCfg() (Config, error) {
 	// newFilePtr := flag.String("n", "", "Add new document")
 	// updateFilePtr := flag.String("m", "", "update document")
 	// deleteFilePtr := flag.String("m", "", "delete document")
-	previewFilePtr := flag.String("p", "", "delete document")
+	previewFilePtr := flag.String("p", "", "preview document")
 
 	flag.Parse()
 

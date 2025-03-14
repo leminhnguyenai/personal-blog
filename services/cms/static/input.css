@@ -1,47 +1,55 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @font-face {
-  font-family: JetBrainsMono;
-  font-style: normal;
-  font-weight: 400;
-  font-display: auto;
-  src: url("/static/fonts/JetBrainsMono-Light.woff") format("woff");
+    font-family: JetBrainsMono;
+    font-style: normal;
+    font-weight: 400;
+    font-display: auto;
+    src: url('/static/fonts/JetBrainsMono-Light.woff') format('woff');
 }
 
 @font-face {
-  font-family: JetBrainsMono;
-  font-style: normal;
-  font-weight: 700;
-  font-display: auto;
-  src: url("/static/fonts/JetBrainsMono-Bold.woff") format("woff");
+    font-family: JetBrainsMono;
+    font-style: normal;
+    font-weight: 700;
+    font-display: auto;
+    src: url('/static/fonts/JetBrainsMono-Bold.woff') format('woff');
 }
 
 @font-face {
-  font-family: JetBrainsMonoNerdFontMono;
-  font-style: normal;
-  font-weight: 400;
-  font-display: auto;
-  src: url("/static/fonts/JetBrainsMonoNerdFontMono-Light.woff") format("woff");
+    font-family: JetBrainsMonoNerdFontMono;
+    font-style: normal;
+    font-weight: 400;
+    font-display: auto;
+    src: url('/static/fonts/JetBrainsMonoNerdFontMono-Light.woff') format('woff');
 }
 
 @font-face {
-  font-family: JetBrainsMonoNerdFontMono;
-  font-style: normal;
-  font-weight: 700;
-  font-display: auto;
-  src: url("/static/fonts/JetBrainsMonoNerdFontMono-Bold.woff") format("woff");
+    font-family: JetBrainsMonoNerdFontMono;
+    font-style: normal;
+    font-weight: 700;
+    font-display: auto;
+    src: url('/static/fonts/JetBrainsMonoNerdFontMono-Bold.woff') format('woff');
 }
 
 @theme {
-  --font-jetbrains: JetBrainsMono;
-  --font-jetbrainsmono: JetBrainsMonoNerdFontMono;
-  --color-title-red: #ff7b72;
-  --color-rich-black: #181818;
-  --color-mint-cream: #f7fff7;
-  --color-code-red: #ff3131;
-  --color-code-grey: #1d2a37;
-  --color-code-yellow: #e19450;
-  --color-code-orange: #f39f53;
-  --color-code-lime: #cefe86;
-  --color-code-blue: #78befc;
+    --font-jetbrains: JetBrainsMono;
+    --font-jetbrainsmono: JetBrainsMonoNerdFontMono;
+    --color-title-red: #ff7b72;
+    --color-rich-black: #181818;
+    --color-mint-cream: #f7fff7;
+    --color-code-red: #ff3131;
+    --color-code-grey: #1d2a37;
+    --color-code-yellow: #e19450;
+    --color-code-orange: #f39f53;
+    --color-code-lime: #cefe86;
+    --color-code-blue: #78befc;
+    --color-coral-pink: #f88379;
+}
+
+.chapter-highlight {
+    border-style: solid;
+    border-width: 0 0 0 6px;
+    margin-left: 5px;
+    color: #ff7b72;
 }

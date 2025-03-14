@@ -1,7 +1,7 @@
 {{ block "frontmatter" . }}
-    <h1
+    <p
         class="mt-8 mb-2 text-5xl text-title-red" 
-    >{{ .Title }}</h1>
+    >{{ .Title }}</p> 
     <p class="text-sm text-gray-400">{{ .Date }}</p>
     <div
         class="my-6"
@@ -14,7 +14,7 @@
         {{ end }}
     </div>
     <hr class="text-gray-400">
-    <div class="flex flex-col sm:hidden p-2 my-4 bg-code-grey">{{ .TOC }}</div>
+    <div class="toc flex flex-col sm:hidden p-2 my-4 bg-code-grey">{{ .TOC }}</div>
     <hr class="block sm:hidden text-gray-400"> 
 {{ end }}
 
@@ -57,6 +57,7 @@
     </li>
 {{ end }}
 
+<!--COMMIT: Add visual for quote and callout-->
 {{ block "quote" . }}
     <blockquote class="ml-4">{{ .Values }}</blockquote>
 {{ end }}
@@ -68,7 +69,6 @@
     </div>
 {{ end }}
 
-<!--COMMIT: Add clipboard button-->
 {{ block "codeblock" . }}
     <div
         class="codeblock relative flex ml-4 my-8 p-4 sm:p-8 pt-12 sm:pt-14 bg-code-grey"
@@ -107,6 +107,7 @@
     <span>{{ .Value }}</span>
 {{ end }}
 
+<!--COMMIT: Add hightlight for link-->
 {{ block "link" . }}
     <a href="{{ .Link }}">{{ .Placeholder }}</a>
 {{ end }}
@@ -115,31 +116,32 @@
     <code class="whitespace-pre border-2 border-code-grey bg-code-grey text-code-lime font-jetbrains">{{ .Value }}</code>
 {{ end }}
 
+<!--COMMIT: Add advance hightlight for TOC-->
 {{ block "TOC" . }}
     {{ if eq .Type 1 }}
         <a 
             href="#{{ .Link }}" 
-            class="text-md text-title-red hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter border-l-2 text-md ml-2 pl-4 text-title-red sm:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ else if eq .Type 2 }}
         <a 
             href="#{{ .Link }}" 
-            class="text-md ml-2 text-title-red hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter border-l-2 text-md ml-2 pl-8 py-1 text-title-red sm:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ else if eq .Type 3 }}
         <a 
             href="#{{ .Link }}" 
-            class="text-md ml-2 text-title-red hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter border-l-2 text-md ml-2 pl-12 py-1 text-title-red sm:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ else if eq .Type 4 }}
         <a 
             href="#{{ .Link }}" 
-            class="text-md ml-2 text-title-red hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter border-l-2 text-md ml-2 pl-16 py-1 text-title-red sm:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ else if eq .Type 5 }}
         <a 
             href="#{{ .Link }}" 
-            class="text-md ml-2 text-title-red hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter border-l-2 text-md ml-2 pl-20 py-1 text-title-red sm:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ end }}
     {{ .Children }}

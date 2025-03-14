@@ -83,3 +83,28 @@ function hyphenListRender(node *Node) string:
 
 
 This one should be independent
+
+# LALALAL
+
+- asdasd
+- asdasd
+- asdasd
+- asdasd
+- asdasd
+- asdasd
+- asdasd
+1. ski
+2. bi
+    3. di
+1. ski
+1. ski
+1. ski
+1. ski
+2. bi
+    3. di
+2. bi
+    3. di
+2. bi
+    3. di
+2. bi
+    3. di
