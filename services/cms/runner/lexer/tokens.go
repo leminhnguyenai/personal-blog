@@ -31,6 +31,7 @@ const (
 
 	LINK
 	INLINE_CODE
+	BOLD_TEXT
 )
 
 func getString(vals []string) string {
@@ -110,6 +111,7 @@ func (token Token) Debug() string {
 		NUMBERED_LIST,
 		LINK,
 		INLINE_CODE,
+		BOLD_TEXT,
 		CODE_BLOCK,
 		FRONTMATTER,
 	) {
@@ -141,6 +143,8 @@ func TokenKindString(kind TokenKind) string {
 		return "link"
 	case INLINE_CODE:
 		return "inline_code"
+	case BOLD_TEXT:
+		return "bold text"
 	case HEADING_1:
 		return "heading_1"
 	case HEADING_2:

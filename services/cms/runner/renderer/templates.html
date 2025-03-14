@@ -129,7 +129,6 @@
     <span>{{ .Value }}</span>
 {{ end }}
 
-<!--COMMIT: Add hightlight for link-->
 {{ block "link" . }}
     {{ if eq .Type "Youtube" }}
         <a
@@ -191,4 +190,8 @@
         </a>
     {{ end }}
     {{ .Children }}
+{{ end }}
+
+{{ block "bold-text" . }}
+    <span class="bold">{{ .Value }}</span>
 {{ end }}

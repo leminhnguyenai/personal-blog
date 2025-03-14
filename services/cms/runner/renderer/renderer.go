@@ -93,6 +93,8 @@ func (r *Renderer) Traverse(node *lexer.Node) (string, string) {
 			values += r.linkRenderer(value)
 		case lexer.INLINE_CODE:
 			values += r.inlineCodeRenderer(value)
+		case lexer.BOLD_TEXT:
+			values += r.boldTextRenderer(value)
 		}
 	}
 
@@ -259,6 +261,12 @@ func (r *Renderer) linkRenderer(node *lexer.Node) string {
 
 func (r *Renderer) inlineCodeRenderer(node *lexer.Node) string {
 	r.templates.ExecuteTemplate(r.writer, "inline-code", struct{ Value string }{node.Self.Values[0]})
+
+	return r.writer.String()
+}
+
+func (r *Renderer) boldTextRenderer(node *lexer.Node) string {
+	r.templates.ExecuteTemplate(r.writer, "bold-text", struct{ Value string }{node.Self.Values[0]})
 
 	return r.writer.String()
 }

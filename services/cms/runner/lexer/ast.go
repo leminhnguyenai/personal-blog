@@ -50,6 +50,7 @@ func (node *Node) isValueOf(otherNode *Node) bool {
 			PARAGRAPH,
 			LINK,
 			INLINE_CODE,
+			BOLD_TEXT,
 		)
 }
 

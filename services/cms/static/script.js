@@ -41,7 +41,6 @@ for (let i = 0; i < headings.length; i++) {
     })
 }
 
-// COMMIT: Decrease the refresh rate of the TOC
 main.addEventListener('scroll', () => {
     for (let i = 0; i < sections.length; i++) {
         if (i == sections.length - 1) {
