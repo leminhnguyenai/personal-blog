@@ -44,7 +44,10 @@
     --color-code-orange: #f39f53;
     --color-code-lime: #cefe86;
     --color-code-blue: #78befc;
+    --color-code-purple: #d2a8ff;
     --color-coral-pink: #f88379;
+    --color-aqua: #00ffff;
+    --color-warning-yellow: #d29922;
 }
 
 .chapter-highlight {

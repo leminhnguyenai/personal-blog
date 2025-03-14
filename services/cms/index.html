@@ -11,16 +11,16 @@
     <body class="bg-rich-black text-mint-cream font-jetbrains text-sm scroll-auto">
         <div class="fixed w-screen grid grid-cols-5">
             <div 
-                class="side-bar toc hidden sm:flex sm:flex-col sm:h-screen sm:p-8"
+                class="side-bar toc hidden md:flex md:flex-col md:h-screen md:p-8"
             >
                 {{ .TOC }}
             </div>
             <div 
                 id="main"
-                class="col-span-5 h-screen sm:col-span-4 p-3 overflow-y-auto">
+                class="col-span-5 h-screen md:col-span-4 p-3 overflow-y-auto">
                 <div 
                     id="content"
-                    class="w-full sm:w-3/4"
+                    class="w-full md:w-3/4"
                 >
                     {{ .Content }}
                 </div>

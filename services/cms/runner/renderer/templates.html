@@ -14,8 +14,8 @@
         {{ end }}
     </div>
     <hr class="text-gray-400">
-    <div class="toc flex flex-col sm:hidden p-2 my-4 bg-code-grey">{{ .TOC }}</div>
-    <hr class="block sm:hidden text-gray-400"> 
+    <div class="toc flex flex-col md:hidden p-2 my-4 bg-code-grey">{{ .TOC }}</div>
+    <hr class="block md:hidden text-gray-400"> 
 {{ end }}
 
 {{ block "heading" . }}
@@ -63,15 +63,32 @@
 {{ end }}
 
 {{ block "callout" . }}
-    <div class="ml-4">
-        <p>{{ .Values }}</p>
+    {{ if eq .Values "Note" }}
+        <div class="ml-4 my-8 p-4 bg-aqua/10 border-1 border-aqua">
+            <p class="text-aqua mb-4">{{ .Values }}</p>
         {{ .Children }}
-    </div>
+        </div>
+    {{ else if eq .Values "Important" }}
+        <div class="ml-4 my-8 p-4 bg-code-purple/10 border-1 border-code-purple">
+            <p class="text-code-purple mb-4">{{ .Values }}</p>
+        {{ .Children }}
+        </div>
+    {{ else if eq .Values "Warning" }}
+        <div class="ml-4 my-8 p-4 bg-warning-yellow/10 border-1 border-warning-yellow">
+            <p class="text-warning-yellow mb-4">{{ .Values }}</p>
+        {{ .Children }}
+        </div>
+    {{ else if eq .Values "Warning" }}
+        <div class="ml-4 my-8 p-4 bg-code-grey/10 border-1 border-code-grey">
+            <p class="text-code-grey mb-4">{{ .Values }}</p>
+        {{ .Children }}
+        </div>
+    {{ end }}
 {{ end }}
 
 {{ block "codeblock" . }}
     <div
-        class="codeblock relative flex ml-4 my-8 p-4 sm:p-8 pt-12 sm:pt-14 bg-code-grey"
+        class="codeblock relative flex ml-4 my-8 p-4 md:p-8 pt-12 md:pt-14 bg-code-grey"
     >
         {{ if eq .Language "go" }}
             <p class="absolute top-3 left-3 font-jetbrains text-[#05a5d0]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
@@ -99,7 +116,7 @@
         <button
             class="clipboard absolute top-3 right-3 size-8 bg-code-grey text-gray-400 border font-jetbrainsmono cursor-pointer text-lg hover:brightness-125 active:brightness-90"   
         ></button>
-        <pre class="overflow-x-auto sm:whitespace-pre-wrap sm:break-normal">{{ .Code }}</pre>
+        <pre class="overflow-x-auto md:whitespace-pre-wrap md:break-normal">{{ .Code }}</pre>
     </div>
 {{ end }}
 
@@ -121,27 +138,27 @@
     {{ if eq .Type 1 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter border-l-2 text-md ml-2 pl-4 text-title-red sm:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter border-l-2 text-md ml-2 pl-4 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ else if eq .Type 2 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter border-l-2 text-md ml-2 pl-8 py-1 text-title-red sm:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter border-l-2 text-md ml-2 pl-8 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ else if eq .Type 3 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter border-l-2 text-md ml-2 pl-12 py-1 text-title-red sm:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter border-l-2 text-md ml-2 pl-12 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ else if eq .Type 4 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter border-l-2 text-md ml-2 pl-16 py-1 text-title-red sm:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter border-l-2 text-md ml-2 pl-16 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ else if eq .Type 5 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter border-l-2 text-md ml-2 pl-20 py-1 text-title-red sm:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter border-l-2 text-md ml-2 pl-20 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ end }}
     {{ .Children }}
