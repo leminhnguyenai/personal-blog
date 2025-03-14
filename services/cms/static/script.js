@@ -41,14 +41,19 @@ for (let i = 0; i < headings.length; i++) {
     })
 }
 
+// COMMIT: Decrease the refresh rate of the TOC
 main.addEventListener('scroll', () => {
     for (let i = 0; i < sections.length; i++) {
         if (i == sections.length - 1) {
             const rect = sections[i].heading.getBoundingClientRect()
             if (rect.top <= 0) {
-                sections.forEach((section) => section.chapter.blur())
-
                 addClass(sections[i].chapter, 'chapter-highlight')
+
+                for (let j = 0; j < sections.length; j++) {
+                    if (j != i) {
+                        removeClass(sections[j].chapter, 'chapter-highlight')
+                    }
+                }
                 break
             }
             continue
@@ -58,11 +63,13 @@ main.addEventListener('scroll', () => {
         const lowerRect = sections[i + 1].heading.getBoundingClientRect()
 
         if (upperRect.top <= 0 && lowerRect.top > 0) {
-            sections.forEach((section) => {
-                removeClass(section.chapter, 'chapter-highlight')
-            })
-
             addClass(sections[i].chapter, 'chapter-highlight')
+
+            for (let j = 0; j < sections.length; j++) {
+                if (j != i) {
+                    removeClass(sections[j].chapter, 'chapter-highlight')
+                }
+            }
             break
         }
     }
