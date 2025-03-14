@@ -18,6 +18,8 @@
     <hr class="block md:hidden text-gray-400"> 
 {{ end }}
 
+<!--COMMIT: Add copy functionality when click on heading-->
+<!--COMMIT: Add a universal notification for successful copying (message differ based on what is copied)-->
 {{ block "heading" . }}
     {{ if eq .Type 1 }}
         <h1 id="{{ .Link }}" class="my-6 text-3xl text-title-red">{{ .Value }}</h1>
@@ -57,7 +59,6 @@
     </li>
 {{ end }}
 
-<!--COMMIT: Add visual for quote and callout-->
 {{ block "quote" . }}
     <blockquote class="relative flex ml-4 my-16 px-4 py-8 items-center justify-center border-1 text-lg italic text-silver">
         <p class="absolute font-jetbrainsmono pl-4 pr-6 bg-rich-black text-4xl top-0 left-5 -translate-y-5 text-center">󰉾</p>
@@ -89,6 +90,7 @@
     {{ end }}
 {{ end }}
 
+<!--COMMIT: Add number column for code block-->
 {{ block "codeblock" . }}
     <div
         class="codeblock relative flex ml-4 my-8 p-4 md:p-8 pt-12 md:pt-14 bg-code-grey"
@@ -129,14 +131,38 @@
 
 <!--COMMIT: Add hightlight for link-->
 {{ block "link" . }}
-    <a href="{{ .Link }}">{{ .Placeholder }}</a>
+    {{ if eq .Type "Youtube" }}
+        <a
+            class="font-jetbrainsmono text-[#fe314d] hover:underline"
+            href="{{ .Link }}"
+        > {{ .Placeholder }}</a>
+    {{ else if eq .Type "Github" }}
+        <a
+            class="font-jetbrainsmono text-[#fafbfc] hover:underline"
+            href="{{ .Link }}"
+        > {{ .Placeholder }}</a>
+    {{ else if eq .Type "Reddit" }}
+        <a
+            class="font-jetbrainsmono text-[#ff4500] hover:underline"
+            href="{{ .Link }}"
+        > {{ .Placeholder }}</a>
+    {{ else if eq .Type "Gopkg" }}
+        <a
+            class="font-jetbrainsmono text-[#027d9c] hover:underline"
+            href="{{ .Link }}"
+        > {{ .Placeholder }}</a>
+    {{ else }}
+        <a
+            class="font-jetbrainsmono text-code-purple hover:underline"
+            href="{{ .Link }}"
+        > {{ .Placeholder }}</a>
+    {{ end }}
 {{ end }}
 
 {{ block "inline-code" . }}
     <code class="whitespace-pre border-2 border-code-grey bg-code-grey text-code-lime font-jetbrains">{{ .Value }}</code>
 {{ end }}
 
-<!--COMMIT: Add advance hightlight for TOC-->
 {{ block "TOC" . }}
     {{ if eq .Type 1 }}
         <a 

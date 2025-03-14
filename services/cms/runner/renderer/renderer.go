@@ -2,6 +2,7 @@ package renderer
 
 import (
 	"html/template"
+	"regexp"
 	"strings"
 
 	"github.com/leminhnguyenai/personal-blog/services/cms/runner/lexer"
@@ -235,10 +236,23 @@ func (r *Renderer) inlineParagraphRenderer(node *lexer.Node) string {
 }
 
 func (r *Renderer) linkRenderer(node *lexer.Node) string {
+	var linkType string
+
+	if regexp.MustCompile(`https://www\.youtube\.com.*`).FindString(node.Self.Values[1]) != "" {
+		linkType = "Youtube"
+	} else if regexp.MustCompile(`https://github\.com.*`).FindString(node.Self.Values[1]) != "" {
+		linkType = "Github"
+	} else if regexp.MustCompile(`https://www\.reddit\.com.*`).FindString(node.Self.Values[1]) != "" {
+		linkType = "Reddit"
+	} else if regexp.MustCompile(`https://pkg\.go\.dev.*`).FindString(node.Self.Values[1]) != "" {
+		linkType = "Gopkg"
+	}
+
 	r.templates.ExecuteTemplate(r.writer, "link", struct {
 		Link        string
+		Type        string
 		Placeholder string
-	}{node.Self.Values[1], node.Self.Values[0]})
+	}{node.Self.Values[1], linkType, node.Self.Values[0]})
 
 	return r.writer.String()
 }

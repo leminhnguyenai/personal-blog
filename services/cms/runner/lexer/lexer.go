@@ -110,6 +110,7 @@ func blockTokenMatch(regex string) patternMatch {
 	}
 }
 
+// COMMIT: Add support for italic/bold text
 func inlineTokenMatch(regex string) patternMatch {
 	return func(lex *lexer) string {
 		matchLoc := regexp.MustCompile(regex).FindStringIndex(lex.remainder())
