@@ -59,27 +59,30 @@
 
 <!--COMMIT: Add visual for quote and callout-->
 {{ block "quote" . }}
-    <blockquote class="ml-4">{{ .Values }}</blockquote>
+    <blockquote class="relative flex ml-4 my-16 px-4 py-8 items-center justify-center border-1 text-lg italic text-silver">
+        <p class="absolute font-jetbrainsmono pl-4 pr-6 bg-rich-black text-4xl top-0 left-5 -translate-y-5 text-center">󰉾</p>
+        {{ .Values }}
+    </blockquote>
 {{ end }}
 
 {{ block "callout" . }}
     {{ if eq .Values "Note" }}
-        <div class="ml-4 my-8 p-4 bg-aqua/10 border-1 border-aqua">
+        <div class="ml-4 my-16 p-4 bg-aqua/10 border-1 border-aqua">
             <p class="text-aqua mb-4">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ else if eq .Values "Important" }}
-        <div class="ml-4 my-8 p-4 bg-code-purple/10 border-1 border-code-purple">
+        <div class="ml-4 my-16 p-4 bg-code-purple/10 border-1 border-code-purple">
             <p class="text-code-purple mb-4">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ else if eq .Values "Warning" }}
-        <div class="ml-4 my-8 p-4 bg-warning-yellow/10 border-1 border-warning-yellow">
+        <div class="ml-4 my-16 p-4 bg-warning-yellow/10 border-1 border-warning-yellow">
             <p class="text-warning-yellow mb-4">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ else if eq .Values "Warning" }}
-        <div class="ml-4 my-8 p-4 bg-code-grey/10 border-1 border-code-grey">
+        <div class="ml-4 my-16 p-4 bg-code-grey/10 border-1 border-code-grey">
             <p class="text-code-grey mb-4">{{ .Values }}</p>
         {{ .Children }}
         </div>
