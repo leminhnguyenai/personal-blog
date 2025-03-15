@@ -10,7 +10,7 @@
 
 @font-face {
     font-family: JetBrainsMono;
-    font-style: normal;
+    font-style: bold;
     font-weight: 700;
     font-display: auto;
     src: url('/static/fonts/JetBrainsMono-Bold.woff') format('woff');
