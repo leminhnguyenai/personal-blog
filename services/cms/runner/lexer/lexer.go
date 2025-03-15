@@ -162,6 +162,14 @@ func boldTextHandler(lex *lexer, matchStr string) {
 	lex.push(NewToken(BOLD_TEXT, NewLoc(startLoc, endLoc), matchStr[2:len(matchStr)-2]))
 }
 
+func italicTextHandler(lex *lexer, matchStr string) {
+	startLoc := lex.getLoc(lex.pos)
+	lex.advanceN(len(matchStr))
+	endLoc := lex.getLoc(lex.pos - 1)
+
+	lex.push(NewToken(ITALIC_TEXT, NewLoc(startLoc, endLoc), matchStr[1:len(matchStr)-1]))
+}
+
 func linkHandler(lex *lexer, matchStr string) {
 	placeholder := regexp.MustCompile(`\[` + CHAR + `*` + `\]`).FindString(matchStr)
 	link := regexp.MustCompile(`\(` + CHAR + `*` + `\)`).FindString(matchStr)
@@ -195,6 +203,7 @@ func paragraphHandler(lex *lexer, matchStr string) {
 		{inlineTokenMatch(INLINE_CODE_PATTERN), inlineCodeHandler},
 		{inlineTokenMatch(LINK_PATTERN), linkHandler},
 		{inlineTokenMatch(`\*\*[^\n\*]*\*\*`), boldTextHandler},
+		{inlineTokenMatch(`_[^\n_]*_`), italicTextHandler},
 	})
 
 	prevLoc := 0

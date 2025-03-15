@@ -88,13 +88,15 @@ func (r *Renderer) Traverse(node *lexer.Node) (string, string) {
 	for _, value := range node.Values {
 		switch value.Self.Kind {
 		case lexer.TEXT:
-			values += r.textRenderer(value)
+			values += r.defaultRenderer(value, "text")
 		case lexer.LINK:
 			values += r.linkRenderer(value)
 		case lexer.INLINE_CODE:
-			values += r.inlineCodeRenderer(value)
+			values += r.defaultRenderer(value, "inline-code")
 		case lexer.BOLD_TEXT:
-			values += r.boldTextRenderer(value)
+			values += r.defaultRenderer(value, "bold-text")
+		case lexer.ITALIC_TEXT:
+			values += r.defaultRenderer(value, "italic-text")
 		}
 	}
 
@@ -114,6 +116,12 @@ func (r *Renderer) Traverse(node *lexer.Node) (string, string) {
 	}
 
 	return values, children
+}
+
+func (r *Renderer) defaultRenderer(node *lexer.Node, template string) string {
+	r.templates.ExecuteTemplate(r.writer, template, struct{ Value string }{node.Self.Values[0]})
+
+	return r.writer.String()
 }
 
 func (r *Renderer) frontmatterRenderer(node *lexer.Node) string {
@@ -222,15 +230,10 @@ func (r *Renderer) calloutRenderer(node *lexer.Node) string {
 
 func (r *Renderer) codeBlockRenderer(node *lexer.Node) string {
 	r.templates.ExecuteTemplate(r.writer, "codeblock", struct {
-		Language string
-		Code     string
-	}{node.Self.Values[0], node.Self.Values[1]})
-
-	return r.writer.String()
-}
-
-func (r *Renderer) textRenderer(node *lexer.Node) string {
-	r.templates.ExecuteTemplate(r.writer, "text", struct{ Value string }{node.Self.Values[0]})
+		Language   string
+		Code       string
+		NumOfLines int
+	}{node.Self.Values[0], node.Self.Values[1], len(strings.Split(node.Self.Values[1], "\n"))})
 
 	return r.writer.String()
 }
@@ -254,18 +257,6 @@ func (r *Renderer) linkRenderer(node *lexer.Node) string {
 		Type        string
 		Placeholder string
 	}{node.Self.Values[1], linkType, node.Self.Values[0]})
-
-	return r.writer.String()
-}
-
-func (r *Renderer) inlineCodeRenderer(node *lexer.Node) string {
-	r.templates.ExecuteTemplate(r.writer, "inline-code", struct{ Value string }{node.Self.Values[0]})
-
-	return r.writer.String()
-}
-
-func (r *Renderer) boldTextRenderer(node *lexer.Node) string {
-	r.templates.ExecuteTemplate(r.writer, "bold-text", struct{ Value string }{node.Self.Values[0]})
 
 	return r.writer.String()
 }
