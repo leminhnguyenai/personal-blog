@@ -1,19 +1,3 @@
-// Add clipboard functionality to the clipboard button
-const codeblocks = document.querySelectorAll('.codeblock')
-
-codeblocks.forEach((codeblock) => {
-    const code = codeblock.querySelector('pre').textContent
-    const clipboardBtn = codeblock.querySelector('button.clipboard')
-
-    clipboardBtn.addEventListener('click', () => {
-        navigator.clipboard.writeText(code)
-        clipboardBtn.textContent = '󰄬'
-        setTimeout(() => {
-            clipboardBtn.textContent = ''
-        }, 1000)
-    })
-})
-
 // Highlight TOC when section is visible
 const main = document.querySelector('#main')
 const headings = main.querySelectorAll('h1, h2, h3, h4, h5')

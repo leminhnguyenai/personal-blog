@@ -6,6 +6,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="data:," />
         <link rel="stylesheet" href="/static/output.css" />
+        <script src="/static/clipboard.js"></script>
+        <script src="/static/init.js"></script>
         <title>Blog preview</title>
     </head>
     <body class="bg-rich-black text-mint-cream font-jetbrains text-sm scroll-auto">
@@ -20,7 +22,7 @@
                 class="col-span-5 h-screen md:col-span-4 p-3 overflow-y-auto">
                 <div 
                     id="content"
-                    class="w-full md:w-3/4"
+                    class="w-auto md:w-3/4 px-8"
                 >
                     {{ .Content }}
                 </div>
