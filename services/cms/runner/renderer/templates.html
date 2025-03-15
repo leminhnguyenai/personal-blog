@@ -18,8 +18,6 @@
     <hr class="block md:hidden text-gray-400"> 
 {{ end }}
 
-<!--COMMIT: Add copy functionality when click on heading-->
-<!--COMMIT: Add a universal notification for successful copying (message differ based on what is copied)-->
 {{ block "heading" . }}
     {{ if eq .Type 1 }}
         <h1 id="{{ .Link }}" class="my-6 text-3xl text-title-red">{{ .Value }}</h1>
@@ -36,7 +34,12 @@
 {{ end }}
 
 {{ block "paragraph" . }}
-    <p class="ml-2">{{ .Value }}</p> 
+    <li class="ml-2 list-none">
+        {{ .Values }} 
+        {{ if ne .Children "" }}
+            <ul class="pl-4 list-inside">{{ .Children }}</ul>
+        {{ end }}
+    </li>
 {{ end }}
 
 {{ block "hyphen-list" . }}
@@ -90,7 +93,6 @@
     {{ end }}
 {{ end }}
 
-<!--COMMIT: Add number column for code block-->
 {{ block "codeblock" . }}
     <div
         class="codeblock relative flex ml-4 my-8 p-4 md:p-8 pt-12 md:pt-14 bg-code-grey"
@@ -125,7 +127,7 @@
     </div>
 {{ end }}
 
-{{ block "inline-paragraph" . }}
+{{ block "text" . }}
     <span>{{ .Value }}</span>
 {{ end }}
 

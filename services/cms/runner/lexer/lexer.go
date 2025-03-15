@@ -110,7 +110,6 @@ func blockTokenMatch(regex string) patternMatch {
 	}
 }
 
-// COMMIT: Add support for italic/bold text
 func inlineTokenMatch(regex string) patternMatch {
 	return func(lex *lexer) string {
 		matchLoc := regexp.MustCompile(regex).FindStringIndex(lex.remainder())
@@ -184,6 +183,11 @@ func leftsideWhitespacesHandler(lex *lexer, matchStr string) {
 func paragraphHandler(lex *lexer, matchStr string) {
 	rightside_indent := regexp.MustCompile(`^` + INLINE_WHITESPACE + `*`).FindString(matchStr)
 	startLoc := lex.getLoc(lex.pos + len(rightside_indent))
+
+	if lex.isOnNewLine() || lex.isChildOfQuote() {
+		lex.push(NewToken(PARAGRAPH, NewLoc(startLoc, startLoc), matchStr[len(rightside_indent):]))
+	}
+
 	lex.advanceN(len(matchStr))
 
 	inlineLex := NewLexer(matchStr[len(rightside_indent):], []patternConstructor{
@@ -203,7 +207,7 @@ func paragraphHandler(lex *lexer, matchStr string) {
 
 				if currentLoc != prevLoc {
 					inlineLex.push(
-						NewToken(PARAGRAPH, NewLoc([2]int{0, prevLoc}, [2]int{0, currentLoc - 1}),
+						NewToken(TEXT, NewLoc([2]int{0, prevLoc}, [2]int{0, currentLoc - 1}),
 							inlineLex.source[prevLoc:currentLoc]))
 				}
 
@@ -221,7 +225,7 @@ func paragraphHandler(lex *lexer, matchStr string) {
 
 	if prevLoc < len(inlineLex.source) {
 		inlineLex.push(NewToken(
-			PARAGRAPH,
+			TEXT,
 			NewLoc([2]int{0, prevLoc}, [2]int{0, len(inlineLex.source) - 1}),
 			inlineLex.source[prevLoc:],
 		))

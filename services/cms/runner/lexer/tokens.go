@@ -29,6 +29,7 @@ const (
 
 	PARAGRAPH
 
+	TEXT
 	LINK
 	INLINE_CODE
 	BOLD_TEXT
@@ -107,13 +108,13 @@ func (token Token) Debug() string {
 	locDisplay := fmt.Sprintf("%s", token.Loc.Display())
 
 	if token.isOneOfKinds(
-		PARAGRAPH,
 		NUMBERED_LIST,
 		LINK,
 		INLINE_CODE,
 		BOLD_TEXT,
 		CODE_BLOCK,
 		FRONTMATTER,
+		TEXT,
 	) {
 		return fmt.Sprintf("%s (%s)", TokenKindString(token.Kind), getString(token.Values)) + locDisplay
 	} else if token.isOneOfKinds(FRONTMATTER) {
@@ -139,6 +140,8 @@ func TokenKindString(kind TokenKind) string {
 		return "quote"
 	case PARAGRAPH:
 		return "paragraph"
+	case TEXT:
+		return "text"
 	case LINK:
 		return "link"
 	case INLINE_CODE:

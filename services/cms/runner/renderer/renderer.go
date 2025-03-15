@@ -87,8 +87,8 @@ func (r *Renderer) Traverse(node *lexer.Node) (string, string) {
 
 	for _, value := range node.Values {
 		switch value.Self.Kind {
-		case lexer.PARAGRAPH:
-			values += r.inlineParagraphRenderer(value)
+		case lexer.TEXT:
+			values += r.textRenderer(value)
 		case lexer.LINK:
 			values += r.linkRenderer(value)
 		case lexer.INLINE_CODE:
@@ -102,9 +102,7 @@ func (r *Renderer) Traverse(node *lexer.Node) (string, string) {
 		switch child.Self.Kind {
 		case lexer.HEADING_1, lexer.HEADING_2, lexer.HEADING_3, lexer.HEADING_4, lexer.HEADING_5:
 			children += r.headingRenderer(child)
-		case lexer.PARAGRAPH:
-			children += r.paragraphRenderer(child)
-		case lexer.HYPHEN_LIST, lexer.NUMBERED_LIST:
+		case lexer.HYPHEN_LIST, lexer.NUMBERED_LIST, lexer.PARAGRAPH:
 			children += r.listRenderer(child)
 		case lexer.CODE_BLOCK:
 			children += r.codeBlockRenderer(child)
@@ -163,12 +161,6 @@ func (r *Renderer) headingRenderer(node *lexer.Node) string {
 	return r.writer.String()
 }
 
-func (r *Renderer) paragraphRenderer(node *lexer.Node) string {
-	r.templates.ExecuteTemplate(r.writer, "paragraph", struct{ Value string }{node.Self.Values[0]})
-
-	return r.writer.String()
-}
-
 func (r *Renderer) listRenderer(node *lexer.Node) string {
 	values, children := r.Traverse(node)
 
@@ -179,6 +171,12 @@ func (r *Renderer) listRenderer(node *lexer.Node) string {
 		}{template.HTML(values), template.HTML(children)})
 	} else if node.Self.Kind == lexer.NUMBERED_LIST {
 		r.templates.ExecuteTemplate(r.writer, "numbered-list", struct {
+			Number   string
+			Values   template.HTML
+			Children template.HTML
+		}{node.Self.Values[0], template.HTML(values), template.HTML(children)})
+	} else if node.Self.Kind == lexer.PARAGRAPH {
+		r.templates.ExecuteTemplate(r.writer, "paragraph", struct {
 			Number   string
 			Values   template.HTML
 			Children template.HTML
@@ -231,12 +229,13 @@ func (r *Renderer) codeBlockRenderer(node *lexer.Node) string {
 	return r.writer.String()
 }
 
-func (r *Renderer) inlineParagraphRenderer(node *lexer.Node) string {
-	r.templates.ExecuteTemplate(r.writer, "inline-paragraph", struct{ Value string }{node.Self.Values[0]})
+func (r *Renderer) textRenderer(node *lexer.Node) string {
+	r.templates.ExecuteTemplate(r.writer, "text", struct{ Value string }{node.Self.Values[0]})
 
 	return r.writer.String()
 }
 
+// e.g. Youtube = bg image, Reddit = minimal widget + title + overview
 func (r *Renderer) linkRenderer(node *lexer.Node) string {
 	var linkType string
 

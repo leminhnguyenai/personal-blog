@@ -47,7 +47,7 @@ func (node *Node) isValueOf(otherNode *Node) bool {
 	return node.lineDiffStart(otherNode) == 0 &&
 		!otherNode.Self.isOneOfKinds(QUOTE) &&
 		node.Self.isOneOfKinds(
-			PARAGRAPH,
+			TEXT,
 			LINK,
 			INLINE_CODE,
 			BOLD_TEXT,
