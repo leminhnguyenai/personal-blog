@@ -120,7 +120,7 @@
 
 {{ block "codeblock" . }}
     <div
-        class="codeblock relative flex ml-4 my-8 p-4 md:p-8 pt-12 md:pt-14 bg-code-grey"
+        class="codeblock relative flex ml-4 my-8 px-8 py-4 md:p-8 pt-12 md:pt-14 bg-code-grey"
     >
         {{ if eq .Language "go" }}
             <p class="absolute top-3 left-3 font-jetbrains text-[#05a5d0]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
@@ -148,7 +148,12 @@
         <button
             class="clipboard absolute top-3 right-3 size-8 bg-code-grey text-gray-400 border font-jetbrainsmono cursor-pointer text-lg hover:brightness-125 active:brightness-90"   
         ></button>
-        <pre class="overflow-x-auto md:whitespace-pre-wrap md:break-normal">{{ .Code }}</pre>
+        <div class="absolute flex flex-col left-3 text-gray-500">
+            {{ range numIterator .NumOfLines }}
+                <span class="text-right">{{ . }}</span>
+            {{ end }}
+        </div>
+        <pre class="ml-1 overflow-x-auto md:whitespace-pre-wrap md:break-normal">{{ .Code }}</pre>
     </div>
 {{ end }}
 

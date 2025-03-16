@@ -29,8 +29,19 @@ type Renderer struct {
 	writer    *writer
 }
 
+var funcsMap = template.FuncMap{
+	"numIterator": func(num int) []int {
+		arr := []int{}
+		for i := 0; i < num; i++ {
+			arr = append(arr, i+1)
+		}
+
+		return arr
+	},
+}
+
 func NewRenderer() (*Renderer, error) {
-	templates, err := template.ParseFiles("runner/renderer/templates.html")
+	templates, err := template.New("content").Funcs(funcsMap).ParseFiles("runner/renderer/templates.html")
 	if err != nil {
 		return nil, err
 	}
