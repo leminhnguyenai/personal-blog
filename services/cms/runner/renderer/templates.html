@@ -212,27 +212,27 @@
     {{ if eq .Type 1 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter border-l-2 text-md ml-2 pl-4 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter md:border-l-2 text-md ml-2 pl-4 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ else if eq .Type 2 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter border-l-2 text-md ml-2 pl-8 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter md:border-l-2 text-md ml-2 pl-8 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ else if eq .Type 3 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter border-l-2 text-md ml-2 pl-12 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter md:border-l-2 text-md ml-2 pl-12 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ else if eq .Type 4 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter border-l-2 text-md ml-2 pl-16 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter md:border-l-2 text-md ml-2 pl-16 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ else if eq .Type 5 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter border-l-2 text-md ml-2 pl-20 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter md:border-l-2 text-md ml-2 pl-20 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
         </a>
     {{ end }}
     {{ .Children }}
