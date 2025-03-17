@@ -23,35 +23,40 @@
         <h1 
             id="{{ .Link }}" 
             class="my-6 gap-4 text-3xl cursor-pointer text-title-red hover:after:text-gray-500 hover:after:font-jetbrainsmono hover:after:content-['']"
-        >
+            noti="true"
+        > 
             {{ .Value }}
         </h1>
     {{ else if eq .Type 2 }}
         <h2 
             id="{{ .Link }}" 
             class="relative flex my-4 gap-4 text-2xl text-title-red hover:after:text-gray-500 hover:after:font-jetbrainsmono cursor-pointer hover:after:content-['']"
-        >
+            noti="true"
+        > 
             {{ .Value }}
         </h2>
     {{ else if eq .Type 3 }}
         <h3 
             id="{{ .Link }}" 
             class="relative flex my-4 gap-4 text-xl text-title-red hover:after:text-gray-500 hover:after:font-jetbrainsmono cursor-pointer hover:after:content-['']"
-        >
+            noti="true"
+        > 
             {{ .Value }}
         </h3>
     {{ else if eq .Type 4 }}
         <h4 
             id="{{ .Link }}" 
             class="relative flex my-2 gap-4 text-lg text-title-red hover:after:text-gray-500 hover:after:font-jetbrainsmono cursor-pointer hover:after:content-['']"
-        >
+            noti="true"
+        > 
             {{ .Value }}
         </h4>
     {{ else if eq .Type 5 }}
         <h5 
             id="{{ .Link }}" 
             class="relative flex my-2 gap-4 text-lg text-title-red hover:after:text-gray-500 hover:after:font-jetbrainsmono cursor-pointer hover:after:content-['']"
-        >
+            noti="true"
+        > 
             {{ .Value }}
         </h5>
     {{ end }}
@@ -147,6 +152,7 @@
         {{ end }}
         <button
             class="clipboard absolute top-3 right-3 size-8 bg-code-grey text-gray-400 border font-jetbrainsmono cursor-pointer text-lg hover:brightness-125 active:brightness-90"   
+            noti="true"
         ></button>
         <div class="absolute flex flex-col left-3 text-gray-500">
             {{ range numIterator .NumOfLines }}

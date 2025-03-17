@@ -7,6 +7,7 @@
         <link rel="icon" href="data:," />
         <link rel="stylesheet" href="/static/output.css" />
         <script src="/static/clipboard.js"></script>
+        <script src="/static/notification.js"></script>
         <script src="/static/init.js"></script>
         <title>Blog preview</title>
     </head>
@@ -27,6 +28,14 @@
                     {{ .Content }}
                 </div>
             </div>
+        </div>
+        <div
+            id="notification"
+            class="fixed bottom-8 right-8"
+        >
+            <template>
+                <p class="mt-2 px-4 py-2 bg-rich-black text-code-green border"></p>
+            </template>
         </div>
     </body>
     <script src="/static/script.js"></script>

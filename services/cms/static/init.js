@@ -6,6 +6,7 @@ function getDocument() {
 function processNodes(body) {
     // Import all modules here
     clipboard.process(body)
+    notification.process(body)
 }
 
 //= ===================================================================

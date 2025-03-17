@@ -9,12 +9,20 @@ function codeblockCopy(body) {
         const code = codeblock.querySelector('pre').textContent
         const clipboardBtn = codeblock.querySelector('button.clipboard')
 
-        const handler = () => {
+        const handler = (ev) => {
             navigator.clipboard.writeText(code)
             clipboardBtn.textContent = '󰄬'
             setTimeout(() => {
                 clipboardBtn.textContent = ''
             }, 1000)
+
+            const notiEvent = new CustomEvent('noti', {
+                detail: {
+                    message: 'Code copied to clipboard',
+                },
+            })
+
+            ev.target.dispatchEvent(notiEvent)
         }
 
         clipboardBtn.removeEventListener('click', handler)
@@ -31,7 +39,17 @@ function headingCopy(body) {
     headings.forEach((heading) => {
         const url = baseURL + '#' + heading.id
 
-        const handler = () => navigator.clipboard.writeText(url)
+        const handler = (ev) => {
+            const notEvent = new CustomEvent('noti', {
+                detail: {
+                    message: 'Url copied to clipboard',
+                },
+            })
+
+            heading.dispatchEvent(notEvent)
+
+            navigator.clipboard.writeText(url)
+        }
 
         heading.removeEventListener('click', handler)
         heading.addEventListener('click', handler)
