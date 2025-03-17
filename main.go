@@ -8,6 +8,10 @@ import (
 )
 
 func main() {
+	if err := runner.LoadEnv(".env", true); err != nil {
+		fmt.Printf("Error: %s\n", err.Error())
+	}
+
 	// NOTE: This is for simplicity, as the program grow there will be more than 1 arguement
 	cfg, err := runner.NewCfg()
 	if err != nil {
