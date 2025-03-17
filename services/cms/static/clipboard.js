@@ -19,10 +19,11 @@ function codeblockCopy(body) {
             const notiEvent = new CustomEvent('noti', {
                 detail: {
                     message: 'Code copied to clipboard',
+                    status: 'successful',
                 },
             })
 
-            ev.target.dispatchEvent(notiEvent)
+            clipboardBtn.dispatchEvent(notiEvent)
         }
 
         clipboardBtn.removeEventListener('click', handler)
@@ -39,10 +40,11 @@ function headingCopy(body) {
     headings.forEach((heading) => {
         const url = baseURL + '#' + heading.id
 
-        const handler = (ev) => {
+        const handler = () => {
             const notEvent = new CustomEvent('noti', {
                 detail: {
                     message: 'Url copied to clipboard',
+                    status: 'warning',
                 },
             })
 
