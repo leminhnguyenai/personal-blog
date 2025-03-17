@@ -16,26 +16,27 @@ function process(body) {
 
             switch (status) {
                 case 'successful':
-                    template = notification.querySelector('template').content.querySelector('p.successful')
+                    template = notification.querySelector('template').content.querySelector('.successful')
                     break
                 case 'warning':
-                    template = notification.querySelector('template').content.querySelector('p.warning')
+                    template = notification.querySelector('template').content.querySelector('.warning')
                     break
                 case 'error':
-                    template = notification.querySelector('template').content.querySelector('p.error')
+                    template = notification.querySelector('template').content.querySelector('.error')
                     break
                 default:
-                    template = notification.querySelector('template').content.querySelector('p.default')
+                    template = notification.querySelector('template').content.querySelector('.default')
                     break
             }
 
             const newPopup = template.cloneNode(true)
 
-            newPopup.textContent = message
+            newPopup.querySelector('p').textContent = message
+            newPopup.querySelector('span').addEventListener('click', () => newPopup.remove())
 
             notification.insertBefore(newPopup, notification.firstChild)
 
-            setTimeout(() => newPopup.remove(), 3000)
+            setTimeout(() => newPopup.remove(), 5000)
         }
 
         sender.removeEventListener('noti', handler)

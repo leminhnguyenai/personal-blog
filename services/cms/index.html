@@ -31,13 +31,33 @@
         </div>
         <div
             id="notification"
-            class="fixed bottom-8 right-8"
+            class="fixed bottom-8 right-8 w-1/6"
         >
             <template>
-                <p class="successful mt-2 px-4 py-2 bg-rich-black text-code-green border"></p>
-                <p class="warning mt-2 px-4 py-2 bg-rich-black text-code-yellow border"></p>
-                <p class="error mt-2 px-4 py-2 bg-rich-black text-code-red border"></p>
-                <p class="default mt-2 px-4 py-2 bg-rich-black text-code-grey border"></p>
+                <div 
+                    class="successful relative flex mt-2 bg-rich-black text-code-green border"
+                >
+                    <p class="px-4 py-2 w-4/5"></p> 
+                    <span class="relative flex w-1/5 items-center justify-center text-lg border-l cursor-pointer select-none">✗</span>
+                </div>
+                <div 
+                    class="warning relative flex mt-2 bg-rich-black text-code-yellow border"
+                >
+                    <p class="px-4 py-2 w-4/5"></p> 
+                    <span class="relative flex w-1/5 items-center justify-center text-lg border-l cursor-pointer select-none">✗</span>
+                </div>
+                <div 
+                    class="error relative flex mt-2 bg-rich-black text-code-red border"
+                >
+                    <p class="px-4 py-2 w-4/5"></p> 
+                    <span class="relative flex w-1/5 items-center justify-center text-lg border-l cursor-pointer select-none">✗</span>
+                </div>
+                <div 
+                    class="default relative flex mt-2 bg-rich-black text-code-grey border"
+                >
+                    <p class="px-4 py-2 w-4/5"></p> 
+                    <span class="relative flex w-1/5 items-center justify-center text-lg border-l cursor-pointer select-none">✗</span>
+                </div>
             </template>
         </div>
     </body>
