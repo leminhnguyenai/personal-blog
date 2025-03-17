@@ -2,8 +2,6 @@ const notification = {
     process: null,
 }
 
-// COMMIT: Add support for manually closing notification popup
-// COMMIT: Add more customization options for notification popup
 function process(body) {
     const notification = body.querySelector('#notification')
     const senders = body.querySelectorAll('[noti="true"]')

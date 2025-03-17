@@ -30,13 +30,8 @@ type Renderer struct {
 }
 
 var funcsMap = template.FuncMap{
-	"numIterator": func(num int) []int {
-		arr := []int{}
-		for i := 0; i < num; i++ {
-			arr = append(arr, i+1)
-		}
-
-		return arr
+	"sum": func(a, b int) int {
+		return a + b
 	},
 }
 
@@ -240,11 +235,12 @@ func (r *Renderer) calloutRenderer(node *lexer.Node) string {
 }
 
 func (r *Renderer) codeBlockRenderer(node *lexer.Node) string {
+	code := strings.Split(node.Self.Values[1], "\n")
+
 	r.templates.ExecuteTemplate(r.writer, "codeblock", struct {
-		Language   string
-		Code       string
-		NumOfLines int
-	}{node.Self.Values[0], node.Self.Values[1], len(strings.Split(node.Self.Values[1], "\n"))})
+		Language string
+		Code     []string
+	}{node.Self.Values[0], code})
 
 	return r.writer.String()
 }

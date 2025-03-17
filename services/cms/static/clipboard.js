@@ -44,7 +44,7 @@ function headingCopy(body) {
             const notEvent = new CustomEvent('noti', {
                 detail: {
                     message: 'Url copied to clipboard',
-                    status: 'warning',
+                    status: 'successful',
                 },
             })
 
