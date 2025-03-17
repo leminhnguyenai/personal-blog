@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/leminhnguyenai/personal-blog/services/cms/runner"
+	"github.com/leminhnguyenai/personal-blog/runner"
 )
 
 func main() {

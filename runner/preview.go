@@ -10,9 +10,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/leminhnguyenai/personal-blog/services/cms/runner/asciitree"
-	"github.com/leminhnguyenai/personal-blog/services/cms/runner/lexer"
-	"github.com/leminhnguyenai/personal-blog/services/cms/runner/renderer"
+	"github.com/leminhnguyenai/personal-blog/runner/asciitree"
+	"github.com/leminhnguyenai/personal-blog/runner/lexer"
+	"github.com/leminhnguyenai/personal-blog/runner/renderer"
 )
 
 type Data struct {

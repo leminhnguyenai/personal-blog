@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/leminhnguyenai/personal-blog/services/cms/runner/lexer"
+	"github.com/leminhnguyenai/personal-blog/runner/lexer"
 )
 
 type writer struct {
