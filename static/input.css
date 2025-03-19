@@ -36,7 +36,7 @@
     --font-jetbrains: JetBrainsMono;
     --font-jetbrainsmono: JetBrainsMonoNerdFontMono;
     --color-title-red: #ff7b72;
-    --color-rich-black: #181818;
+    --color-rich-black: #030712;
     --color-mint-cream: #f7fff7;
     --color-code-red: #ff3131;
     --color-code-grey: #1d2a37;
@@ -57,4 +57,12 @@
     border-width: 0 0 0 6px;
     margin-left: 5px;
     color: #ff7b72;
+}
+
+.pop-up-top {
+    bottom: calc(100% + 8px);
+}
+
+.pop-up-bottom {
+    top: calc(100% + 8px);
 }

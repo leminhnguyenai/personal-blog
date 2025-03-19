@@ -13,7 +13,7 @@
         >#{{ . }}</a> 
         {{ end }}
     </div>
-    <hr class="text-gray-400">
+    <hr class="text-gray-500">
     <div class="toc flex flex-col md:hidden p-2 my-4 bg-code-grey">{{ .TOC }}</div>
     <hr class="block md:hidden text-gray-500"> 
 {{ end }}
@@ -134,7 +134,7 @@
         {{ else if eq .Language "css" }}
             <p class="absolute top-3 left-3 font-jetbrains text-[#623194]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "javascript" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#e8d44e]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="absolute top-3 left-3 font-jetbrains text-[#f7d104]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "zig" }}
             <p class="absolute top-3 left-3 font-jetbrains text-[#f7a41d]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "json" }}
@@ -175,12 +175,43 @@
     <span>{{ .Value }}</span>
 {{ end }}
 
+<!--NOTE: Using javascript (or if can CSS) to automatically prevent the viewport from clipping the pop up-->
+{{ block "youtube-preview" . }}
+    <div
+        class="flex z-50 absolute invisible w-128 pop-up-bottom p-2 bg-rich-black border text-title-red hover:visible delay-100"
+    >
+        <img 
+            class="m-1 outline outline-offset-[-1px] brightness-90"
+            src="{{ .Thumbnails.Medium.URL }}"  
+            alt="{{ .Title }}" 
+            width="160px" 
+            height="90px"
+        >
+        <div class="m-1 flex flex-col gap-4">
+            <a 
+                href="{{ .VideoURL }}" 
+                class="text-title-red hover:underline active:underline"
+            >
+                {{ .Title }}
+            </a>
+            <a 
+                href="{{ .ChannelURL }}" 
+                class="text-title-red/75 text-xs hover:underline active:underline"
+            >
+                <span class="text-md"></span> {{ .ChannelTitle }}
+            </a>
+        </div>
+    </div>
+{{ end }}
+
 {{ block "link" . }}
     {{ if eq .Type "Youtube" }}
-        <a
-            class="font-jetbrainsmono text-[#fe314d] hover:underline"
-            href="{{ .Link }}"
-        > {{ .Placeholder }}</a>
+        <span
+            class="relative font-jetbrainsmono text-[#fe314d] hover:[&>div]:visible hover:[&>div]:delay-25"
+        >
+            {{ .Preview }}
+            <a href="{{ .Link }}" class="hover:underline"> {{ .Placeholder }}</a>
+        </span>
     {{ else if eq .Type "Github" }}
         <a
             class="font-jetbrainsmono text-[#fafbfc] hover:underline"

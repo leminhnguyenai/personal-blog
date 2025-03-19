@@ -1,10 +1,13 @@
 package renderer
 
 import (
+	"fmt"
 	"html/template"
+	"net/url"
 	"regexp"
 	"strings"
 
+	"github.com/leminhnguyenai/personal-blog/runner/apis"
 	"github.com/leminhnguyenai/personal-blog/runner/lexer"
 )
 
@@ -245,12 +248,41 @@ func (r *Renderer) codeBlockRenderer(node *lexer.Node) string {
 	return r.writer.String()
 }
 
+func (r *Renderer) youtubePreview(urlStr string) (string, error) {
+	type Data struct {
+		apis.Snippet
+		VideoURL   string
+		ChannelURL string
+	}
+
+	ytbUrl, err := url.Parse(urlStr)
+	if err != nil {
+		return "", err
+	}
+
+	id := ytbUrl.Query().Get("v")
+
+	ytbData, err := apis.GetYtbData(id)
+	if err != nil {
+		return "", err
+	}
+
+	data := Data{ytbData, urlStr, fmt.Sprintf("https://www.youtube.com/channel/%s", ytbData.ChannelID)}
+
+	r.templates.ExecuteTemplate(r.writer, "youtube-preview", data)
+
+	return r.writer.String(), nil
+}
+
 // e.g. Youtube = bg image, Reddit = minimal widget + title + overview
 func (r *Renderer) linkRenderer(node *lexer.Node) string {
 	var linkType string
+	var preview string
 
 	if regexp.MustCompile(`https://www\.youtube\.com.*`).FindString(node.Self.Values[1]) != "" {
 		linkType = "Youtube"
+		// NOTE: Failed preview render will be consider as empty
+		preview, _ = r.youtubePreview(node.Self.Values[1])
 	} else if regexp.MustCompile(`https://github\.com.*`).FindString(node.Self.Values[1]) != "" {
 		linkType = "Github"
 	} else if regexp.MustCompile(`https://www\.reddit\.com.*`).FindString(node.Self.Values[1]) != "" {
@@ -263,7 +295,8 @@ func (r *Renderer) linkRenderer(node *lexer.Node) string {
 		Link        string
 		Type        string
 		Placeholder string
-	}{node.Self.Values[1], linkType, node.Self.Values[0]})
+		Preview     template.HTML
+	}{node.Self.Values[1], linkType, node.Self.Values[0], template.HTML(preview)})
 
 	return r.writer.String()
 }

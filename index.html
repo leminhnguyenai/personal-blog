@@ -5,7 +5,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="data:," />
-        <link rel="stylesheet" href="/static/output.css" />
+        <link rel="stylesheet" href="/static/output.css" async/>
         <script src="/static/clipboard.js"></script>
         <script src="/static/notification.js"></script>
         <script src="/static/codeblock.js"></script>
@@ -13,23 +13,35 @@
         <title>Blog preview</title>
     </head>
     <body class="bg-rich-black text-mint-cream font-jetbrains text-sm scroll-auto">
-        <div class="fixed w-screen grid grid-cols-5">
+        <div class="fixed w-screen h-screen grid grid-cols-5 grid-rows-15">
+            <div class="col-span-5 border-b-1 border-gray-500"></div>
             <div 
-                class="side-bar toc hidden md:flex md:flex-col md:h-screen md:p-8"
+                class="side-bar row-span-14 toc hidden md:flex md:flex-col md:p-8"
             >
                 {{ .TOC }}
             </div>
             <div 
                 id="main"
-                class="col-span-5 h-screen md:col-span-4 p-3 overflow-y-auto">
+                class="col-span-5 row-span-14 toc md:col-span-4 p-3 overflow-y-auto">
                 <div 
                     id="content"
                     class="w-auto md:w-3/4 px-8"
                 >
                     {{ .Content }}
+                    <hr class="text-gray-500 my-8">
+                    <p class="p-4 text-center">Some contact here</p>
+                    <hr class="text-gray-500 my-8">
+
                 </div>
             </div>
         </div>
+        {{ template "notification" . }}
+    </body>
+    <script src="/static/script.js"></script>
+</html>
+{{ end }}
+
+{{ block "notification" . }}
         <div
             id="notification"
             class="fixed bottom-8 right-8 w-1/6"
@@ -61,7 +73,4 @@
                 </div>
             </template>
         </div>
-    </body>
-    <script src="/static/script.js"></script>
-</html>
 {{ end }}
