@@ -60,9 +60,9 @@
 }
 
 .pop-up-top {
-    bottom: calc(100% + 8px);
+    bottom: calc(100%);
 }
 
 .pop-up-bottom {
-    top: calc(100% + 8px);
+    top: calc(100%);
 }

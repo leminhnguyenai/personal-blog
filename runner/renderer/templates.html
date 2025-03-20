@@ -178,7 +178,7 @@
 <!--NOTE: Using javascript (or if can CSS) to automatically prevent the viewport from clipping the pop up-->
 {{ block "youtube-preview" . }}
     <div
-        class="flex z-50 absolute invisible w-128 pop-up-bottom p-2 bg-rich-black border text-title-red hover:visible delay-100"
+        class="pop-up flex z-50 absolute invisible w-128 pop-up-bottom p-2 bg-rich-black border text-title-red hover:visible delay-0"
     >
         <img 
             class="m-1 outline outline-offset-[-1px] brightness-90"
@@ -204,19 +204,78 @@
     </div>
 {{ end }}
 
+{{ block "github-branches-preview" . }}
+    <div class="pop-up z-60 absolute flex flex-col invisible w-64 pop-up-bottom text-code-purple bg-code-purple border hover:visible delay-0 gap-[1px]">
+        {{ range .Branches }}
+            <a
+                href="https://github.com/{{ $.Owner }}/{{ $.Repo }}/tree/{{ .Name }}"
+                class="bg-rich-black p-2 hover:underline"
+            >
+                {{ .Name }}
+            </a>
+        {{ end }}
+    </div>
+{{ end }}
+
+{{ block "github-preview" . }}
+    <div
+        class="pop-up flex flex-col justify-between z-50 absolute invisible w-128 pop-up-bottom p-2 bg-rich-black border text-title-purple hover:visible delay-0"
+    >
+        <div class="flex items-center ml-2">
+            <span class="mr-2 text-xl"></span>
+            <a  
+                class="hover:underline active:underline" 
+                href="https://github.com/{{ .Owner }}"
+            >
+                {{ .Owner }}
+            </a>
+            <span>/</span>
+            <a 
+                class="hover:underline active:underline" 
+                href="https://github.com/{{ .Owner }}/{{ .Repo }}"
+            >
+                {{ .Repo }}
+            </a>
+        </div> 
+        <div class="flex items-center 2 ml-2 justify-between text-xs">
+            <div 
+                class="relative flex items-center text-code-purple/75 hover:[&>div.pop-up]:visible"
+            >
+                {{ template "github-branches-preview" . }}
+                <a 
+                    class="flex items-center text-code-purple/75 hover:[&>span.text]:underline"
+                    href="https://github.com/{{ .Owner }}/{{ .Repo }}/branches"
+                >
+                        <span class="mr-2 text-xl"></span>
+                        <span class="text">{{ len .Branches }} branch(es)</span>
+                </a>
+            </div>
+            <a 
+                href="{{ .Commit.HTMLURL }}"
+                class="flex items-center text-code-purple/75 hover:[&>span.text]:underline"
+            >
+                <span class="mr-2 text-xl"></span>
+                <span class="text">{{ .TimeSinceLastCommit }}</span>
+            </a>
+        </div>
+    </div>
+{{ end }}
+
 {{ block "link" . }}
     {{ if eq .Type "Youtube" }}
         <span
-            class="relative font-jetbrainsmono text-[#fe314d] hover:[&>div]:visible hover:[&>div]:delay-25"
+            class="relative font-jetbrainsmono text-[#fe314d] hover:[&>div.pop-up]:visible"
         >
             {{ .Preview }}
             <a href="{{ .Link }}" class="hover:underline"> {{ .Placeholder }}</a>
         </span>
     {{ else if eq .Type "Github" }}
-        <a
-            class="font-jetbrainsmono text-[#fafbfc] hover:underline"
-            href="{{ .Link }}"
-        > {{ .Placeholder }}</a>
+        <span
+            class="relative font-jetbrainsmono text-code-purple hover:[&>div.pop-up]:visible"
+        >
+            {{ .Preview }}
+            <a href="{{ .Link }}" class="hover:underline"> {{ .Placeholder }}</a>
+        </span>
     {{ else if eq .Type "Reddit" }}
         <a
             class="font-jetbrainsmono text-[#ff4500] hover:underline"
@@ -229,7 +288,7 @@
         > {{ .Placeholder }}</a>
     {{ else }}
         <a
-            class="font-jetbrainsmono text-code-purple hover:underline"
+            class="font-jetbrainsmono text-code-lime hover:underline"
             href="{{ .Link }}"
         > {{ .Placeholder }}</a>
     {{ end }}

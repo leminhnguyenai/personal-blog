@@ -1,0 +1,15 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  bin = "main"
+  cmd = "go build main.go"
+  args_bin = ["-p", "test.md"]
+  include_ext = ["go"]
+  exclude_dir = ["static"]
+
+[color]
+  main = "yellow"
+  watcher = "cyan"
+  build = "green"
+  log = "white"

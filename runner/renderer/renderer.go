@@ -279,6 +279,77 @@ func (r *Renderer) youtubePreview(urlStr string) (string, error) {
 	return r.writer.String(), nil
 }
 
+func (r *Renderer) githubPreview(urlStr string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	defer cancel()
+
+	// NOTE: We can assume that the url has github.com domain name and can precisely trim the domain name
+	urlPath := strings.Split(urlStr[18:], "/")
+	owner := urlPath[1]
+	repo := urlPath[2]
+
+	type Data struct {
+		Owner               string
+		Repo                string
+		Branches            []apis.Branch
+		Commit              apis.Commit
+		TimeSinceLastCommit string
+	}
+
+	type Response struct {
+		data  Data
+		error error
+	}
+
+	respChan := make(chan Response)
+
+	go func() {
+		branches, err := apis.GetGithubBranches(ctx, owner, repo)
+		if err != nil {
+			respChan <- Response{error: err}
+		}
+
+		commit, err := apis.GetGithubLatestCommit(ctx, owner, repo)
+		if err != nil {
+			respChan <- Response{error: err}
+		}
+
+		respChan <- Response{Data{Owner: owner, Repo: repo, Branches: branches, Commit: commit}, nil}
+	}()
+
+	for {
+		select {
+		case res := <-respChan:
+			if res.error != nil {
+				return "", res.error
+			}
+
+			commitDate := res.data.Commit.Commit.Committer.Date
+			// Time since last commit in minutes
+			timeSinceLastCommit := int(time.Now().Sub(commitDate)) / 60000000000
+
+			if timeSinceLastCommit < 60 {
+				res.data.TimeSinceLastCommit = fmt.Sprintf(
+					"last updated %d minutes ago\n",
+					timeSinceLastCommit,
+				)
+			} else if timeSinceLastCommit < 1440 {
+				res.data.TimeSinceLastCommit = fmt.Sprintf("last updated %d hour(s) ago\n", timeSinceLastCommit/60)
+			} else if timeSinceLastCommit < 43200 {
+				res.data.TimeSinceLastCommit = fmt.Sprintf("last updated %d day(s) ago\n", timeSinceLastCommit/1440)
+			} else if timeSinceLastCommit < 518400 {
+				res.data.TimeSinceLastCommit = fmt.Sprintf("last updated %d month(s) ago\n", timeSinceLastCommit/43200)
+			} else {
+				res.data.TimeSinceLastCommit = fmt.Sprintf("last updated %d year(s) ago\n", timeSinceLastCommit/518400)
+			}
+
+			r.templates.ExecuteTemplate(r.writer, "github-preview", res.data)
+
+			return r.writer.String(), nil
+		}
+	}
+}
+
 // e.g. Youtube = bg image, Reddit = minimal widget + title + overview
 func (r *Renderer) linkRenderer(node *lexer.Node) string {
 	var linkType string
@@ -290,6 +361,7 @@ func (r *Renderer) linkRenderer(node *lexer.Node) string {
 		preview, _ = r.youtubePreview(node.Self.Values[1])
 	} else if regexp.MustCompile(`https://github\.com.*`).FindString(node.Self.Values[1]) != "" {
 		linkType = "Github"
+		preview, _ = r.githubPreview(node.Self.Values[1])
 	} else if regexp.MustCompile(`https://www\.reddit\.com.*`).FindString(node.Self.Values[1]) != "" {
 		linkType = "Reddit"
 	} else if regexp.MustCompile(`https://pkg\.go\.dev.*`).FindString(node.Self.Values[1]) != "" {

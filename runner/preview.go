@@ -33,7 +33,6 @@ func Preview(filePath string) error {
 	mux.Handle("GET /static/", http.StripPrefix("/static/", fs))
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Connected")
-		log.Println(os.Getenv("YOUTUBE_API_KEY"))
 
 		data, err := os.ReadFile(filePath)
 		if err != nil {
