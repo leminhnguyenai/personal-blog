@@ -1,11 +1,13 @@
 package renderer
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/leminhnguyenai/personal-blog/runner/apis"
 	"github.com/leminhnguyenai/personal-blog/runner/lexer"
@@ -249,6 +251,9 @@ func (r *Renderer) codeBlockRenderer(node *lexer.Node) string {
 }
 
 func (r *Renderer) youtubePreview(urlStr string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
 	type Data struct {
 		apis.Snippet
 		VideoURL   string
@@ -262,7 +267,7 @@ func (r *Renderer) youtubePreview(urlStr string) (string, error) {
 
 	id := ytbUrl.Query().Get("v")
 
-	ytbData, err := apis.GetYtbData(id)
+	ytbData, err := apis.GetYtbData(ctx, id)
 	if err != nil {
 		return "", err
 	}

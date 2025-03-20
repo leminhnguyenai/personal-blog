@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -45,7 +46,7 @@ type YtbResponse struct {
 	} `json:"items"`
 }
 
-func GetYtbData(id string) (Snippet, error) {
+func GetYtbData(ctx context.Context, id string) (Snippet, error) {
 	apiKey := os.Getenv("YOUTUBE_API_KEY")
 	url := fmt.Sprintf(
 		"https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=%s&key=%s",
@@ -53,26 +54,44 @@ func GetYtbData(id string) (Snippet, error) {
 		apiKey,
 	)
 
-	res, err := http.Get(url)
-	if err != nil {
-		return Snippet{}, err
+	type Response struct {
+		snippet Snippet
+		error   error
 	}
 
-	if res.StatusCode != http.StatusOK {
-		return Snippet{}, fmt.Errorf("Bad request, code:%d\n", res.StatusCode)
+	respChan := make(chan Response)
+
+	go func() {
+		res, err := http.Get(url)
+		if err != nil {
+			respChan <- Response{error: err}
+		}
+
+		if res.StatusCode != http.StatusOK {
+			respChan <- Response{error: fmt.Errorf("Bad request, code:%d\n", res.StatusCode)}
+		}
+
+		var ytbResponse YtbResponse
+
+		if err = json.NewDecoder(res.Body).Decode(&ytbResponse); err != nil {
+			respChan <- Response{error: err}
+		}
+
+		if len(ytbResponse.Items) == 0 {
+			respChan <- Response{error: fmt.Errorf("Error retrieving video\n")}
+		}
+
+		ytbVidData := ytbResponse.Items[0].Snippet
+
+		respChan <- Response{ytbVidData, nil}
+	}()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return Snippet{}, fmt.Errorf("Unexpected error occured\n")
+		case res := <-respChan:
+			return res.snippet, res.error
+		}
 	}
-
-	var ytbResponse YtbResponse
-
-	if err = json.NewDecoder(res.Body).Decode(&ytbResponse); err != nil {
-		return Snippet{}, err
-	}
-
-	if len(ytbResponse.Items) == 0 {
-		return Snippet{}, fmt.Errorf("Error retrieving video\n")
-	}
-
-	ytbVidData := ytbResponse.Items[0].Snippet
-
-	return ytbVidData, nil
 }
