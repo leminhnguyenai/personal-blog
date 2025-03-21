@@ -8,6 +8,7 @@ function processNodes(body) {
     notification.process(body)
     clipboard.process(body)
     code.process(body)
+    popup.process(body)
 }
 
 //= ===================================================================
