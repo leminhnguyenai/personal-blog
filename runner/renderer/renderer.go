@@ -41,7 +41,7 @@ var funcsMap = template.FuncMap{
 }
 
 func NewRenderer() (*Renderer, error) {
-	templates, err := template.New("content").Funcs(funcsMap).ParseFiles("runner/renderer/templates.html")
+	templates, err := template.New("content").Funcs(funcsMap).ParseFiles("templates/templates.html")
 	if err != nil {
 		return nil, err
 	}

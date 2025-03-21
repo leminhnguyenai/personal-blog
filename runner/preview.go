@@ -62,7 +62,7 @@ func Preview(filePath string) error {
 		values, children := markdownRenderer.Traverse(sourceNode)
 		html := values + children
 
-		templ, err := template.ParseFiles("index.html")
+		templ, err := template.ParseFiles("templates/index.html")
 		if err != nil {
 			HandleError(w, err)
 			return

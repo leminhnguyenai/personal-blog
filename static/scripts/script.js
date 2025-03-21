@@ -25,7 +25,7 @@ for (let i = 0; i < headings.length; i++) {
     })
 }
 
-main.addEventListener('scroll', () => {
+const handler = () => {
     for (let i = 0; i < sections.length; i++) {
         if (i == sections.length - 1) {
             const rect = sections[i].heading.getBoundingClientRect()
@@ -56,4 +56,7 @@ main.addEventListener('scroll', () => {
             break
         }
     }
-})
+}
+
+main.removeEventListener('scroll', handler)
+main.addEventListener('scroll', handler)

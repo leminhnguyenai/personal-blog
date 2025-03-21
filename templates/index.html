@@ -5,12 +5,8 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="data:," />
-        <link rel="stylesheet" href="/static/output.css" async/>
-        <script src="/static/clipboard.js"></script>
-        <script src="/static/notification.js"></script>
-        <script src="/static/codeblock.js"></script>
-        <script src="/static/popup.js"></script>
-        <script src="/static/init.js"></script>
+        <link rel="stylesheet" href="/static/output.css"/>
+        <script src="/static/scripts/src.js" defer=""></script>
         <title>Blog preview</title>
     </head>
     <body class="bg-rich-black text-mint-cream font-jetbrains text-sm scroll-auto">
@@ -38,7 +34,7 @@
         </div>
         {{ template "notification" . }}
     </body>
-    <script src="/static/script.js"></script>
+    <script src="/static/scripts/script.js"></script>
 </html>
 {{ end }}
 
