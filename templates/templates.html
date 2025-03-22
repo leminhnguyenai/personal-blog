@@ -1,6 +1,6 @@
 {{ block "frontmatter" . }}
     <p
-        class="mt-8 mb-2 text-5xl text-title-red" 
+        class="text-title-red mb-2 mt-8 text-5xl" 
     >{{ .Title }}</p> 
     <p class="text-sm text-gray-400">{{ .Date }}</p>
     <div
@@ -9,20 +9,20 @@
         {{ range .Tags }}
         <a 
             href="?tag={{ . }}" 
-            class="px-1 py-[2px] text-sm  text-code-orange bg-code-orange/30 hover:underline active:underline"
+            class="text-code-orange bg-code-orange/30 px-1  py-[2px] text-sm hover:underline active:underline"
         >#{{ . }}</a> 
         {{ end }}
     </div>
     <hr class="text-gray-500">
-    <div class="toc flex flex-col md:hidden p-2 my-4 bg-code-grey">{{ .TOC }}</div>
-    <hr class="block md:hidden text-gray-500"> 
+    <div class="toc bg-code-grey my-4 flex flex-col p-2 md:hidden">{{ .TOC }}</div>
+    <hr class="block text-gray-500 md:hidden"> 
 {{ end }}
 
 {{ block "heading" . }}
     {{ if eq .Type 1 }}
         <h1 
             id="{{ .Link }}" 
-            class="my-6 gap-4 text-3xl cursor-pointer text-title-red hover:after:text-gray-500 hover:after:font-jetbrainsmono hover:after:content-['']"
+            class="text-title-red hover:after:font-jetbrainsmono my-6 cursor-pointer gap-4 text-3xl hover:after:text-gray-500 hover:after:content-['']"
             noti="true"
         > 
             {{ .Value }}
@@ -30,7 +30,7 @@
     {{ else if eq .Type 2 }}
         <h2 
             id="{{ .Link }}" 
-            class="relative flex my-4 gap-4 text-2xl text-title-red hover:after:text-gray-500 hover:after:font-jetbrainsmono cursor-pointer hover:after:content-['']"
+            class="text-title-red hover:after:font-jetbrainsmono relative my-4 flex cursor-pointer gap-4 text-2xl hover:after:text-gray-500 hover:after:content-['']"
             noti="true"
         > 
             {{ .Value }}
@@ -38,7 +38,7 @@
     {{ else if eq .Type 3 }}
         <h3 
             id="{{ .Link }}" 
-            class="relative flex my-4 gap-4 text-xl text-title-red hover:after:text-gray-500 hover:after:font-jetbrainsmono cursor-pointer hover:after:content-['']"
+            class="text-title-red hover:after:font-jetbrainsmono relative my-4 flex cursor-pointer gap-4 text-xl hover:after:text-gray-500 hover:after:content-['']"
             noti="true"
         > 
             {{ .Value }}
@@ -46,7 +46,7 @@
     {{ else if eq .Type 4 }}
         <h4 
             id="{{ .Link }}" 
-            class="relative flex my-2 gap-4 text-lg text-title-red hover:after:text-gray-500 hover:after:font-jetbrainsmono cursor-pointer hover:after:content-['']"
+            class="text-title-red hover:after:font-jetbrainsmono relative my-2 flex cursor-pointer gap-4 text-lg hover:after:text-gray-500 hover:after:content-['']"
             noti="true"
         > 
             {{ .Value }}
@@ -54,7 +54,7 @@
     {{ else if eq .Type 5 }}
         <h5 
             id="{{ .Link }}" 
-            class="relative flex my-2 gap-4 text-lg text-title-red hover:after:text-gray-500 hover:after:font-jetbrainsmono cursor-pointer hover:after:content-['']"
+            class="text-title-red hover:after:font-jetbrainsmono relative my-2 flex cursor-pointer gap-4 text-lg hover:after:text-gray-500 hover:after:content-['']"
             noti="true"
         > 
             {{ .Value }}
@@ -67,7 +67,7 @@
     <li class="ml-2 list-none">
         {{ .Values }} 
         {{ if ne .Children "" }}
-            <ul class="pl-4 list-inside">{{ .Children }}</ul>
+            <ul class="list-inside pl-4">{{ .Children }}</ul>
         {{ end }}
     </li>
 {{ end }}
@@ -77,7 +77,7 @@
         <span class="text-gray-400">–</span>
             {{ .Values }} 
         {{ if ne .Children "" }}
-            <ul class="pl-4 list-inside">{{ .Children }}</ul>
+            <ul class="list-inside pl-4">{{ .Children }}</ul>
         {{ end }}
     </li>
 {{ end }}
@@ -87,36 +87,36 @@
         <span class="text-gray-400">{{ .Number }}</span>
             {{ .Values }}
         {{ if ne .Children "" }}
-            <ul class="pl-4 list-inside">{{ .Children }}</ul>
+            <ul class="list-inside pl-4">{{ .Children }}</ul>
         {{ end }}
     </li>
 {{ end }}
 
 {{ block "quote" . }}
-    <blockquote class="relative flex ml-4 my-16 px-4 py-8 items-center justify-center border-1 text-lg italic text-silver">
-        <p class="absolute font-jetbrainsmono pl-4 pr-6 bg-rich-black text-4xl top-0 left-5 -translate-y-5 text-center">󰉾</p>
+    <blockquote class="border-1 text-silver relative my-16 ml-4 flex items-center justify-center px-4 py-8 text-lg italic">
+        <p class="font-jetbrainsmono bg-rich-black absolute left-5 top-0 -translate-y-5 pl-4 pr-6 text-center text-4xl">󰉾</p>
         {{ .Values }}
     </blockquote>
 {{ end }}
 
 {{ block "callout" . }}
     {{ if eq .Values "Note" }}
-        <div class="ml-4 my-16 p-4 bg-aqua/10 border-1 border-aqua">
+        <div class="bg-aqua/10 border-1 border-aqua my-16 ml-4 p-4">
             <p class="text-aqua mb-4">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ else if eq .Values "Important" }}
-        <div class="ml-4 my-16 p-4 bg-code-purple/10 border-1 border-code-purple">
+        <div class="bg-code-purple/10 border-1 border-code-purple my-16 ml-4 p-4">
             <p class="text-code-purple mb-4">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ else if eq .Values "Warning" }}
-        <div class="ml-4 my-16 p-4 bg-warning-yellow/10 border-1 border-warning-yellow">
+        <div class="bg-warning-yellow/10 border-1 border-warning-yellow my-16 ml-4 p-4">
             <p class="text-warning-yellow mb-4">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ else if eq .Values "Warning" }}
-        <div class="ml-4 my-16 p-4 bg-code-grey/10 border-1 border-code-grey">
+        <div class="bg-code-grey/10 border-1 border-code-grey my-16 ml-4 p-4">
             <p class="text-code-grey mb-4">{{ .Values }}</p>
         {{ .Children }}
         </div>
@@ -125,33 +125,33 @@
 
 {{ block "codeblock" . }}
     <div
-        class="codeblock relative flex ml-4 my-8 px-2 py-4 md:py-8 pt-12 md:pt-14 bg-code-grey"
+        class="codeblock bg-code-grey relative my-8 ml-4 flex border border-gray-500 px-2 py-4 pt-12 md:py-8 md:pt-14"
     >
         {{ if eq .Language "go" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#05a5d0]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="font-jetbrains absolute left-3 top-3 text-[#05a5d0]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "html" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#dc4a25]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="font-jetbrains absolute left-3 top-3 text-[#dc4a25]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "css" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#623194]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="font-jetbrains absolute left-3 top-3 text-[#623194]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "javascript" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#f7d104]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="font-jetbrains absolute left-3 top-3 text-[#f7d104]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "zig" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#f7a41d]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="font-jetbrains absolute left-3 top-3 text-[#f7a41d]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "json" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#cbcb41]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="font-jetbrains absolute left-3 top-3 text-[#cbcb41]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "toml" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#a1a1aa]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="font-jetbrains absolute left-3 top-3 text-[#a1a1aa]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "bash" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#89e051]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="font-jetbrains absolute left-3 top-3 text-[#89e051]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "config" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#6d8086]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="font-jetbrains absolute left-3 top-3 text-[#6d8086]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else if eq .Language "lua" }}
-            <p class="absolute top-3 left-3 font-jetbrains text-[#000080]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="font-jetbrains absolute left-3 top-3 text-[#000080]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ else }}
-            <p class="absolute top-3 left-3 font-jetbrains text-gray-400"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="font-jetbrains absolute left-3 top-3 text-gray-400"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
         {{ end }}
         <button
-            class="clipboard absolute top-3 right-3 size-8 bg-code-grey text-gray-400 border font-jetbrainsmono cursor-pointer text-lg hover:brightness-125 active:brightness-90"   
+            class="clipboard size-8 bg-code-grey font-jetbrainsmono absolute right-3 top-3 cursor-pointer border text-lg text-gray-400 hover:brightness-125 active:brightness-90"   
             noti="true"
         ></button>
         <div class="relative mx-3 text-gray-500">
@@ -159,7 +159,7 @@
                 <p class="code-gutter text-md text-right">{{ sum $i 1 }}</p>
             {{ end }}
         </div>
-        <pre class="relative flex flex-col ml-1 overflow-x-auto md:whitespace-pre-wrap md:break-normal font-jetbrains">
+        <pre class="font-jetbrains relative ml-1 flex flex-col overflow-x-auto md:whitespace-pre-wrap md:break-normal">
             {{ range .Code }}
                 {{ if eq . "" }}
                     <p class="code-line text-md"> </p>
@@ -178,7 +178,7 @@
 <!--NOTE: Using javascript (or if can CSS) to automatically prevent the viewport from clipping the pop up-->
 {{ block "youtube-preview" . }}
     <div
-        class="pop-up flex z-50 absolute invisible w-128 pop-up-bottom p-2 bg-rich-black border text-title-red hover:visible delay-0"
+        class="pop-up w-128 pop-up-bottom bg-rich-black text-title-red invisible absolute z-50 flex border p-2 delay-0 hover:visible"
     >
         <img 
             class="m-1 outline outline-offset-[-1px] brightness-90"
@@ -205,7 +205,7 @@
 {{ end }}
 
 {{ block "github-branches-preview" . }}
-    <div class="pop-up z-60 absolute flex flex-col invisible w-64 pop-up-bottom text-code-purple bg-code-purple border hover:visible delay-0 gap-[1px]">
+    <div class="pop-up z-60 pop-up-bottom text-code-purple bg-code-purple invisible absolute flex w-64 flex-col gap-[1px] border delay-0 hover:visible">
         {{ range .Branches }}
             <a
                 href="https://github.com/{{ $.Owner }}/{{ $.Repo }}/tree/{{ .Name }}"
@@ -219,9 +219,9 @@
 
 {{ block "github-preview" . }}
     <div
-        class="pop-up flex flex-col justify-between z-50 absolute invisible w-128 pop-up-bottom p-2 bg-rich-black border text-title-purple hover:visible delay-0"
+        class="pop-up w-128 pop-up-bottom bg-rich-black text-title-purple invisible absolute z-50 flex flex-col justify-between border p-2 delay-0 hover:visible"
     >
-        <div class="flex items-center ml-2">
+        <div class="ml-2 flex items-center">
             <span class="mr-2 text-xl"></span>
             <a  
                 class="hover:underline active:underline" 
@@ -237,13 +237,13 @@
                 {{ .Repo }}
             </a>
         </div> 
-        <div class="flex items-center 2 ml-2 justify-between text-xs">
+        <div class="2 ml-2 flex items-center justify-between text-xs">
             <div 
-                class="relative flex items-center text-code-purple/75 hover:[&>div.pop-up]:visible"
+                class="text-code-purple/75 relative flex items-center hover:[&>div.pop-up]:visible"
             >
                 {{ template "github-branches-preview" . }}
                 <a 
-                    class="flex items-center text-code-purple/75 hover:[&>span.text]:underline"
+                    class="text-code-purple/75 flex items-center hover:[&>span.text]:underline"
                     href="https://github.com/{{ .Owner }}/{{ .Repo }}/branches"
                 >
                         <span class="mr-2 text-xl"></span>
@@ -252,7 +252,7 @@
             </div>
             <a 
                 href="{{ .Commit.HTMLURL }}"
-                class="flex items-center text-code-purple/75 hover:[&>span.text]:underline"
+                class="text-code-purple/75 flex items-center hover:[&>span.text]:underline"
             >
                 <span class="mr-2 text-xl"></span>
                 <span class="text">{{ .TimeSinceLastCommit }}</span>
@@ -264,14 +264,14 @@
 {{ block "link" . }}
     {{ if eq .Type "Youtube" }}
         <span
-            class="relative font-jetbrainsmono text-[#fe314d] hover:[&>div.pop-up]:visible"
+            class="font-jetbrainsmono relative text-[#fe314d] hover:[&>div.pop-up]:visible"
         >
             {{ .Preview }}
             <a href="{{ .Link }}" class="hover:underline"> {{ .Placeholder }}</a>
         </span>
     {{ else if eq .Type "Github" }}
         <span
-            class="relative font-jetbrainsmono text-code-purple hover:[&>div.pop-up]:visible"
+            class="font-jetbrainsmono text-code-purple relative hover:[&>div.pop-up]:visible"
         >
             {{ .Preview }}
             <a href="{{ .Link }}" class="hover:underline"> {{ .Placeholder }}</a>
@@ -295,34 +295,34 @@
 {{ end }}
 
 {{ block "inline-code" . }}
-    <code class="whitespace-pre border-2 border-code-grey bg-code-grey text-code-lime font-jetbrains">{{ .Value }}</code>
+    <code class="border-code-grey bg-code-grey text-code-lime font-jetbrains whitespace-pre border-2">{{ .Value }}</code>
 {{ end }}
 
 {{ block "TOC" . }}
     {{ if eq .Type 1 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter md:border-l-2 text-md ml-2 pl-4 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter text-md text-title-red md:text-title-red/75 ml-2 cursor-pointer pl-4 hover:underline active:underline md:border-l-2">{{ .Value }}
         </a>
     {{ else if eq .Type 2 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter md:border-l-2 text-md ml-2 pl-8 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter text-md text-title-red md:text-title-red/75 ml-2 cursor-pointer py-1 pl-8 hover:underline active:underline md:border-l-2">{{ .Value }}
         </a>
     {{ else if eq .Type 3 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter md:border-l-2 text-md ml-2 pl-12 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter text-md text-title-red md:text-title-red/75 ml-2 cursor-pointer py-1 pl-12 hover:underline active:underline md:border-l-2">{{ .Value }}
         </a>
     {{ else if eq .Type 4 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter md:border-l-2 text-md ml-2 pl-16 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter text-md text-title-red md:text-title-red/75 ml-2 cursor-pointer py-1 pl-16 hover:underline active:underline md:border-l-2">{{ .Value }}
         </a>
     {{ else if eq .Type 5 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter md:border-l-2 text-md ml-2 pl-20 py-1 text-title-red md:text-title-red/75 hover:underline active:underline cursor-pointer">{{ .Value }}
+            class="chapter text-md text-title-red md:text-title-red/75 ml-2 cursor-pointer py-1 pl-20 hover:underline active:underline md:border-l-2">{{ .Value }}
         </a>
     {{ end }}
     {{ .Children }}

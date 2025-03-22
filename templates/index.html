@@ -9,9 +9,9 @@
         <script src="/static/scripts/src.js" defer=""></script>
         <title>Blog preview</title>
     </head>
-    <body class="bg-rich-black text-mint-cream font-jetbrains text-sm scroll-auto">
-        <div class="fixed w-screen h-screen grid grid-cols-5 grid-rows-10">
-            <div class="top-bar col-span-5 border-b-1 border-gray-500"></div>
+    <body class="bg-rich-black text-mint-cream font-jetbrains scroll-auto text-sm">
+        <div class="grid-rows-10 fixed grid h-screen w-screen grid-cols-5">
+            <div class="top-bar border-b-1 col-span-5 border-gray-500"></div>
             <div 
                 class="side-bar row-span-9 toc hidden md:flex md:flex-col md:p-8"
             >
@@ -19,15 +19,15 @@
             </div>
             <div 
                 id="main"
-                class="col-span-5 row-span-14 toc md:col-span-4 p-3 overflow-y-auto border-l-1 border-gray-500">
+                class="row-span-14 toc border-l-1 col-span-5 overflow-y-auto border-gray-500 p-3 md:col-span-4">
                 <div 
                     id="content"
-                    class="w-auto md:w-3/4 px-8"
+                    class="w-auto px-8 md:w-3/4"
                 >
                     {{ .Content }}
-                    <hr class="text-gray-500 my-8">
+                    <hr class="my-8 text-gray-500">
                     <p class="p-4 text-center">Some contact here</p>
-                    <hr class="text-gray-500 my-8">
+                    <hr class="my-8 text-gray-500">
 
                 </div>
             </div>
@@ -43,30 +43,19 @@
             class="fixed bottom-8 right-8 w-1/6"
         >
             <template>
-                <div 
-                    class="successful relative flex mt-2 bg-rich-black text-code-green border"
-                >
-                    <p class="px-4 py-2 w-4/5"></p> 
-                    <span class="relative flex w-1/5 items-center justify-center text-lg border-l cursor-pointer select-none hover:underline">✗</span>
-                </div>
-                <div 
-                    class="warning relative flex mt-2 bg-rich-black text-code-yellow border"
-                >
-                    <p class="px-4 py-2 w-4/5"></p> 
-                    <span class="relative flex w-1/5 items-center justify-center text-lg border-l cursor-pointer select-none hover:underline">✗</span>
-                </div>
-                <div 
-                    class="error relative flex mt-2 bg-rich-black text-code-red border"
-                >
-                    <p class="px-4 py-2 w-4/5"></p> 
-                    <span class="relative flex w-1/5 items-center justify-center text-lg border-l cursor-pointer select-none hover:underline">✗</span>
-                </div>
-                <div 
-                    class="default relative flex mt-2 bg-rich-black text-code-grey border"
-                >
-                    <p class="px-4 py-2 w-4/5"></p> 
-                    <span class="relative flex w-1/5 items-center justify-center text-lg border-l cursor-pointer select-none hover:underline">✗</span>
-                </div>
+                {{ template "noti-card" ( arr "successful" "text-code-green" ) }}
+                {{ template "noti-card" ( arr "warning" "text-code-yellow" ) }}
+                {{ template "noti-card" ( arr "error" "text-code-red" ) }}
+                {{ template "noti-card" ( arr "default" "text-gray-300" ) }}
             </template>
         </div>
+{{ end }}
+
+{{ block "noti-card" . }}
+    <div 
+        class="{{ index . 0 }} relative flex mt-2 bg-rich-black {{ index . 1 }} border"
+    >
+        <p class="w-4/5 px-4 py-2"></p> 
+        <span class="relative flex w-1/5 cursor-pointer select-none items-center justify-center border-l text-lg hover:underline">✗</span>
+    </div>
 {{ end }}

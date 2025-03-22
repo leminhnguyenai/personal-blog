@@ -34,14 +34,8 @@ type Renderer struct {
 	writer    *writer
 }
 
-var funcsMap = template.FuncMap{
-	"sum": func(a, b int) int {
-		return a + b
-	},
-}
-
 func NewRenderer() (*Renderer, error) {
-	templates, err := template.New("content").Funcs(funcsMap).ParseFiles("templates/templates.html")
+	templates, err := template.New("content").Funcs(FuncsMap).ParseFiles("templates/templates.html")
 	if err != nil {
 		return nil, err
 	}
