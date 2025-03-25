@@ -20,6 +20,7 @@ type Data struct {
 	TOC     template.HTML
 }
 
+// COMMIT: Set up auto reloading and Makefile
 func Preview(filePath string) error {
 	_, err := GetFreePort()
 	if err != nil {
