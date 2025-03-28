@@ -4,12 +4,13 @@ root = "."
   bin = "main"
   pre_cmd=[
     'uglifyjs static/scripts/src.js --output static/scripts/src.min.js',
+    'uglifycss static/icons.css --output static/icons.min.css',
     'tailwindcss -i static/input.css -o static/output.css --minify'
   ]
   cmd = "go build -o main main.go"
   args_bin = ["-p", "test.md"]
   include_ext = ["go", "html", "css", "js"]
-  exclude_file = ["static/scripts/output.css", "static/scripts/src.min.js"]
+  exclude_file = ["static/icons.min.css", "static/output.css", "static/scripts/src.min.js"]
 
 [color]
   main = "yellow"

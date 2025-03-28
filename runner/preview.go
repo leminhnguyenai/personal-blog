@@ -20,7 +20,8 @@ type Data struct {
 	TOC     template.HTML
 }
 
-// COMMIT: Set up auto reloading and Makefile
+// COMMIT: Enable text compression
+// COMMIT: Add cache policy header
 func Preview(filePath string) error {
 	_, err := GetFreePort()
 	if err != nil {

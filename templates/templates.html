@@ -22,7 +22,7 @@
     {{ if eq .Type 1 }}
         <h1 
             id="{{ .Link }}" 
-            class="text-title-red hover:after:font-jetbrainsmono my-6 cursor-pointer gap-4 text-3xl hover:after:text-gray-500 hover:after:content-['']"
+            class="text-title-red my-6 cursor-pointer gap-4 text-3xl hover:underline"
             noti="true"
         > 
             {{ .Value }}
@@ -30,7 +30,7 @@
     {{ else if eq .Type 2 }}
         <h2 
             id="{{ .Link }}" 
-            class="text-title-red hover:after:font-jetbrainsmono relative my-4 flex cursor-pointer gap-4 text-2xl hover:after:text-gray-500 hover:after:content-['']"
+            class="text-title-red relative my-4 flex cursor-pointer gap-4 text-2xl hover:underline"
             noti="true"
         > 
             {{ .Value }}
@@ -38,7 +38,7 @@
     {{ else if eq .Type 3 }}
         <h3 
             id="{{ .Link }}" 
-            class="text-title-red hover:after:font-jetbrainsmono relative my-4 flex cursor-pointer gap-4 text-xl hover:after:text-gray-500 hover:after:content-['']"
+            class="text-title-red relative my-4 flex cursor-pointer gap-4 text-xl hover:underline"
             noti="true"
         > 
             {{ .Value }}
@@ -46,7 +46,7 @@
     {{ else if eq .Type 4 }}
         <h4 
             id="{{ .Link }}" 
-            class="text-title-red hover:after:font-jetbrainsmono relative my-2 flex cursor-pointer gap-4 text-lg hover:after:text-gray-500 hover:after:content-['']"
+            class="text-title-red relative my-2 flex cursor-pointer gap-4 text-lg hover:underline"
             noti="true"
         > 
             {{ .Value }}
@@ -54,7 +54,7 @@
     {{ else if eq .Type 5 }}
         <h5 
             id="{{ .Link }}" 
-            class="text-title-red hover:after:font-jetbrainsmono relative my-2 flex cursor-pointer gap-4 text-lg hover:after:text-gray-500 hover:after:content-['']"
+            class="text-title-red relative my-2 flex cursor-pointer gap-4 text-lg hover:underline"
             noti="true"
         > 
             {{ .Value }}
@@ -94,7 +94,7 @@
 
 {{ block "quote" . }}
     <blockquote class="border-1 text-silver relative my-16 ml-4 flex items-center justify-center px-4 py-8 text-lg italic">
-        <p class="font-jetbrainsmono bg-rich-black absolute left-5 top-0 -translate-y-5 pl-4 pr-6 text-center text-4xl">󰉾</p>
+        <p class="nf bg-rich-black absolute left-5 top-0 -translate-y-5 pl-4 pr-6 text-center text-4xl">󰉾</p>
         {{ .Values }}
     </blockquote>
 {{ end }}
@@ -128,30 +128,31 @@
         class="codeblock bg-code-grey relative my-8 ml-4 flex border border-gray-500 px-2 py-4 pt-12 md:py-8 md:pt-14"
     >
         {{ if eq .Language "go" }}
-            <p class="font-jetbrains absolute left-3 top-3 text-[#05a5d0]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="absolute left-3 top-3 text-xs text-[#05a5d0]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
         {{ else if eq .Language "html" }}
-            <p class="font-jetbrains absolute left-3 top-3 text-[#dc4a25]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="absolute left-3 top-3 text-xs text-[#dc4a25]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
         {{ else if eq .Language "css" }}
-            <p class="font-jetbrains absolute left-3 top-3 text-[#623194]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="absolute left-3 top-3 text-xs text-[#623194]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
         {{ else if eq .Language "javascript" }}
-            <p class="font-jetbrains absolute left-3 top-3 text-[#f7d104]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="absolute left-3 top-3 text-xs text-[#f7d104]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
         {{ else if eq .Language "zig" }}
-            <p class="font-jetbrains absolute left-3 top-3 text-[#f7a41d]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="absolute left-3 top-3 text-xs text-[#f7a41d]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
         {{ else if eq .Language "json" }}
-            <p class="font-jetbrains absolute left-3 top-3 text-[#cbcb41]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="absolute left-3 top-3 text-xs text-[#cbcb41]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
         {{ else if eq .Language "toml" }}
-            <p class="font-jetbrains absolute left-3 top-3 text-[#a1a1aa]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="absolute left-3 top-3 text-xs text-[#a1a1aa]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
         {{ else if eq .Language "bash" }}
-            <p class="font-jetbrains absolute left-3 top-3 text-[#89e051]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="absolute left-3 top-3 text-xs text-[#89e051]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
         {{ else if eq .Language "config" }}
-            <p class="font-jetbrains absolute left-3 top-3 text-[#6d8086]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="absolute left-3 top-3 text-xs text-[#6d8086]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
         {{ else if eq .Language "lua" }}
-            <p class="font-jetbrains absolute left-3 top-3 text-[#000080]"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="absolute left-3 top-3 text-xs text-[#000080]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
         {{ else }}
-            <p class="font-jetbrains absolute left-3 top-3 text-gray-400"><span class="font-jetbrainsmono mr-2"></span>{{ .Language }}</p>
+            <p class="absolute left-3 top-3 text-xs text-gray-400"><span class="nf mr-2 text-[13px]"></span>{{ .Language }}</p>
         {{ end }}
+        <!--COMMIT: Adjust the button to be more proportional to the codeblock-->
         <button
-            class="clipboard size-8 bg-code-grey font-jetbrainsmono absolute right-3 top-3 cursor-pointer border text-lg text-gray-400 hover:brightness-125 active:brightness-90"   
+            class="clipboard size-8 bg-code-grey nf absolute right-3 top-3 cursor-pointer border text-gray-400 hover:brightness-125 active:brightness-90"   
             noti="true"
         ></button>
         <div class="relative mx-3 text-gray-500">
@@ -159,6 +160,7 @@
                 <p class="code-gutter text-md text-right">{{ sum $i 1 }}</p>
             {{ end }}
         </div>
+        <!--COMMIT: Fixing word wrap not working for 3 level lines-->
         <pre class="font-jetbrains relative ml-1 flex flex-col overflow-x-auto md:whitespace-pre-wrap md:break-normal">
             {{ range .Code }}
                 {{ if eq . "" }}
@@ -258,6 +260,7 @@
     </div>
 {{ end }}
 
+<!--COMMIT: Moving icons and symbols to seprate css file and load it asynchronously-->
 {{ block "link" . }}
     {{ if eq .Type "Youtube" }}
         <span
@@ -295,6 +298,7 @@
     <code class="border-code-grey bg-code-grey text-code-lime font-jetbrains whitespace-pre border-2">{{ .Value }}</code>
 {{ end }}
 
+<!--COMMIT: Fixing text from sidebar clipping the main content (make the page flexible)-->
 {{ block "TOC" . }}
     {{ if eq .Type 1 }}
         <a 
