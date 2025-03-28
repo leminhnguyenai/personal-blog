@@ -123,33 +123,45 @@
     {{ end }}
 {{ end }}
 
+{{ block "metadata" . }}
+<p class="absolute flex gap-0 left-3 top-3 text-xs {{ index . 2 }}">
+    <span class="nf mr-2 text-sm">{{ index . 1 }}</span>
+        <span>{{ with capitalizeFilename ( index . 0 ) }}
+                {{ . }}
+            {{ else }}  
+                {{ index . 0 }}
+        {{ end }}</span>
+    </p>
+{{ end }}
+
+
 {{ block "codeblock" . }}
     <div
         class="codeblock bg-code-grey relative my-8 ml-4 flex border border-gray-500 px-2 py-4 pt-12 md:py-8 md:pt-14"
     >
-        {{ if matchMetadata .Metadata "go" }}
-            <p class="absolute left-3 top-3 text-xs text-[#05a5d0]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
-        {{ else if matchMetadata .Metadata "html" }}
-            <p class="absolute left-3 top-3 text-xs text-[#dc4a25]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
-        {{ else if matchMetadata .Metadata "css" }}
-            <p class="absolute left-3 top-3 text-xs text-[#623194]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
-        {{ else if matchMetadata .Metadata "javascript" }}
-            <p class="absolute left-3 top-3 text-xs text-[#f7d104]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
-        {{ else if matchMetadata .Metadata "zig" }}
-            <p class="absolute left-3 top-3 text-xs text-[#f7a41d]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
-        {{ else if matchMetadata .Metadata "json" }}
-            <p class="absolute left-3 top-3 text-xs text-[#cbcb41]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
-        {{ else if matchMetadata .Metadata "toml" }}
-            <p class="absolute left-3 top-3 text-xs text-[#a1a1aa]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
-        {{ else if matchMetadata .Metadata "bash" }}
-            <p class="absolute left-3 top-3 text-xs text-[#89e051]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
-        {{ else if matchMetadata .Metadata "config" }}
-            <p class="absolute left-3 top-3 text-xs text-[#6d8086]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
-        {{ else if matchMetadata .Metadata "lua" }}
-            <p class="absolute left-3 top-3 text-xs text-[#000080]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
-        {{ else }}
-            <p class="absolute left-3 top-3 text-xs text-gray-400"><span class="nf mr-2 text-[13px]"></span>{{ .Metadata }}</p>
-        {{ end }}
+		{{ if matchMetadata .Metadata "go" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#05a5d0]" ) }}
+		{{ else if matchMetadata .Metadata "html" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#dc4a25]" ) }}
+		{{ else if matchMetadata .Metadata "css" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#623194]" ) }}
+		{{ else if matchMetadata .Metadata "javascript" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#f7d104]" ) }}
+		{{ else if matchMetadata .Metadata "zig" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#f7a41d]" ) }}
+		{{ else if matchMetadata .Metadata "json" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#cbcb41]" ) }}
+		{{ else if matchMetadata .Metadata "toml" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#a1a1aa]" ) }}
+		{{ else if matchMetadata .Metadata "bash" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#89e051]" ) }}
+		{{ else if matchMetadata .Metadata "config" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#6d8086]" ) }}
+		{{ else if matchMetadata .Metadata "lua" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#000080]" ) }}
+		{{ else }}
+		    <p class="absolute left-3 top-3 text-xs text-gray-400"><span class="nf mr-2 text-[13px]"></span>{{ .Metadata }}</p>
+		{{ end }}        
         <!--COMMIT: Adjust the button to be more proportional to the codeblock-->
         <button
             class="clipboard size-8 bg-code-grey nf absolute right-3 top-3 cursor-pointer border text-gray-400 hover:brightness-125 active:brightness-90"   

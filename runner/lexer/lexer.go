@@ -274,11 +274,10 @@ func codeBlockMatch(lex *lexer) string {
 	}
 }
 
-// COMMIT: Add support for filename
 // COMMIT: Render the filetype with first letter lowercase
 func codeBlockHandler(lex *lexer, matchStr string) {
 	lines := strings.Split(matchStr, "\n")
-	metadata := strings.ToLower(regexp.MustCompile(`[a-zA-Z\.-_]+`).FindString(lines[0]))
+	metadata := regexp.MustCompile(`[a-zA-Z\.-_]+`).FindString(lines[0])
 	code := strings.Join(lines[1:len(lines)-1], "\n")
 
 	startLoc := lex.getLoc(lex.pos)
