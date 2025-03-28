@@ -233,12 +233,11 @@ func (r *Renderer) calloutRenderer(node *lexer.Node) string {
 	return r.writer.String()
 }
 
-// COMMIT: Render the filetype/filename with first letter lowercase
 func (r *Renderer) codeBlockRenderer(node *lexer.Node) string {
 	code := strings.Split(node.Self.Values[1], "\n")
 
 	r.templates.ExecuteTemplate(r.writer, "codeblock", struct {
-		Language string
+		Metadata string
 		Code     []string
 	}{node.Self.Values[0], code})
 

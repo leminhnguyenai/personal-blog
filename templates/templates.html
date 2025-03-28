@@ -127,28 +127,28 @@
     <div
         class="codeblock bg-code-grey relative my-8 ml-4 flex border border-gray-500 px-2 py-4 pt-12 md:py-8 md:pt-14"
     >
-        {{ if eq .Language "go" }}
-            <p class="absolute left-3 top-3 text-xs text-[#05a5d0]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
-        {{ else if eq .Language "html" }}
-            <p class="absolute left-3 top-3 text-xs text-[#dc4a25]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
-        {{ else if eq .Language "css" }}
-            <p class="absolute left-3 top-3 text-xs text-[#623194]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
-        {{ else if eq .Language "javascript" }}
-            <p class="absolute left-3 top-3 text-xs text-[#f7d104]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
-        {{ else if eq .Language "zig" }}
-            <p class="absolute left-3 top-3 text-xs text-[#f7a41d]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
-        {{ else if eq .Language "json" }}
-            <p class="absolute left-3 top-3 text-xs text-[#cbcb41]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
-        {{ else if eq .Language "toml" }}
-            <p class="absolute left-3 top-3 text-xs text-[#a1a1aa]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
-        {{ else if eq .Language "bash" }}
-            <p class="absolute left-3 top-3 text-xs text-[#89e051]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
-        {{ else if eq .Language "config" }}
-            <p class="absolute left-3 top-3 text-xs text-[#6d8086]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
-        {{ else if eq .Language "lua" }}
-            <p class="absolute left-3 top-3 text-xs text-[#000080]"><span class="nf mr-2 text-sm"></span>{{ .Language }}</p>
+        {{ if matchMetadata .Metadata "go" }}
+            <p class="absolute left-3 top-3 text-xs text-[#05a5d0]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
+        {{ else if matchMetadata .Metadata "html" }}
+            <p class="absolute left-3 top-3 text-xs text-[#dc4a25]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
+        {{ else if matchMetadata .Metadata "css" }}
+            <p class="absolute left-3 top-3 text-xs text-[#623194]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
+        {{ else if matchMetadata .Metadata "javascript" }}
+            <p class="absolute left-3 top-3 text-xs text-[#f7d104]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
+        {{ else if matchMetadata .Metadata "zig" }}
+            <p class="absolute left-3 top-3 text-xs text-[#f7a41d]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
+        {{ else if matchMetadata .Metadata "json" }}
+            <p class="absolute left-3 top-3 text-xs text-[#cbcb41]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
+        {{ else if matchMetadata .Metadata "toml" }}
+            <p class="absolute left-3 top-3 text-xs text-[#a1a1aa]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
+        {{ else if matchMetadata .Metadata "bash" }}
+            <p class="absolute left-3 top-3 text-xs text-[#89e051]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
+        {{ else if matchMetadata .Metadata "config" }}
+            <p class="absolute left-3 top-3 text-xs text-[#6d8086]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
+        {{ else if matchMetadata .Metadata "lua" }}
+            <p class="absolute left-3 top-3 text-xs text-[#000080]"><span class="nf mr-2 text-sm"></span>{{ .Metadata }}</p>
         {{ else }}
-            <p class="absolute left-3 top-3 text-xs text-gray-400"><span class="nf mr-2 text-[13px]"></span>{{ .Language }}</p>
+            <p class="absolute left-3 top-3 text-xs text-gray-400"><span class="nf mr-2 text-[13px]"></span>{{ .Metadata }}</p>
         {{ end }}
         <!--COMMIT: Adjust the button to be more proportional to the codeblock-->
         <button
@@ -160,7 +160,7 @@
                 <p class="code-gutter text-md text-right">{{ sum $i 1 }}</p>
             {{ end }}
         </div>
-        <!--COMMIT: Fixing word wrap not working for 3 level lines-->
+        <!--COMMIT: Fixing word wrap not working for 3+ level lines-->
         <pre class="font-jetbrains relative ml-1 flex flex-col overflow-x-auto md:whitespace-pre-wrap md:break-normal">
             {{ range .Code }}
                 {{ if eq . "" }}
@@ -260,7 +260,6 @@
     </div>
 {{ end }}
 
-<!--COMMIT: Moving icons and symbols to seprate css file and load it asynchronously-->
 {{ block "link" . }}
     {{ if eq .Type "Youtube" }}
         <span

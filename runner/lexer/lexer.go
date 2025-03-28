@@ -251,7 +251,7 @@ func paragraphHandler(lex *lexer, matchStr string) {
 }
 
 func codeBlockMatch(lex *lexer) string {
-	codeBlockDelimPattern := `\x60\x60\x60` + INLINE_WHITESPACE + `*` + `[a-zA-Z]+`
+	codeBlockDelimPattern := `\x60\x60\x60` + INLINE_WHITESPACE + `*` + `[a-zA-Z\.-_]+`
 	codeBlockDelimBeginLoc := regexp.MustCompile(codeBlockDelimPattern).FindStringIndex(lex.remainder())
 
 	if codeBlockDelimBeginLoc != nil && codeBlockDelimBeginLoc[0] == 0 &&
@@ -274,16 +274,18 @@ func codeBlockMatch(lex *lexer) string {
 	}
 }
 
+// COMMIT: Add support for filename
+// COMMIT: Render the filetype with first letter lowercase
 func codeBlockHandler(lex *lexer, matchStr string) {
 	lines := strings.Split(matchStr, "\n")
-	language := strings.ToLower(regexp.MustCompile(`[a-zA-Z]+`).FindString(lines[0]))
+	metadata := strings.ToLower(regexp.MustCompile(`[a-zA-Z\.-_]+`).FindString(lines[0]))
 	code := strings.Join(lines[1:len(lines)-1], "\n")
 
 	startLoc := lex.getLoc(lex.pos)
 	lex.advanceN(len(matchStr))
 	endLoc := lex.getLoc(lex.pos - 1)
 
-	lex.push(NewToken(CODE_BLOCK, NewLoc(startLoc, endLoc), language, code))
+	lex.push(NewToken(CODE_BLOCK, NewLoc(startLoc, endLoc), metadata, code))
 }
 
 func frontmatterMatch(lex *lexer) string {
