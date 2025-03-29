@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 
+/* COMMIT: Preload font in the header */
 @font-face {
     font-family: JetBrainsMono;
     font-style: normal;

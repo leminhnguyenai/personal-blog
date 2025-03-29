@@ -10,7 +10,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/leminhnguyenai/personal-blog/runner/asciitree"
 	"github.com/leminhnguyenai/personal-blog/runner/lexer"
 	"github.com/leminhnguyenai/personal-blog/runner/renderer"
 )
@@ -20,7 +19,7 @@ type Data struct {
 	TOC     template.HTML
 }
 
-func CachePolicyMiddleware(handler http.Handler) http.HandlerFunc {
+func FileServerMiddleware(handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Cache-Control", "public, max-age=31536000")
 		handler.ServeHTTP(w, r)
@@ -30,7 +29,6 @@ func CachePolicyMiddleware(handler http.Handler) http.HandlerFunc {
 // COMMIT: Enable text compression
 // COMMIT: Generate different random name for css and js files to enable re-caching
 // COMMIT: Create a logging file to save the results and only print out important information
-// COMMIT: Add cache policy header
 func Preview(filePath string) error {
 	_, err := GetFreePort()
 	if err != nil {
@@ -39,12 +37,12 @@ func Preview(filePath string) error {
 
 	mux := http.NewServeMux()
 
-	fs := http.FileServer(http.Dir("./static"))
-
-	mux.Handle("GET /static/", http.StripPrefix("/static/", CachePolicyMiddleware(fs)))
+	mux.Handle("GET /static/", FileServerMiddleware(FileServer("static")))
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Connected")
 		w.Header().Add("Cache-Control", "public, max-age=31536000")
+
+		log.Println(r.Header.Get("Accept-Encoding"))
 
 		data, err := os.ReadFile(filePath)
 		if err != nil {
@@ -62,7 +60,7 @@ func Preview(filePath string) error {
 
 		sourceNode.Display(&str, 0)
 
-		fmt.Println(asciitree.GenerateTree(str))
+		// fmt.Println(asciitree.GenerateTree(str))
 
 		markdownRenderer, err := renderer.NewRenderer()
 		if err != nil {

@@ -3,11 +3,14 @@ package runner
 import (
 	"bufio"
 	"fmt"
+	"html/template"
 	"log"
 	"net"
 	"net/http"
 	"os"
+	"path"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -99,4 +102,41 @@ func LoadEnv(envPath string, overload bool) error {
 	}
 
 	return nil
+}
+
+// Alternative to http.FileServer that support sending compressed file if the request
+// include Accept-Encoding header
+func FileServer(dirPath string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		encodingHeader := r.Header.Get("Accept-Encoding")
+		relativePath := template.JSEscapeString(strings.TrimPrefix(r.URL.Path, "/static"))
+		if strings.Contains(relativePath, "../") {
+			http.Error(w, "Illegal command ../", http.StatusBadRequest)
+		}
+
+		filePath := path.Join(dirPath, relativePath)
+		fileExt := path.Ext(filePath)
+
+		if encodingHeader != "" && strings.Contains(encodingHeader, "gzip") {
+			supportedCompressingExt := []string{".css", ".js", ".html"}
+
+			if slices.Contains(supportedCompressingExt, fileExt) {
+				filePath += ".gz"
+				w.Header().Add("Content-Encoding", "gzip")
+			}
+		}
+
+		switch fileExt {
+		case ".css":
+			w.Header().Add("Content-type", "text/css")
+		case ".html":
+			w.Header().Add("Content-type", "text/html")
+		case ".js":
+			w.Header().Add("Content-type", "text/javascript")
+		case ".woff2":
+			w.Header().Add("Content-type", "font/woff2")
+		}
+
+		http.ServeFile(w, r, filePath)
+	})
 }
