@@ -20,7 +20,16 @@ type Data struct {
 	TOC     template.HTML
 }
 
+func CachePolicyMiddleware(handler http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Cache-Control", "public, max-age=31536000")
+		handler.ServeHTTP(w, r)
+	}
+}
+
 // COMMIT: Enable text compression
+// COMMIT: Generate different random name for css and js files to enable re-caching
+// COMMIT: Create a logging file to save the results and only print out important information
 // COMMIT: Add cache policy header
 func Preview(filePath string) error {
 	_, err := GetFreePort()
@@ -32,9 +41,10 @@ func Preview(filePath string) error {
 
 	fs := http.FileServer(http.Dir("./static"))
 
-	mux.Handle("GET /static/", http.StripPrefix("/static/", fs))
+	mux.Handle("GET /static/", http.StripPrefix("/static/", CachePolicyMiddleware(fs)))
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		log.Println("Connected")
+		w.Header().Add("Cache-Control", "public, max-age=31536000")
 
 		data, err := os.ReadFile(filePath)
 		if err != nil {

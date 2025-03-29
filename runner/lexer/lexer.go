@@ -274,7 +274,6 @@ func codeBlockMatch(lex *lexer) string {
 	}
 }
 
-// COMMIT: Render the filetype with first letter lowercase
 func codeBlockHandler(lex *lexer, matchStr string) {
 	lines := strings.Split(matchStr, "\n")
 	metadata := regexp.MustCompile(`[a-zA-Z\.-_]+`).FindString(lines[0])
