@@ -148,3 +148,18 @@ func FileServer(dirPath string) http.Handler {
 		http.ServeFile(w, r, filePath)
 	})
 }
+
+// Write and append to app.log
+func Logging(data, logfilePath string) error {
+	f, err := os.OpenFile(logfilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if _, err := f.Write([]byte(data)); err != nil {
+		return err
+	}
+
+	return nil
+}

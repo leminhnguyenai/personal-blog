@@ -13,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/leminhnguyenai/personal-blog/runner/asciitree"
 	"github.com/leminhnguyenai/personal-blog/runner/lexer"
 	"github.com/leminhnguyenai/personal-blog/runner/renderer"
 )
@@ -64,7 +65,17 @@ func Preview(filePath string) error {
 
 		astTree.Display(&str, 0)
 
-		// fmt.Println(asciitree.GenerateTree(str))
+		logData := fmt.Sprintf(`
+Time: %v
+
+%s
+
+        `, time.Now(), asciitree.GenerateTree(str))
+
+		if err = Logging(logData, "app.log"); err != nil {
+			HandleError(w, err)
+			return
+		}
 
 		markdownRenderer, err := renderer.NewRenderer()
 		if err != nil {
