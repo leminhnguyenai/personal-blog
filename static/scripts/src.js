@@ -78,7 +78,7 @@ const clipboard = {
 
         codeblocks.forEach((codeblock) => {
             const code = codeblock.querySelector('pre').textContent;
-            const clipboardBtn = codeblock.querySelector('button.clipboard');
+            const clipboardBtn = codeblock.querySelector('button[clipboard]');
 
             const handler = (ev) => {
                 navigator.clipboard.writeText(code);
@@ -137,11 +137,11 @@ const clipboard = {
 // ======== CODEBLOCK ======== /
 const code = {
     process: function (body) {
-        const codeblocks = body.querySelectorAll('.codeblock');
+        const codeblocks = body.querySelectorAll('[codeblock]');
 
         codeblocks.forEach((codeblock) => {
-            const gutter = codeblock.querySelectorAll('p.code-gutter');
-            const code = codeblock.querySelectorAll('p.code-line');
+            const gutter = codeblock.querySelectorAll('p[code-gutter]');
+            const code = codeblock.querySelectorAll('p[code-line]');
 
             const resizeObserver = new ResizeObserver(() => {
                 for (let i = 0; i < code.length; i++) {

@@ -15,7 +15,7 @@
     </div>
     <hr class="text-gray-500">
     <div class="toc bg-code-grey my-4 flex flex-col p-2 lg:hidden">{{ .TOC }}</div>
-    <hr class="block text-gray-500 md:hidden"> 
+    <hr class="block text-gray-500 lg:hidden"> 
 {{ end }}
 
 {{ block "heading" . }}
@@ -124,27 +124,30 @@
 {{ end }}
 
 {{ block "metadata" . }}
-<div class="absolute flex  left-0 top-0 w-full p-4 items-center justify-between text-xs {{ index . 2 }}">
-    <div class="relative flex gap-0">
-        <span class="nf mr-2 text-sm">{{ index . 1 }}</span>
-            <span>{{ with capitalizeFilename ( index . 0 ) }}
+    <div class="absolute flex left-0 top-0 w-full p-3 pl-4 items-center justify-between text-xs {{ index . 2 }}">
+        <div class="relative flex gap-0">
+            <span class="nf mr-2 text-sm">{{ index . 1 }}</span>
+            <span>
+                {{ with capitalizeFilename ( index . 0 ) }}
                     {{ . }}
                 {{ else }}  
                     {{ index . 0 }}
                 {{ end }}
-        </span>
+            </span>
+        </div>
+        <button
+            clipboard
+            class="relative size-7 bg-code-grey cursor-pointer border nf text-gray-400 hover:brightness-125 active:brightness-90"   
+            noti="true"
+        ></button>
     </div>
-    <button
-        class="clipboard size-7 bg-code-grey nf cursor-pointer border text-gray-400 hover:brightness-125 active:brightness-90"   
-        noti="true"
-    ></button>
-</div>
 {{ end }}
 
 
 {{ block "codeblock" . }}
     <div
-        class="codeblock bg-code-grey relative my-8 ml-4 flex border border-gray-500 px-2 py-4 pt-12 md:py-8 md:pt-14"
+        codeblock
+        class="relative flex my-8 ml-4 px-2 py-4 lg:py-8 pt-12 lg:pt-14 bg-code-grey border border-gray-500 "
     >
 		{{ if matchMetadata .Metadata "go" }}
 			{{ template "metadata" ( arr .Metadata "" "text-[#05a5d0]" ) }}
@@ -169,19 +172,18 @@
 		{{ else }}
 			{{ template "metadata" ( arr "Plaintext" "" "text-gray-400" ) }}
 		{{ end }}        
-        <!--COMMIT: Adjust the button to be more proportional to the codeblock-->
+        <!--COMMIT: Add neovim style status bar-->
         <div class="relative mx-3 text-gray-500">
             {{ range $i, $el := .Code }}
-                <p class="code-gutter text-md text-right">{{ sum $i 1 }}</p>
+                <p code-gutter class="text-md text-right">{{ sum $i 1 }}</p>
             {{ end }}
         </div>
-        <!--COMMIT: Fixing word wrap not working for 3+ level lines-->
-        <pre class="font-jetbrains relative ml-1 flex flex-col overflow-x-auto md:whitespace-pre-wrap md:break-normal">
+        <pre class="relative flex flex-col ml-1 font-jetbrains overflow-x-auto lg:overflow-x-hidden lg:whitespace-pre-wrap lg:break-words">
             {{ range .Code }}
                 {{ if eq . "" }}
-                    <p class="code-line text-md"> </p>
+                    <p  code-line class="text-md"> </p>
                 {{ else }}
-                    <p class="code-line text-md">{{ . }}</p>
+                    <p code-line class="text-md">{{ . }}</p>
                 {{ end }}
             {{ end }}
         </pre>
@@ -316,27 +318,27 @@
     {{ if eq .Type 1 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter text-md text-title-red md:text-title-red/75 ml-2 cursor-pointer pl-4 hover:underline active:underline md:border-l-2">{{ .Value }}
+            class="chapter text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer pl-4 hover:underline active:underline lg:border-l-2">{{ .Value }}
         </a>
     {{ else if eq .Type 2 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter text-md text-title-red md:text-title-red/75 ml-2 cursor-pointer py-1 pl-8 hover:underline active:underline md:border-l-2">{{ .Value }}
+            class="chapter text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-8 hover:underline active:underline lg:border-l-2">{{ .Value }}
         </a>
     {{ else if eq .Type 3 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter text-md text-title-red md:text-title-red/75 ml-2 cursor-pointer py-1 pl-12 hover:underline active:underline md:border-l-2">{{ .Value }}
+            class="chapter text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-12 hover:underline active:underline lg:border-l-2">{{ .Value }}
         </a>
     {{ else if eq .Type 4 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter text-md text-title-red md:text-title-red/75 ml-2 cursor-pointer py-1 pl-16 hover:underline active:underline md:border-l-2">{{ .Value }}
+            class="chapter text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-16 hover:underline active:underline lg:border-l-2">{{ .Value }}
         </a>
     {{ else if eq .Type 5 }}
         <a 
             href="#{{ .Link }}" 
-            class="chapter text-md text-title-red md:text-title-red/75 ml-2 cursor-pointer py-1 pl-20 hover:underline active:underline md:border-l-2">{{ .Value }}
+            class="chapter text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-20 hover:underline active:underline lg:border-l-2">{{ .Value }}
         </a>
     {{ end }}
     {{ .Children }}
