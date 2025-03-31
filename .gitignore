@@ -6,3 +6,4 @@ test.md
 output.css
 .DS_Store
 *.min.*
+app.log

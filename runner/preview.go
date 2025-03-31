@@ -32,7 +32,6 @@ func FileServerMiddleware(handler http.Handler) http.HandlerFunc {
 	}
 }
 
-// COMMIT: Generate different random name for css and js files to enable re-caching
 // COMMIT: Create a logging file to save the results and only print out important information
 func Preview(filePath string) error {
 	_, err := GetFreePort()
