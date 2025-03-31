@@ -20,7 +20,8 @@
 
 {{ block "heading" . }}
     {{ if eq .Type 1 }}
-        <h1 
+        <h1
+            heading
             id="{{ .Link }}" 
             class="text-title-red my-6 cursor-pointer gap-4 text-3xl hover:underline"
             noti="true"
@@ -28,7 +29,8 @@
             {{ .Value }}
         </h1>
     {{ else if eq .Type 2 }}
-        <h2 
+        <h2
+            heading
             id="{{ .Link }}" 
             class="text-title-red relative my-4 flex cursor-pointer gap-4 text-2xl hover:underline"
             noti="true"
@@ -36,7 +38,8 @@
             {{ .Value }}
         </h2>
     {{ else if eq .Type 3 }}
-        <h3 
+        <h3
+            heading
             id="{{ .Link }}" 
             class="text-title-red relative my-4 flex cursor-pointer gap-4 text-xl hover:underline"
             noti="true"
@@ -44,7 +47,8 @@
             {{ .Value }}
         </h3>
     {{ else if eq .Type 4 }}
-        <h4 
+        <h4
+            heading
             id="{{ .Link }}" 
             class="text-title-red relative my-2 flex cursor-pointer gap-4 text-lg hover:underline"
             noti="true"
@@ -52,7 +56,8 @@
             {{ .Value }}
         </h4>
     {{ else if eq .Type 5 }}
-        <h5 
+        <h5
+            heading
             id="{{ .Link }}" 
             class="text-title-red relative my-2 flex cursor-pointer gap-4 text-lg hover:underline"
             noti="true"
@@ -147,7 +152,7 @@
 {{ block "codeblock" . }}
     <div
         codeblock
-        class="relative flex my-8 ml-4 px-2 py-4 lg:py-8 pt-12 lg:pt-14 bg-code-grey border border-gray-500 "
+        class="relative flex my-8 ml-4 px-2 py-4 lg:py-8 pt-12 lg:pt-14 bg-code-grey border border-gray-500"
     >
 		{{ if matchMetadata .Metadata "go" }}
 			{{ template "metadata" ( arr .Metadata "" "text-[#05a5d0]" ) }}
@@ -197,7 +202,8 @@
 <!--NOTE: Using javascript (or if can CSS) to automatically prevent the viewport from clipping the pop up-->
 {{ block "youtube-preview" . }}
     <div
-        class="pop-up w-128 pop-up-bottom bg-rich-black text-title-red invisible absolute z-50 flex border p-2 delay-0 hover:visible"
+        pop-up
+        class="w-128 pop-up-bottom bg-rich-black text-title-red invisible absolute z-50 flex border p-2 delay-0 hover:visible"
     >
         <img 
             class="m-1 outline outline-offset-[-1px] brightness-90"
@@ -224,7 +230,7 @@
 {{ end }}
 
 {{ block "github-branches-preview" . }}
-    <div class="pop-up z-60 pop-up-bottom text-code-purple bg-code-purple invisible absolute flex w-64 flex-col gap-[1px] border delay-0 hover:visible">
+    <div pop-up class="z-60 pop-up-bottom text-code-purple bg-code-purple invisible absolute flex w-64 flex-col gap-[1px] border delay-0 hover:visible">
         {{ range .Branches }}
             <a
                 href="https://github.com/{{ $.Owner }}/{{ $.Repo }}/tree/{{ .Name }}"
@@ -238,7 +244,8 @@
 
 {{ block "github-preview" . }}
     <div
-        class="pop-up w-128 pop-up-bottom bg-rich-black text-title-purple invisible absolute z-50 flex flex-col justify-between border p-2 delay-0 hover:visible"
+        pop-up
+        class="w-128 pop-up-bottom bg-rich-black text-title-purple invisible absolute z-50 flex flex-col justify-between border p-2 delay-0 hover:visible"
     >
         <div class="ml-2 flex items-center">
             <a  
@@ -280,14 +287,14 @@
 {{ block "link" . }}
     {{ if eq .Type "Youtube" }}
         <span
-            class="relative text-[#fe314d] hover:[&>div.pop-up]:visible"
+            class="relative text-[#fe314d] hover:[&>div[pop-up]]:visible"
         >
             {{ .Preview }}
             <a href="{{ .Link }}" class="hover:underline">{{ .Placeholder }}</a>
         </span>
     {{ else if eq .Type "Github" }}
         <span
-            class="text-code-purple relative hover:[&>div.pop-up]:visible"
+            class="text-code-purple relative hover:[&>div[pop-up]]:visible"
         >
             {{ .Preview }}
             <a href="{{ .Link }}" class="hover:underline">{{ .Placeholder }}</a>
@@ -314,34 +321,42 @@
     <code class="border-code-grey bg-code-grey text-code-lime font-jetbrains whitespace-pre border-2">{{ .Value }}</code>
 {{ end }}
 
+<!--FIX: Fix TOC not focused when the paged is loaded on top-->
 {{ block "TOC" . }}
+<div toc class="relative flex flex-col w-full">
     {{ if eq .Type 1 }}
         <a 
+            chapter
             href="#{{ .Link }}" 
-            class="chapter text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer pl-4 hover:underline active:underline lg:border-l-2">{{ .Value }}
+            class="text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer pl-4 hover:underline active:underline lg:border-l-2">{{ .Value }}
         </a>
     {{ else if eq .Type 2 }}
         <a 
+            chapter
             href="#{{ .Link }}" 
-            class="chapter text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-8 hover:underline active:underline lg:border-l-2">{{ .Value }}
+            class="text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-8 hover:underline active:underline lg:border-l-2">{{ .Value }}
         </a>
     {{ else if eq .Type 3 }}
         <a 
+            chapter
             href="#{{ .Link }}" 
-            class="chapter text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-12 hover:underline active:underline lg:border-l-2">{{ .Value }}
+            class="text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-12 hover:underline active:underline lg:border-l-2">{{ .Value }}
         </a>
     {{ else if eq .Type 4 }}
         <a 
+            chapter
             href="#{{ .Link }}" 
-            class="chapter text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-16 hover:underline active:underline lg:border-l-2">{{ .Value }}
+            class="text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-16 hover:underline active:underline lg:border-l-2">{{ .Value }}
         </a>
     {{ else if eq .Type 5 }}
         <a 
+            chapter
             href="#{{ .Link }}" 
-            class="chapter text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-20 hover:underline active:underline lg:border-l-2">{{ .Value }}
+            class="text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-20 hover:underline active:underline lg:border-l-2">{{ .Value }}
         </a>
     {{ end }}
     {{ .Children }}
+</div>
 {{ end }}
 
 {{ block "bold-text" . }}

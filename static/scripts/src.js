@@ -19,10 +19,10 @@ function getDocument() {
 const toc = {
     process: (body) => {
         const main = body.querySelector('#main');
-        const headings = main.querySelectorAll('h1, h2, h3, h4, h5');
-        const toc = body.querySelector('.side-bar.toc');
-        const chapters = toc.querySelectorAll('a.chapter');
-        const topbar = body.querySelector('div.top-bar');
+        const headings = main.querySelectorAll('[heading]');
+        const toc = body.querySelector('[side-bar] [toc]');
+        const chapters = toc.querySelectorAll('a[chapter]');
+        const topbar = body.querySelector('div[top-bar]');
 
         const sections = [];
 
@@ -74,7 +74,7 @@ const toc = {
 // ======== CLIPBOARD ======== /
 const clipboard = {
     codeblockCopy: (body) => {
-        const codeblocks = body.querySelectorAll('.codeblock');
+        const codeblocks = body.querySelectorAll('[codeblock]');
 
         codeblocks.forEach((codeblock) => {
             const code = codeblock.querySelector('pre').textContent;
@@ -202,7 +202,7 @@ const notification = {
 // ======== POPUP ======== /
 const popup = {
     process: function (body) {
-        const popups = body.querySelectorAll('.pop-up');
+        const popups = body.querySelectorAll('[pop-up]');
         const main = body.querySelector('#main');
 
         popups.forEach((popup) => {
