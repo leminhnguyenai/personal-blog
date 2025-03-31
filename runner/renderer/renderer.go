@@ -13,17 +13,17 @@ import (
 	"github.com/leminhnguyenai/personal-blog/runner/lexer"
 )
 
-type writer struct {
+type Writer struct {
 	data string
 }
 
-func (w *writer) Write(p []byte) (n int, err error) {
+func (w *Writer) Write(p []byte) (n int, err error) {
 	w.data += string(p)
 	return len([]byte(w.data)), nil
 }
 
 // Return the value of the writer and reset it
-func (w *writer) String() string {
+func (w *Writer) String() string {
 	cpy := w.data
 	w.data = ""
 	return cpy
@@ -31,7 +31,7 @@ func (w *writer) String() string {
 
 type Renderer struct {
 	templates *template.Template
-	writer    *writer
+	writer    *Writer
 }
 
 func NewRenderer() (*Renderer, error) {
@@ -40,7 +40,7 @@ func NewRenderer() (*Renderer, error) {
 		return nil, err
 	}
 
-	return &Renderer{templates, &writer{}}, nil
+	return &Renderer{templates, &Writer{}}, nil
 }
 
 func (r *Renderer) GenerateTOC(node *lexer.Node) string {

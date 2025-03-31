@@ -1,6 +1,8 @@
 package runner
 
 import (
+	"bytes"
+	"compress/gzip"
 	"errors"
 	"fmt"
 	"html/template"
@@ -50,7 +52,7 @@ func Preview(filePath string) error {
 			return
 		}
 
-		sourceNode, err := lexer.ParseAST(string(data))
+		astTree, err := lexer.ParseAST(string(data))
 		if err != nil {
 			HandleError(w, err)
 			return
@@ -58,7 +60,7 @@ func Preview(filePath string) error {
 
 		var str string
 
-		sourceNode.Display(&str, 0)
+		astTree.Display(&str, 0)
 
 		// fmt.Println(asciitree.GenerateTree(str))
 
@@ -68,9 +70,11 @@ func Preview(filePath string) error {
 			return
 		}
 
-		toc := markdownRenderer.GenerateTOC(sourceNode)
-		values, children := markdownRenderer.Traverse(sourceNode)
-		html := values + children
+		toc := markdownRenderer.GenerateTOC(astTree)
+		values, children := markdownRenderer.Traverse(astTree)
+		content := values + children
+
+		writer := &renderer.Writer{}
 
 		templ, err := template.New("").Funcs(renderer.FuncsMap).ParseFiles("templates/index.html")
 		if err != nil {
@@ -78,10 +82,23 @@ func Preview(filePath string) error {
 			return
 		}
 
-		templ.ExecuteTemplate(w, "index", Data{
-			Content: template.HTML(html),
+		templ.ExecuteTemplate(writer, "index", Data{
+			Content: template.HTML(content),
 			TOC:     template.HTML(toc),
 		})
+
+		html := writer.String()
+
+		var b bytes.Buffer
+
+		compressor := gzip.NewWriter(&b)
+		compressor.Write([]byte(html))
+		compressor.Close()
+
+		w.Header().Add("Content-Type", "text/html")
+		w.Header().Add("Content-Encoding", "gzip")
+		w.WriteHeader(http.StatusOK)
+		w.Write(b.Bytes())
 	})
 
 	srv := &http.Server{Addr: ":3000", Handler: mux}
