@@ -110,12 +110,20 @@ func FileServer(dirPath string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		encodingHeader := r.Header.Get("Accept-Encoding")
 		relativePath := template.JSEscapeString(strings.TrimPrefix(r.URL.Path, "/static"))
+		fileExt := path.Ext(relativePath)
+
+		// Remove the hash from the relative path
+		splits := strings.Split(relativePath, ".")
+		possibleHash := splits[len(splits)-2]
+		if regexp.MustCompile(`^[0-9]+$`).FindString(possibleHash) != "" {
+			relativePath = strings.Join(splits[:len(splits)-2], ".") + fileExt
+		}
+
 		if strings.Contains(relativePath, "../") {
 			http.Error(w, "Illegal command ../", http.StatusBadRequest)
 		}
 
 		filePath := path.Join(dirPath, relativePath)
-		fileExt := path.Ext(filePath)
 
 		if encodingHeader != "" && strings.Contains(encodingHeader, "gzip") {
 			supportedCompressingExt := []string{".css", ".js", ".html"}

@@ -4,13 +4,6 @@
  *# [Nerd Fonts]  Version: 3.3.0
  *# [Nerd Fonts]  The following is generated from the build script
  */
-@font-face {
-  font-family: "NerdFontsSymbols Nerd Font";
-  src: url("/static/fonts/SymbolsNerdFont.woff2") format("woff2");
-  font-display: swap;
-  font-weight: normal;
-  font-style: normal;
-}
 .nf,
 .nerd-font,
 .nerd-fonts {

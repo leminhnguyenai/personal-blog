@@ -1,18 +1,32 @@
 {{ block "index" . }}
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="data:," />
-        <link rel="stylesheet" href="/static/output.css"/>
-        <link rel="preload" href="/static/icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-        <link rel="preload" href="/static/fonts/JetBrainsMono-Light.woff2" as="font" type="font/woff2" crossorigin>
-        <link rel="preload" href="/static/fonts/JetBrainsMono-Bold.woff2" as="font" type="font/woff2" crossorigin>
-        <link rel="preload" href="/static/fonts/SymbolsNerdFont.woff2" as="font" type="font/woff2" crossorigin>
-        <script src="/static/scripts/src.min.js" defer=""></script>
-        <title>Blog preview</title>
-    </head>
+    {{ template "header" . }}
+    <style>
+        @font-face {
+            font-family: JetBrainsMono;
+            font-style: normal;
+            font-weight: 400;
+            font-display: block;
+            src: url('/static/fonts/JetBrainsMono-Light.{{ .Hash }}.woff2') format('woff2');
+        }
+
+        @font-face {
+            font-family: JetBrainsMono;
+            font-style: normal;
+            font-weight: 700;
+            font-display: block;
+            src: url('/static/fonts/JetBrainsMono-Bold.{{ .Hash }}.woff2') format('woff2');
+        }
+
+        @font-face {
+            font-family: "NerdFontsSymbols Nerd Font";
+            src: url("/static/fonts/SymbolsNerdFont.{{ .Hash }}.woff2") format("woff2");
+            font-display: swap;
+            font-weight: normal;
+            font-style: normal;
+        }
+    </style>
     <body class="bg-rich-black text-mint-cream font-jetbrains scroll-auto text-sm">
         <div class="grid-rows-10 fixed grid h-screen w-screen grid-cols-5">
             <div class="top-bar border-b-1 col-span-5 border-gray-500"></div>
@@ -39,6 +53,21 @@
         {{ template "notification" . }}
     </body>
 </html>
+{{ end }}
+
+{{ block "header" . }}
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="data:," />
+        <link rel="preload" href="/static/fonts/JetBrainsMono-Light.{{ .Hash }}.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="/static/fonts/JetBrainsMono-Bold.{{ .Hash }}.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="preload" href="/static/fonts/SymbolsNerdFont.{{ .Hash }}.woff2" as="font" type="font/woff2" crossorigin>
+        <link rel="stylesheet" href="/static/output.{{ .Hash }}.css"/>
+        <link rel="preload" href="/static/icons.min.{{ .Hash }}.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <script src="/static/scripts/src.min.{{ .Hash }}.js" defer=""></script>
+        <title>Blog preview</title>
+    </head>
 {{ end }}
 
 {{ block "notification" . }}

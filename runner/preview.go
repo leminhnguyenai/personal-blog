@@ -11,14 +11,18 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/leminhnguyenai/personal-blog/runner/lexer"
 	"github.com/leminhnguyenai/personal-blog/runner/renderer"
 )
 
+var hash int = int(time.Now().Unix())
+
 type Data struct {
 	Content template.HTML
 	TOC     template.HTML
+	Hash    int
 }
 
 func FileServerMiddleware(handler http.Handler) http.HandlerFunc {
@@ -28,7 +32,6 @@ func FileServerMiddleware(handler http.Handler) http.HandlerFunc {
 	}
 }
 
-// COMMIT: Enable text compression
 // COMMIT: Generate different random name for css and js files to enable re-caching
 // COMMIT: Create a logging file to save the results and only print out important information
 func Preview(filePath string) error {
@@ -85,6 +88,7 @@ func Preview(filePath string) error {
 		templ.ExecuteTemplate(writer, "index", Data{
 			Content: template.HTML(content),
 			TOC:     template.HTML(toc),
+			Hash:    hash,
 		})
 
 		html := writer.String()
