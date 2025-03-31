@@ -33,7 +33,6 @@ func FileServerMiddleware(handler http.Handler) http.HandlerFunc {
 	}
 }
 
-// COMMIT: Create a logging file to save the results and only print out important information
 func Preview(filePath string) error {
 	_, err := GetFreePort()
 	if err != nil {
