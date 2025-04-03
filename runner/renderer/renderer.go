@@ -197,7 +197,13 @@ func (r *Renderer) listRenderer(node *lexer.Node) string {
 		}{node.Self.Values[0], template.HTML(values), template.HTML(children)})
 	}
 
-	return r.writer.String()
+	switch node.Parent.Self.Kind {
+	case lexer.PARAGRAPH, lexer.HYPHEN_LIST, lexer.NUMBERED_LIST:
+		return r.writer.String()
+	default:
+		return "<ul>" + r.writer.String() + "</ul>"
+	}
+
 }
 
 func (r *Renderer) quoteRenderer(node *lexer.Node) string {

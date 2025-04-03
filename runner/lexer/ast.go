@@ -6,6 +6,7 @@ type Node struct {
 	Self     Token
 	Values   []*Node
 	Children []*Node
+	Parent   *Node
 }
 
 func NewNode(token Token) *Node {
@@ -13,6 +14,7 @@ func NewNode(token Token) *Node {
 }
 
 func (node *Node) addChild(newNode *Node) {
+	newNode.Parent = node
 	node.Children = append(node.Children, newNode)
 }
 
