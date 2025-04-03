@@ -129,7 +129,7 @@
 {{ end }}
 
 {{ block "metadata" . }}
-    <div class="relative flex w-full px-[var(--base-w)] items-center justify-between bg-rich-black text-gray-400">
+    <div class="relative flex w-full px-[var(--base-w)] items-center justify-between text-gray-400">
         <div class="flex gap-[var(--base-w)]">
             <span class="relative px-[var(--base-w)] bg-code-blue text-rich-black">NORMAL</span>
             <div class="relative flex gap-0">
@@ -161,7 +161,7 @@
 {{ block "codeblock" . }}
     <div
         codeblock
-        class="relative my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-code-grey text-base"
+        class="relative my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-gray-400/10 text-base outline outline-gray-400 outline-offset-[-1px]"
     >
         <div class="flex">
             <div class="relative text-gray-400">
