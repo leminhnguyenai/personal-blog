@@ -35,8 +35,8 @@
                 <p class="py-[calc(var(--base-h)*2)] text-center">Some contact here</p>
                 <hr class="relative h-[var(--base-h)] text-gray-500">
             </div>
+            {{ template "notification" . }}
         </div>
-        {{ template "notification" . }}
     </body>
 </html>
 {{ end }}
@@ -60,7 +60,7 @@
 {{ block "notification" . }}
         <div
             id="notification"
-            class="fixed bottom-8 right-8 w-1/6"
+            class="fixed bottom-0 right-0 px-[var(--base-w)] py-[var(--base-h)] w-full lg:w-1/4"
         >
             <template>
                 {{ template "noti-card" ( arr "successful" "text-code-green" ) }}
@@ -73,9 +73,9 @@
 
 {{ block "noti-card" . }}
     <div 
-        class="{{ index . 0 }} relative flex mt-2 bg-rich-black {{ index . 1 }} border"
+        class="{{ index . 0 }} relative flex mt-[var(--base-h)] backdrop-blur-sm text-base {{ index . 1 }} outline outline-offset-[-1px]"
     >
-        <p class="w-4/5 px-4 py-2"></p> 
-        <span class="relative flex w-1/5 cursor-pointer select-none items-center justify-center border-l text-lg hover:underline">✗</span>
+        <p class="w-3/4 px-[var(--base-w)] py-[var(--base-h)]"></p> 
+        <span class="relative flex w-1/4 items-center justify-center cursor-pointer select-none outline outline-offset-[-1px] text-lg hover:underline active:underline">✗</span>
     </div>
 {{ end }}

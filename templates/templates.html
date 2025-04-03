@@ -129,11 +129,15 @@
 {{ end }}
 
 {{ block "metadata" . }}
-    <div class="relative flex w-full items-center justify-between bg-rich-black text-gray-400">
+    <div class="relative flex w-full px-[var(--base-w)] items-center justify-between bg-rich-black text-gray-400">
         <div class="flex gap-[var(--base-w)]">
             <span class="relative px-[var(--base-w)] bg-code-blue text-rich-black">NORMAL</span>
             <div class="relative flex gap-0">
-                <span class="relative w-[calc(var(--base-w)*2)] mr-[var(--base-w)] nf {{ index . 2 }}">{{ index . 1 }}</span>
+                <span 
+                    class="relative w-[calc(var(--base-w)*2)] mr-[var(--base-w)] nf {{ index . 2 }}"
+                >
+                    {{ index . 1 }}
+                </span>
                 <span>
                     {{ with capitalizeFilename ( index . 0 ) }}
                         {{ . }}
@@ -145,8 +149,9 @@
         </div>
         <!--FIX: Fix copy button not clickable on mobile-->
         <button
+            type="button"
             clipboard
-            class="relative px-[var(--base-w)] bg-code-blue text-rich-black cursor-pointer hover:underline"   
+            class="relative z-99 px-[var(--base-w)] bg-code-blue text-rich-black cursor-pointer hover:underline active:underline"   
             noti="true"
         >COPY</button>
     </div>

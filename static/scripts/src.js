@@ -22,15 +22,10 @@ const clipboard = {
 
         codeblocks.forEach((codeblock) => {
             const code = codeblock.querySelector('pre').textContent;
-            const clipboardBtn = codeblock.querySelector('button[clipboard]');
+            const clipboardBtn = codeblock.querySelector('[clipboard]');
 
             const handler = (ev) => {
                 navigator.clipboard.writeText(code);
-                clipboardBtn.textContent = '󰄬';
-                setTimeout(() => {
-                    clipboardBtn.textContent = '';
-                }, 1000);
-
                 const notiEvent = new CustomEvent('noti', {
                     detail: {
                         message: 'Code copied to clipboard',
