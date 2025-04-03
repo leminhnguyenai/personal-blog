@@ -7,7 +7,7 @@
             font-family: JetBrainsMono;
             font-style: normal;
             font-weight: 400;
-            font-display: block;
+            font-display: block; 
             src: url('/static/fonts/JetBrainsMono-Light.{{ .Hash }}.woff2') format('woff2');
         }
 
@@ -15,7 +15,7 @@
             font-family: JetBrainsMono;
             font-style: normal;
             font-weight: 700;
-            font-display: block;
+            font-display: block; 
             src: url('/static/fonts/JetBrainsMono-Bold.{{ .Hash }}.woff2') format('woff2');
         }
 
@@ -27,29 +27,13 @@
             font-style: normal;
         }
     </style>
-    <!--COMMIT: Replace identification with class to custom attribute-->
-    <body class="bg-rich-black text-mint-cream font-jetbrains scroll-auto text-sm">
-        <div class="fixed grid grid-rows-10 grid-cols-5 h-screen w-screen">
-            <div top-bar class="top-bar border-b-1 col-span-5 border-gray-500"></div>
-            <div 
-                side-bar
-                class="text-xs row-span-9 hidden lg:flex lg:p-8"
-            >
-                {{ .TOC }}
-            </div>
-            <div 
-                id="main"
-                class="row-span-14 toc border-l-1 col-span-5 overflow-y-auto border-gray-500 p-3 lg:col-span-4">
-                <div 
-                    id="content"
-                    class="w-auto px-8 lg:w-3/4"
-                >
-                    {{ .Content }}
-                    <hr class="my-8 text-gray-500">
-                    <p class="p-4 text-center">Some contact here</p>
-                    <hr class="my-8 text-gray-500">
-
-                </div>
+    <body class="bg-rich-black text-mint-cream font-jetbrains scroll-auto">
+        <div id="container">
+            <div id="content" class="fixed w-screen h-screen pr-[calc(100vw-round(down,100vw,var(--base-w)*2)+var(--base-w))] pl-[var(--base-w)] overflow-y-auto overflow-x-hidden">
+                {{ .Content }}
+                <hr class="relative h-[var(--base-h)] text-gray-500">
+                <p class="py-[calc(var(--base-h)*2)] text-center">Some contact here</p>
+                <hr class="relative h-[var(--base-h)] text-gray-500">
             </div>
         </div>
         {{ template "notification" . }}
@@ -72,6 +56,7 @@
     </head>
 {{ end }}
 
+<!--COMMIT: Adjust the notification pop up for mobile-->
 {{ block "notification" . }}
         <div
             id="notification"

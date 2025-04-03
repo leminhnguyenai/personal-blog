@@ -1,21 +1,21 @@
 {{ block "frontmatter" . }}
-    <p
-        class="text-title-red mb-2 mt-8 text-5xl" 
-    >{{ .Title }}</p> 
-    <p class="text-sm text-gray-400">{{ .Date }}</p>
+    <p class="relative my-[calc(var(--base-h)*4)] text-[calc(var(--font-size)*4)] text-title-red">{{ .Title }}</p> 
+    <p class="relative text-base text-gray-400">{{ .Date }}</p>
     <div
-        class="my-6"
+        class="relative flex my-[var(--base-h)] gap-[var(--base-w)]"
     > 
         {{ range .Tags }}
-        <a 
-            href="?tag={{ . }}" 
-            class="text-code-orange bg-code-orange/30 px-1  py-[2px] text-sm hover:underline active:underline"
-        >#{{ . }}</a> 
+            <a 
+                href="?tag={{ . }}" 
+                class="relative px-[var(--base-w)] text-base text-code-orange bg-code-orange/30 hover:underline active:underline"
+            >
+                #{{ . }}
+            </a> 
         {{ end }}
     </div>
-    <hr class="text-gray-500">
-    <div class="toc bg-code-grey my-4 flex flex-col p-2 lg:hidden">{{ .TOC }}</div>
-    <hr class="block text-gray-500 lg:hidden"> 
+    <hr class="relative h-[var(--base-h)] text-gray-400">
+    <div class="my-[var(--base-h)] flex flex-col">{{ .TOC }}</div>
+    <hr class="relative h-[var(--base-h)] text-gray-400">
 {{ end }}
 
 {{ block "heading" . }}
@@ -23,7 +23,7 @@
         <h1
             heading
             id="{{ .Link }}" 
-            class="text-title-red my-6 cursor-pointer gap-4 text-3xl hover:underline"
+            class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
             noti="true"
         > 
             {{ .Value }}
@@ -32,7 +32,7 @@
         <h2
             heading
             id="{{ .Link }}" 
-            class="text-title-red relative my-4 flex cursor-pointer gap-4 text-2xl hover:underline"
+            class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
             noti="true"
         > 
             {{ .Value }}
@@ -41,7 +41,7 @@
         <h3
             heading
             id="{{ .Link }}" 
-            class="text-title-red relative my-4 flex cursor-pointer gap-4 text-xl hover:underline"
+            class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
             noti="true"
         > 
             {{ .Value }}
@@ -50,7 +50,7 @@
         <h4
             heading
             id="{{ .Link }}" 
-            class="text-title-red relative my-2 flex cursor-pointer gap-4 text-lg hover:underline"
+            class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
             noti="true"
         > 
             {{ .Value }}
@@ -59,7 +59,7 @@
         <h5
             heading
             id="{{ .Link }}" 
-            class="text-title-red relative my-2 flex cursor-pointer gap-4 text-lg hover:underline"
+            class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
             noti="true"
         > 
             {{ .Value }}
@@ -69,82 +69,86 @@
 {{ end }}
 
 {{ block "paragraph" . }}
-    <li class="ml-2 list-none">
+    <li class="relative text-base list-none">
         {{ .Values }} 
         {{ if ne .Children "" }}
-            <ul class="list-inside pl-4">{{ .Children }}</ul>
+            <ul class="relative pl-[calc(var(--base-w)*4)] list-inside">{{ .Children }}</ul>
         {{ end }}
     </li>
 {{ end }}
 
 {{ block "hyphen-list" . }}
-    <li class="ml-2 list-none">
-        <span class="text-gray-400">–</span>
+    <li class="relative text-base list-none">
+        <span class="relative text-gray-400">–</span>
             {{ .Values }} 
         {{ if ne .Children "" }}
-            <ul class="list-inside pl-4">{{ .Children }}</ul>
+            <ul class="relative pl-[calc(var(--base-w)*4)] list-inside">{{ .Children }}</ul>
         {{ end }}
     </li>
 {{ end }}
 
 {{ block "numbered-list" . }}
-    <li class="ml-2 list-none">
-        <span class="text-gray-400">{{ .Number }}</span>
+    <li class="relative text-base list-none">
+        <span class="relative text-gray-400">{{ .Number }}</span>
             {{ .Values }}
         {{ if ne .Children "" }}
-            <ul class="list-inside pl-4">{{ .Children }}</ul>
+            <ul class="relative pl-[calc(var(--base-w)*4)] list-inside">{{ .Children }}</ul>
         {{ end }}
     </li>
 {{ end }}
 
 {{ block "quote" . }}
-    <blockquote class="border-1 text-silver relative my-16 ml-4 flex items-center justify-center px-4 py-8 text-lg italic">
-        <p class="nf bg-rich-black absolute left-5 top-0 -translate-y-5 pl-4 pr-6 text-center text-4xl">󰉾</p>
+    <blockquote class="relative flex my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] py-[calc(var(--base-h)*2)] outline-1 outline-offset-[-1px] items-center justify-center text-base text-silver italic">
+        <p class="absolute left-[calc(var(--base-w)*4)] bottom-[calc(85%-var(--base-w))] px-4 bg-rich-black text-center text-lg nf">󰉾</p>
         {{ .Values }}
     </blockquote>
 {{ end }}
 
 {{ block "callout" . }}
     {{ if eq .Values "Note" }}
-        <div class="bg-aqua/10 border-1 border-aqua my-16 ml-4 p-4">
-            <p class="text-aqua mb-4">{{ .Values }}</p>
+        <div class="relative my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-aqua/10 outline-1 outline-offset-[-1px] outline-aqua">
+            <p class="relative text-aqua mb-[var(--base-h)]">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ else if eq .Values "Important" }}
-        <div class="bg-code-purple/10 border-1 border-code-purple my-16 ml-4 p-4">
-            <p class="text-code-purple mb-4">{{ .Values }}</p>
+        <div class="relative my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-code-purple/10 outline-1 outline-offset-[-1px] outline-code-purple">
+            <p class="relative text-code-purple mb-[var(--base-h)]">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ else if eq .Values "Warning" }}
-        <div class="bg-warning-yellow/10 border-1 border-warning-yellow my-16 ml-4 p-4">
-            <p class="text-warning-yellow mb-4">{{ .Values }}</p>
+        <div class="relative my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-warning-yellow/10 outline-1 outline-offset-[-1px] outline-warning-yellow">
+            <p class="relative text-warning-yellow mb-[var(--base-h)]">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ else if eq .Values "Warning" }}
-        <div class="bg-code-grey/10 border-1 border-code-grey my-16 ml-4 p-4">
-            <p class="text-code-grey mb-4">{{ .Values }}</p>
+        <div class="relative my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-code-grey/10 outline-1 outline-offset-[-1px] outline-code-grey">
+            <p class="relative text-code-grey mb-[var(--base-h)]">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ end }}
 {{ end }}
 
 {{ block "metadata" . }}
-    <div class="absolute flex left-0 top-0 w-full p-3 pl-4 items-center justify-between text-xs {{ index . 2 }}">
-        <div class="relative flex gap-0">
-            <span class="nf mr-2 text-sm">{{ index . 1 }}</span>
-            <span>
-                {{ with capitalizeFilename ( index . 0 ) }}
-                    {{ . }}
-                {{ else }}  
-                    {{ index . 0 }}
-                {{ end }}
-            </span>
+    <div class="relative flex w-full items-center justify-between bg-rich-black text-gray-400">
+        <div class="flex gap-[var(--base-w)]">
+            <span class="relative px-[var(--base-w)] bg-code-blue text-rich-black">NORMAL</span>
+            <div class="relative flex gap-0">
+                <span class="relative w-[calc(var(--base-w)*2)] mr-[var(--base-w)] nf {{ index . 2 }}">{{ index . 1 }}</span>
+                <span>
+                    {{ with capitalizeFilename ( index . 0 ) }}
+                        {{ . }}
+                    {{ else }}  
+                        {{ index . 0 }}
+                    {{ end }}
+                </span>
+            </div>
         </div>
+        <!--FIX: Fix copy button not clickable on mobile-->
         <button
             clipboard
-            class="relative size-7 bg-code-grey cursor-pointer border nf text-gray-400 hover:brightness-125 active:brightness-90"   
+            class="relative px-[var(--base-w)] bg-code-blue text-rich-black cursor-pointer hover:underline"   
             noti="true"
-        ></button>
+        >COPY</button>
     </div>
 {{ end }}
 
@@ -152,8 +156,24 @@
 {{ block "codeblock" . }}
     <div
         codeblock
-        class="relative flex my-8 ml-4 px-2 py-4 lg:py-8 pt-12 lg:pt-14 bg-code-grey border border-gray-500"
+        class="relative my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-code-grey text-base"
     >
+        <div class="flex">
+            <div class="relative text-gray-400">
+                {{ range $i, $el := .Code }}
+                    <p code-gutter class="relative pl-[calc(var(--base-w)*4)] pr-[var(--base-w)] text-right">{{ sum $i 1 }}</p>
+                {{ end }}
+            </div>
+            <pre class="relative flex flex-col font-jetbrains overflow-x-auto overflow-y-hidden pr-[var(--base-w)] lg:overflow-x-hidden lg:whitespace-pre-wrap lg:break-words">
+                {{ range .Code }}
+                    {{ if eq . "" }}
+                        <p  code-line> </p>
+                    {{ else }}
+                        <p code-line>{{ . }}</p>
+                    {{ end }}
+                {{ end }}
+            </pre>
+        </div>
 		{{ if matchMetadata .Metadata "go" }}
 			{{ template "metadata" ( arr .Metadata "" "text-[#05a5d0]" ) }}
 		{{ else if matchMetadata .Metadata "html" }}
@@ -177,26 +197,11 @@
 		{{ else }}
 			{{ template "metadata" ( arr "Plaintext" "" "text-gray-400" ) }}
 		{{ end }}        
-        <!--COMMIT: Add neovim style status bar-->
-        <div class="relative mx-3 text-gray-500">
-            {{ range $i, $el := .Code }}
-                <p code-gutter class="text-md text-right">{{ sum $i 1 }}</p>
-            {{ end }}
-        </div>
-        <pre class="relative flex flex-col ml-1 font-jetbrains overflow-x-auto lg:overflow-x-hidden lg:whitespace-pre-wrap lg:break-words">
-            {{ range .Code }}
-                {{ if eq . "" }}
-                    <p  code-line class="text-md"> </p>
-                {{ else }}
-                    <p code-line class="text-md">{{ . }}</p>
-                {{ end }}
-            {{ end }}
-        </pre>
     </div>
 {{ end }}
 
 {{ block "text" . }}
-    <span>{{ .Value }}</span>
+    <span class="relative">{{ .Value }}</span>
 {{ end }}
 
 <!--NOTE: Using javascript (or if can CSS) to automatically prevent the viewport from clipping the pop up-->
@@ -318,41 +323,50 @@
 {{ end }}
 
 {{ block "inline-code" . }}
-    <code class="border-code-grey bg-code-grey text-code-lime font-jetbrains whitespace-pre border-2">{{ .Value }}</code>
+    <code class="relative px-[calc(var(--base-w))] bg-code-grey text-code-lime">{{ .Value }}</code>
 {{ end }}
 
-<!--FIX: Fix TOC not focused when the paged is loaded on top-->
 {{ block "TOC" . }}
 <div toc class="relative flex flex-col w-full">
     {{ if eq .Type 1 }}
         <a 
             chapter
             href="#{{ .Link }}" 
-            class="text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer pl-4 hover:underline active:underline lg:border-l-2">{{ .Value }}
+            class="relative pl-[calc(var(--base-w)*1.5)] text-base text-title-red border-l-[calc(var(--base-w)/2)] hover:underline active:underline"
+        >
+            {{ .Value }}
         </a>
     {{ else if eq .Type 2 }}
         <a 
             chapter
             href="#{{ .Link }}" 
-            class="text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-8 hover:underline active:underline lg:border-l-2">{{ .Value }}
+            class="relative pl-[calc(var(--base-w)*5.5)] text-base text-title-red border-l-[calc(var(--base-w)/2)] hover:underline active:underline"
+        >
+            {{ .Value }}
         </a>
     {{ else if eq .Type 3 }}
         <a 
             chapter
             href="#{{ .Link }}" 
-            class="text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-12 hover:underline active:underline lg:border-l-2">{{ .Value }}
+            class="relative pl-[calc(var(--base-w)*9.5)] text-base text-title-red border-l-[calc(var(--base-w)/2)] hover:underline active:underline"
+        >
+            {{ .Value }}
         </a>
     {{ else if eq .Type 4 }}
         <a 
             chapter
             href="#{{ .Link }}" 
-            class="text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-16 hover:underline active:underline lg:border-l-2">{{ .Value }}
+            class="relative pl-[calc(var(--base-w)*13.5)] text-base text-title-red border-l-[calc(var(--base-w)/2)] hover:underline active:underline"
+        >
+            {{ .Value }}
         </a>
     {{ else if eq .Type 5 }}
         <a 
             chapter
             href="#{{ .Link }}" 
-            class="text-md text-title-red lg:text-title-red/75 ml-2 cursor-pointer py-1 pl-20 hover:underline active:underline lg:border-l-2">{{ .Value }}
+            class="relative pl-[calc(var(--base-w)*17.5)] text-base text-title-red border-l-[calc(var(--base-w)/2)] hover:underline active:underline"
+        >
+            {{ .Value }}
         </a>
     {{ end }}
     {{ .Children }}

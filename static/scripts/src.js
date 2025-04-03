@@ -15,62 +15,6 @@ function getDocument() {
     return document;
 }
 
-// ======== TOC ======== /
-const toc = {
-    process: (body) => {
-        const main = body.querySelector('#main');
-        const headings = main.querySelectorAll('[heading]');
-        const toc = body.querySelector('[side-bar] [toc]');
-        const chapters = toc.querySelectorAll('a[chapter]');
-        const topbar = body.querySelector('div[top-bar]');
-
-        const sections = [];
-
-        for (let i = 0; i < headings.length; i++) {
-            sections.push({
-                heading: headings[i],
-                chapter: chapters[i],
-            });
-        }
-
-        const handler = () => {
-            for (let i = 0; i < sections.length; i++) {
-                if (i == sections.length - 1) {
-                    const rect = sections[i].heading.getBoundingClientRect();
-                    if (rect.top <= 0) {
-                        addClass(sections[i].chapter, 'chapter-highlight');
-
-                        for (let j = 0; j < sections.length; j++) {
-                            if (j != i) {
-                                removeClass(sections[j].chapter, 'chapter-highlight');
-                            }
-                        }
-                        break;
-                    }
-                    continue;
-                }
-
-                const upperRect = sections[i].heading.getBoundingClientRect();
-                const lowerRect = sections[i + 1].heading.getBoundingClientRect();
-
-                if (upperRect.top <= topbar.offsetHeight && lowerRect.top > topbar.offsetHeight) {
-                    addClass(sections[i].chapter, 'chapter-highlight');
-
-                    sections.forEach((section, index) => {
-                        if (index != i) {
-                            removeClass(section.chapter, 'chapter-highlight');
-                        }
-                    });
-                    break;
-                }
-            }
-        };
-
-        main.removeEventListener('scroll', handler);
-        main.addEventListener('scroll', handler);
-    },
-};
-
 // ======== CLIPBOARD ======== /
 const clipboard = {
     codeblockCopy: (body) => {
@@ -103,8 +47,7 @@ const clipboard = {
     },
 
     headingCopy: (body) => {
-        const main = body.querySelector('#main');
-        const content = main.querySelector('#content');
+        const content = body.querySelector('#content');
         const headings = content.querySelectorAll('h1, h2, h3, h4, h5');
         const baseURL = window.location.toString().split('#')[0];
 
@@ -203,7 +146,6 @@ const notification = {
 const popup = {
     process: function (body) {
         const popups = body.querySelectorAll('[pop-up]');
-        const main = body.querySelector('#main');
 
         popups.forEach((popup) => {
             const handler = () => {
@@ -220,9 +162,9 @@ const popup = {
             };
 
             body.removeEventListener('resize', handler);
-            main.removeEventListener('scroll', handler);
+            body.removeEventListener('scroll', handler);
             body.addEventListener('resize', handler);
-            main.addEventListener('scroll', handler);
+            body.addEventListener('scroll', handler);
         });
     },
 };
@@ -233,7 +175,6 @@ const popup = {
 // Go through all nodes and apply appropriate handlers
 function processNodes(body) {
     // Import all modules here
-    toc.process(body);
     notification.process(body);
     clipboard.process(body);
     code.process(body);
