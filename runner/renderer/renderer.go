@@ -79,7 +79,12 @@ func (r *Renderer) tocRenderer(node *lexer.Node) string {
 		Children template.HTML
 	}{int(node.Self.Kind), template.HTML(values), link, template.HTML(children)})
 
-	return r.writer.String()
+	switch node.Parent.Self.Kind {
+	case lexer.HEADING_1, lexer.HEADING_2, lexer.HEADING_3, lexer.HEADING_4, lexer.HEADING_5:
+		return r.writer.String()
+	default:
+		return "<ul>" + r.writer.String() + "</ul>"
+	}
 }
 
 func (r *Renderer) Traverse(node *lexer.Node) (string, string) {

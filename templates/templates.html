@@ -1,5 +1,5 @@
 {{ block "frontmatter" . }}
-    <p class="relative my-[calc(var(--base-h)*4)] text-[calc(var(--font-size)*4)] text-title-red">{{ .Title }}</p> 
+    <p class="relative my-[calc(var(--base-h)*2)] lg:my-[calc(var(--base-h)*4)] text-lg lg:text-[calc(var(--font-size)*4)] text-title-red">{{ .Title }}</p> 
     <p class="relative text-base text-gray-400">{{ .Date }}</p>
     <div
         class="relative flex my-[var(--base-h)] gap-[var(--base-w)]"
@@ -14,7 +14,7 @@
         {{ end }}
     </div>
     <hr class="relative h-[var(--base-h)] text-gray-400">
-    <div class="my-[var(--base-h)] flex flex-col">{{ .TOC }}</div>
+    <div class="mb-[var(--base-h)] flex flex-col">{{ .TOC }}</div>
     <hr class="relative h-[var(--base-h)] text-gray-400">
 {{ end }}
 
@@ -98,7 +98,7 @@
 {{ end }}
 
 {{ block "quote" . }}
-    <blockquote class="relative flex my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] py-[calc(var(--base-h)*2)] outline-1 outline-offset-[-1px] items-center justify-center text-base text-silver italic">
+    <blockquote class="relative flex my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] py-[calc(var(--base-h)*2)] outline-1 outline-offset-[-1px] items-center justify-center text-base text-silver italic">
         <p class="absolute left-[calc(var(--base-w)*4)] bottom-[calc(85%-var(--base-w))] px-4 bg-rich-black text-center text-lg nf">󰉾</p>
         {{ .Values }}
     </blockquote>
@@ -106,22 +106,22 @@
 
 {{ block "callout" . }}
     {{ if eq .Values "Note" }}
-        <div class="relative my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-aqua/10 outline-1 outline-offset-[-1px] outline-aqua">
+        <div class="relative my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-aqua/10 outline-1 outline-offset-[-1px] outline-aqua">
             <p class="relative text-aqua mb-[var(--base-h)]">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ else if eq .Values "Important" }}
-        <div class="relative my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-code-purple/10 outline-1 outline-offset-[-1px] outline-code-purple">
+        <div class="relative my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-code-purple/10 outline-1 outline-offset-[-1px] outline-code-purple">
             <p class="relative text-code-purple mb-[var(--base-h)]">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ else if eq .Values "Warning" }}
-        <div class="relative my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-warning-yellow/10 outline-1 outline-offset-[-1px] outline-warning-yellow">
+        <div class="relative my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-warning-yellow/10 outline-1 outline-offset-[-1px] outline-warning-yellow">
             <p class="relative text-warning-yellow mb-[var(--base-h)]">{{ .Values }}</p>
         {{ .Children }}
         </div>
     {{ else if eq .Values "Warning" }}
-        <div class="relative my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-code-grey/10 outline-1 outline-offset-[-1px] outline-code-grey">
+        <div class="relative my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-code-grey/10 outline-1 outline-offset-[-1px] outline-code-grey">
             <p class="relative text-code-grey mb-[var(--base-h)]">{{ .Values }}</p>
         {{ .Children }}
         </div>
@@ -161,7 +161,7 @@
 {{ block "codeblock" . }}
     <div
         codeblock
-        class="relative my-[calc(var(--base-h)*3)] ml-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-gray-400/10 text-base outline outline-gray-400 outline-offset-[-1px]"
+        class="relative my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-gray-400/10 text-base outline outline-gray-400 outline-offset-[-1px]"
     >
         <div class="flex">
             <div class="relative text-gray-400">
@@ -332,50 +332,51 @@
 {{ end }}
 
 {{ block "TOC" . }}
-<div toc class="relative flex flex-col w-full">
-    {{ if eq .Type 1 }}
-        <a 
-            chapter
-            href="#{{ .Link }}" 
-            class="relative pl-[calc(var(--base-w)*1.5)] text-base text-title-red border-l-[calc(var(--base-w)/2)] hover:underline active:underline"
-        >
-            {{ .Value }}
-        </a>
-    {{ else if eq .Type 2 }}
-        <a 
-            chapter
-            href="#{{ .Link }}" 
-            class="relative pl-[calc(var(--base-w)*5.5)] text-base text-title-red border-l-[calc(var(--base-w)/2)] hover:underline active:underline"
-        >
-            {{ .Value }}
-        </a>
-    {{ else if eq .Type 3 }}
-        <a 
-            chapter
-            href="#{{ .Link }}" 
-            class="relative pl-[calc(var(--base-w)*9.5)] text-base text-title-red border-l-[calc(var(--base-w)/2)] hover:underline active:underline"
-        >
-            {{ .Value }}
-        </a>
-    {{ else if eq .Type 4 }}
-        <a 
-            chapter
-            href="#{{ .Link }}" 
-            class="relative pl-[calc(var(--base-w)*13.5)] text-base text-title-red border-l-[calc(var(--base-w)/2)] hover:underline active:underline"
-        >
-            {{ .Value }}
-        </a>
-    {{ else if eq .Type 5 }}
-        <a 
-            chapter
-            href="#{{ .Link }}" 
-            class="relative pl-[calc(var(--base-w)*17.5)] text-base text-title-red border-l-[calc(var(--base-w)/2)] hover:underline active:underline"
-        >
-            {{ .Value }}
-        </a>
-    {{ end }}
-    {{ .Children }}
-</div>
+    <li class="relative text-base list-none">
+        <span class="relative text-gray-400">-</span>
+        {{ if eq .Type 1 }}
+            <a 
+                chapter
+                href="#{{ .Link }}" 
+                class="relative text-base text-title-red hover:underline active:underline"
+            >
+                {{ .Value }} 
+            </a>
+        {{ else if eq .Type 2 }}
+            <a 
+                chapter
+                href="#{{ .Link }}" 
+                class="relative text-base text-title-red hover:underline active:underline"
+            >
+                {{ .Value }} 
+            </a>
+        {{ else if eq .Type 3 }}
+            <a 
+                chapter
+                href="#{{ .Link }}" 
+                class="relative text-base text-title-red hover:underline active:underline"
+            >
+                {{ .Value }} 
+            </a>
+        {{ else if eq .Type 4 }}
+            <a 
+                chapter
+                href="#{{ .Link }}" 
+                class="relative text-base text-title-red hover:underline active:underline"
+            >
+                {{ .Value }} 
+            </a>
+        {{ else if eq .Type 5 }}
+            <a 
+                chapter
+                href="#{{ .Link }}" 
+                class="relative text-base text-title-red hover:underline active:underline"
+            >
+                {{ .Value }} 
+            </a>
+        {{ end }}
+        <ul class="relative pl-[calc(var(--base-w)*4)] list-inside">{{ .Children }}</ul>
+    </li>
 {{ end }}
 
 {{ block "bold-text" . }}
