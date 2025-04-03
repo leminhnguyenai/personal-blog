@@ -26,7 +26,7 @@
             class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
             noti="true"
         > 
-            {{ .Value }}
+            # {{ .Value }}
         </h1>
     {{ else if eq .Type 2 }}
         <h2
@@ -35,7 +35,7 @@
             class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
             noti="true"
         > 
-            {{ .Value }}
+            ## {{ .Value }}
         </h2>
     {{ else if eq .Type 3 }}
         <h3
@@ -44,7 +44,7 @@
             class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
             noti="true"
         > 
-            {{ .Value }}
+            ### {{ .Value }}
         </h3>
     {{ else if eq .Type 4 }}
         <h4
@@ -53,7 +53,7 @@
             class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
             noti="true"
         > 
-            {{ .Value }}
+            #### {{ .Value }}
         </h4>
     {{ else if eq .Type 5 }}
         <h5
@@ -62,7 +62,7 @@
             class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
             noti="true"
         > 
-            {{ .Value }}
+            ##### {{ .Value }}
         </h5>
     {{ end }}
     {{ .Children }}

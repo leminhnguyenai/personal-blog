@@ -174,6 +174,7 @@ func (r *Renderer) headingRenderer(node *lexer.Node) string {
 	return r.writer.String()
 }
 
+// FIX: Adding approprite <ul> tags
 func (r *Renderer) listRenderer(node *lexer.Node) string {
 	values, children := r.Traverse(node)
 
