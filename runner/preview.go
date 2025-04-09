@@ -3,14 +3,11 @@ package runner
 import (
 	"bytes"
 	"compress/gzip"
-	"errors"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/leminhnguyenai/personal-blog/runner/asciitree"
@@ -116,37 +113,9 @@ Time: %v
 
 	srv := &http.Server{Addr: ":3000", Handler: mux}
 
-	errChan := make(chan error)
-
-	go func() {
-
-		fmt.Printf("The server is live on http://localhost%s\n", ":3000")
-		// Since ListenAndServe() don't return nil err, we can exclude server close error to handle it ourselves
-		if err := srv.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
-			errChan <- err
-		}
-	}()
-
-	sigChan := make(chan os.Signal, 1)
-	// Send incoming signal to sigChan, but only when SIGINT and SYSTEM signals are triggered
-	// Technically using an unbuffered channel will work, but within the signal.Notify func,
-	// codes after the sending to the sigChan won't be executed -> signal.Notify won't be fully executed
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-
-	for {
-		select {
-		case <-sigChan:
-			if err := srv.Close(); err != nil {
-				return err
-			}
-
-			fmt.Println("Bye")
-
-			return nil
-		case err := <-errChan:
-			return err
-		}
-	}
+	// COMMIT: Create a mechanism to randomly assign a free port if none is selected
+	fmt.Printf("The server is live on http://localhost%s\n", ":3000")
+	return srv.ListenAndServe()
 }
 
 // NOTE: All log will be change to fmt when the tool is finished
