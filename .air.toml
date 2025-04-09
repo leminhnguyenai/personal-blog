@@ -14,7 +14,7 @@ root = "."
 	"gzip -k static/output.css || true",
   ]
   cmd = "go build -o main main.go"
-  args_bin = ["-p", "test.md"]
+  args_bin = ["preview","-d", "test.md"]
   include_ext = ["go", "html", "css", "js"]
   exclude_file = ["static/icons.min.css", "static/output.css", "static/scripts/src.min.js"]
 

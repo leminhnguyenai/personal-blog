@@ -18,19 +18,16 @@ func init() {
 }
 
 func main() {
-	// COMMIT: Convert the os signal management to main.go
 	// COMMIT: Convert the flag system to fit the new model
 	// NOTE: This is for simplicity, as the program grow there will be more than 1 arguement
 	var err error
-	cfg, err := runner.NewCfg()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	errChan := make(chan error)
 
+	engine := runner.NewEngine()
+
 	go func() {
-		if err = runner.Execute(cfg); err != nil {
+		// COMMIT: Add support for gracefully server shutdown
+		if err = engine.Execute(os.Args[1:]); err != nil {
 			errChan <- err
 		}
 	}()
