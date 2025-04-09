@@ -3,17 +3,34 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/leminhnguyenai/personal-blog/runner"
 )
 
 func init() {
-
 	if err := runner.LoadEnv(".env", true); err != nil {
 		log.Fatal(err)
+	}
+
+	// Set port to a random free one if not specified in .env
+	if os.Getenv("PORT") == "" {
+		a, err := net.ResolveTCPAddr("tcp", "localhost:0")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		l, err := net.ListenTCP("tcp", a)
+		defer l.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		os.Setenv("PORT", strconv.Itoa(l.Addr().(*net.TCPAddr).Port))
 	}
 }
 
@@ -25,7 +42,6 @@ func main() {
 	engine := runner.NewEngine()
 
 	go func() {
-		// COMMIT: Add support for gracefully server shutdown
 		if err = engine.Execute(os.Args[1:]); err != nil {
 			errChan <- err
 		}

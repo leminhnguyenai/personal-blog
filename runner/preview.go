@@ -112,7 +112,8 @@ Time: %v
 	srv := &http.Server{Addr: ":3000", Handler: mux}
 
 	// COMMIT: Create a mechanism to randomly assign a free port if none is selected
-	fmt.Printf("The server is live on http://localhost%s\n", ":3000")
+	port := os.Getenv("PORT")
+	fmt.Printf("The server is live on http://localhost:%v\n", port)
 
 	errChan := make(chan error)
 
@@ -126,16 +127,14 @@ Time: %v
 		select {
 		case err := <-errChan:
 			return err
-		case _, ok := <-e.ExitChan:
-			if !ok {
-				ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
-				defer cancel()
+		case <-e.ExitChan:
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+			defer cancel()
 
-				if err := srv.Shutdown(ctx); err != nil {
-					return err
-				}
-				return nil
+			if err := srv.Shutdown(ctx); err != nil {
+				return err
 			}
+			return nil
 		}
 	}
 }

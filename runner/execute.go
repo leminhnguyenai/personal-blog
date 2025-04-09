@@ -63,6 +63,7 @@ func (e *Engine) Execute(args []string) error {
 }
 
 func (e *Engine) Stop() {
+	e.ExitChan <- true
 	close(e.ExitChan)
 }
 
