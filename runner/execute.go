@@ -8,11 +8,13 @@ import (
 
 type Engine struct {
 	debugMode bool
+	ExitChan  chan bool
 }
 
 func NewEngine() *Engine {
 	return &Engine{
 		debugMode: false,
+		ExitChan:  make(chan bool),
 	}
 }
 
@@ -33,20 +35,44 @@ func (e *Engine) Execute(args []string) error {
 	// Skip the action arguements
 	e.parseFlag(args[1:])
 
-	switch args[0] {
-	case "server":
-		fmt.Println("Coming soon!")
-		// TODO: Add handler for build the whole blog from a dir
-	case "preview":
-		// BACKLOG: Add support for multiple files preview ???
-		if len(flag.Args()) < 1 {
-			return fmt.Errorf("Too few arguements\n")
+	errChan := make(chan error)
+
+	go func() {
+		switch args[0] {
+		case "server":
+			fmt.Println("Coming soon!")
+			// TODO: Add handler for build the whole blog from a dir
+		case "preview":
+			// BACKLOG: Add support for multiple files preview ???
+			if len(flag.Args()) < 1 {
+				errChan <- fmt.Errorf("Too few arguements\n")
+			}
+
+			errChan <- Preview(e, flag.Args()[0])
 		}
+	}()
 
-		return Preview(flag.Args()[0])
+	for {
+		select {
+		case err := <-errChan:
+			return err
+		case <-e.ExitChan:
+			return nil
+		}
 	}
+}
 
-	return nil
+func (e *Engine) Stop() {
+	close(e.ExitChan)
+}
+
+func (e *Engine) log(format string, v ...any) {
+	fmt.Printf(format, v...)
+}
+
+func (e *Engine) debug(format string, v ...any) {
+	fmt.Printf("[DEBUG]: ")
+	e.log(format, v...)
 }
 
 // NOTE: the 'return nil' statements in the first 3 case is a placeholder to make sure that the function is guaranteed to return an error

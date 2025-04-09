@@ -3,9 +3,9 @@ package runner
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -30,7 +30,7 @@ func FileServerMiddleware(handler http.Handler) http.HandlerFunc {
 	}
 }
 
-func Preview(filePath string) error {
+func Preview(e *Engine, filePath string) error {
 	_, err := GetFreePort()
 	if err != nil {
 		return err
@@ -40,10 +40,8 @@ func Preview(filePath string) error {
 
 	mux.Handle("GET /static/", FileServerMiddleware(FileServer("static")))
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Connected")
+		e.debug("Connected\n")
 		w.Header().Add("Cache-Control", "public, max-age=31536000")
-
-		log.Println(r.Header.Get("Accept-Encoding"))
 
 		data, err := os.ReadFile(filePath)
 		if err != nil {
@@ -115,7 +113,31 @@ Time: %v
 
 	// COMMIT: Create a mechanism to randomly assign a free port if none is selected
 	fmt.Printf("The server is live on http://localhost%s\n", ":3000")
-	return srv.ListenAndServe()
+
+	errChan := make(chan error)
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			errChan <- err
+		}
+	}()
+
+	for {
+		select {
+		case err := <-errChan:
+			return err
+		case _, ok := <-e.ExitChan:
+			if !ok {
+				ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+				defer cancel()
+
+				if err := srv.Shutdown(ctx); err != nil {
+					return err
+				}
+				return nil
+			}
+		}
+	}
 }
 
 // NOTE: All log will be change to fmt when the tool is finished

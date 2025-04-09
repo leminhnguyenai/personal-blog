@@ -18,7 +18,6 @@ func init() {
 }
 
 func main() {
-	// COMMIT: Convert the flag system to fit the new model
 	// NOTE: This is for simplicity, as the program grow there will be more than 1 arguement
 	var err error
 	errChan := make(chan error)
@@ -38,8 +37,9 @@ func main() {
 	for {
 		select {
 		case <-sigChan:
+			engine.Stop()
 			fmt.Println("Bye")
-			return
+			os.Exit(0)
 		case err = <-errChan:
 			log.Fatalf("%s\nThe application stopped\n", err.Error())
 		}
