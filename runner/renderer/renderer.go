@@ -156,9 +156,9 @@ func (r *Renderer) frontmatterRenderer(node *lexer.Node) string {
 		propertyValue := node.Self.Values[i+1]
 		switch propertyName {
 		case "id":
-			data.Title = propertyValue[1 : len(propertyValue)-1]
+			data.Title = propertyValue
 		case "date":
-			data.Date = propertyValue[1 : len(propertyValue)-1]
+			data.Date = propertyValue
 		case "tags":
 			tags := strings.Split(propertyValue, ",")
 			data.Tags = tags[:len(tags)-1]

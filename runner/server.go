@@ -84,7 +84,6 @@ func sanitizeFilename(filepath string) (string, error) {
 	return strings.ToLower(sanitizedFilename), nil
 }
 
-// COMMIT: Set up basic server that has route for each markdown files
 func Server(e *Engine, dirPath string) error {
 	hash := int(time.Now().Unix())
 
