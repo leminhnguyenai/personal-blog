@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"path"
@@ -13,23 +12,6 @@ import (
 	"slices"
 	"strings"
 )
-
-// Ask the kernel for a free port to use
-func GetFreePort() (port string, err error) {
-	// Bind the socket to port 0, a random free port will then be selected
-	a, err := net.ResolveTCPAddr("tcp", "localhost:0")
-	if err != nil {
-		return "", err
-	}
-
-	l, err := net.ListenTCP("tcp", a)
-	defer l.Close()
-	if err != nil {
-		return "", err
-	}
-
-	return fmt.Sprintf(":%d", l.Addr().(*net.TCPAddr).Port), nil
-}
 
 func HandleError(w http.ResponseWriter, err error) {
 	http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -108,6 +90,8 @@ func LoadEnv(envPath string, overload bool) error {
 // include Accept-Encoding header
 func FileServer(dirPath string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Cache-Control", "public, max-age=31536000")
+
 		encodingHeader := r.Header.Get("Accept-Encoding")
 		relativePath := template.JSEscapeString(strings.TrimPrefix(r.URL.Path, "/static"))
 		fileExt := path.Ext(relativePath)
@@ -147,19 +131,4 @@ func FileServer(dirPath string) http.Handler {
 
 		http.ServeFile(w, r, filePath)
 	})
-}
-
-// Write and append to app.log
-func Logging(data, logfilePath string) error {
-	f, err := os.OpenFile(logfilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	if _, err := f.Write([]byte(data)); err != nil {
-		return err
-	}
-
-	return nil
 }

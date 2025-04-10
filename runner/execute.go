@@ -35,19 +35,19 @@ func (e *Engine) Execute(args []string) error {
 	// Skip the action arguements
 	e.parseFlag(args[1:])
 
+	if len(flag.Args()) < 1 {
+		return fmt.Errorf("Too few arguements\n")
+	}
+
 	errChan := make(chan error)
 
 	go func() {
 		switch args[0] {
 		case "server":
-			fmt.Println("Coming soon!")
 			// TODO: Add handler for build the whole blog from a dir
+			errChan <- Server(e, flag.Args()[0])
 		case "preview":
 			// BACKLOG: Add support for multiple files preview ???
-			if len(flag.Args()) < 1 {
-				errChan <- fmt.Errorf("Too few arguements\n")
-			}
-
 			errChan <- Preview(e, flag.Args()[0])
 		}
 	}()
