@@ -23,22 +23,10 @@ type Data struct {
 	Hash    int
 }
 
-func FileServerMiddleware(handler http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Cache-Control", "public, max-age=31536000")
-		handler.ServeHTTP(w, r)
-	}
-}
-
 func Preview(e *Engine, filePath string) error {
-	_, err := GetFreePort()
-	if err != nil {
-		return err
-	}
-
 	mux := http.NewServeMux()
 
-	mux.Handle("GET /static/", FileServerMiddleware(FileServer("static")))
+	mux.Handle("GET /static/", FileServer("static"))
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		e.debug("Connected\n")
 		w.Header().Add("Cache-Control", "public, max-age=31536000")
@@ -59,29 +47,17 @@ func Preview(e *Engine, filePath string) error {
 
 		astTree.Display(&str, 0)
 
-		logData := fmt.Sprintf(`
-Time: %v
+		e.debug("\n%s", asciitree.GenerateTree(str))
 
-%s
-
-        `, time.Now(), asciitree.GenerateTree(str))
-
-		if err = Logging(logData, "app.log"); err != nil {
-			HandleError(w, err)
-			return
-		}
-
-		markdownRenderer, err := renderer.NewRenderer()
+		// Move the whole renderering process to renderer.go
+		mdRenderer, err := renderer.NewRenderer()
 		if err != nil {
 			HandleError(w, err)
 			return
 		}
-
-		toc := markdownRenderer.GenerateTOC(astTree)
-		values, children := markdownRenderer.Traverse(astTree)
-		content := values + children
-
 		writer := &renderer.Writer{}
+
+		content := mdRenderer.Render(astTree)
 
 		templ, err := template.New("").Funcs(renderer.FuncsMap).ParseFiles("templates/index.html")
 		if err != nil {
@@ -91,7 +67,6 @@ Time: %v
 
 		templ.ExecuteTemplate(writer, "index", Data{
 			Content: template.HTML(content),
-			TOC:     template.HTML(toc),
 			Hash:    hash,
 		})
 
@@ -111,7 +86,6 @@ Time: %v
 
 	srv := &http.Server{Addr: ":3000", Handler: mux}
 
-	// COMMIT: Create a mechanism to randomly assign a free port if none is selected
 	port := os.Getenv("PORT")
 	fmt.Printf("The server is live on http://localhost:%v\n", port)
 

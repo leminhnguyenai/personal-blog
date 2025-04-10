@@ -43,6 +43,13 @@ func NewRenderer() (*Renderer, error) {
 	return &Renderer{templates, &Writer{}}, nil
 }
 
+func (r *Renderer) Render(astTree *lexer.Node) string {
+	values, children := r.Traverse(astTree)
+	content := values + children
+
+	return content
+}
+
 func (r *Renderer) GenerateTOC(node *lexer.Node) string {
 	children := ""
 
