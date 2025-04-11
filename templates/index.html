@@ -27,9 +27,10 @@
             font-style: normal;
         }
     </style>
+    <!--FIX: Move the content outside of the div-->
     <body class="bg-rich-black text-mint-cream font-jetbrains scroll-auto">
         <div id="container">
-            <div id="content" class="fixed w-screen h-screen pr-[calc(100vw-round(down,100vw,var(--base-w)*2)+var(--base-w))] pl-[var(--base-w)] overflow-y-auto overflow-x-hidden">
+            <div id="content" class="w-full pr-[calc(100vw-round(down,100vw,var(--base-w)*2)+var(--base-w))] pl-[var(--base-w)] overflow-y-auto overflow-x-hidden">
                 {{ .Content }}
                 <hr class="relative h-[var(--base-h)] text-gray-500">
                 <p class="py-[calc(var(--base-h)*2)] text-center">Some contact here</p>
