@@ -1,0 +1,16 @@
+{{ block "homepage" . }}
+    <p 
+        class="relative w-full my-[calc(var(--base-h)*8)] text-lg text-title-red lg:pl-[calc(round(down,50%,var(--base-w))-var(--base-w)*14)] text-center lg:text-left"
+    >
+        Leminhohoho's Blog
+    </p>
+    {{ range . }}
+        {{ template "card" . }}
+    {{ end }}
+{{ end }}
+
+{{ block "card" . }}
+    <div class="relative my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-gray-400/10 outline-1 outline-offset-[-1px] outline-gray-400">
+        <a href="{{ .Link }}" class="relative text-gray-400 mb-[var(--base-h)] hover:underline active:underline">{{ .Name }}</a>
+    </div>
+{{ end }}

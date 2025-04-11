@@ -294,6 +294,7 @@
     </div>
 {{ end }}
 
+<!--BACKLOG: Add auto generate link from obsidian local link-->
 {{ block "link" . }}
     {{ if eq .Type "Youtube" }}
         <span
@@ -394,15 +395,15 @@
             class="relative flex"
             href="/"
         > 
-            <span class="relative px-[var(--base-w)] bg-tmux-red text-tmux-dark">0</span>
-            <span class="relative px-[var(--base-w)] bg-tmux-dark text-tmux-gray hover:underline active:underline">Home</span>
+            <span class="relative px-[var(--base-w)] bg-tmux-dark text-tmux-gray">0</span>
+            <span class="relative px-[var(--base-w)] bg-tmux-gray text-tmux-dark hover:underline active:underline">Home</span>
         </a>
         <a 
             class="relative flex"
             href="/about"
         > 
-            <span class="relative px-[var(--base-w)] bg-tmux-red text-tmux-dark">1</span>
-            <span class="relative px-[var(--base-w)] bg-tmux-dark text-tmux-gray hover:underline active:underline">About</span>
+            <span class="relative px-[var(--base-w)] bg-tmux-dark text-tmux-gray">1</span>
+            <span class="relative px-[var(--base-w)] bg-tmux-gray text-tmux-dark hover:underline active:underline">About</span>
         </a>
     </div>
 {{ end }}

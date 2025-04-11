@@ -19,7 +19,6 @@ var hash int = int(time.Now().Unix())
 
 type Data struct {
 	Content template.HTML
-	TOC     template.HTML
 	Hash    int
 }
 

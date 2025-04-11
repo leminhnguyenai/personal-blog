@@ -97,14 +97,29 @@ func Server(e *Engine, dirPath string) error {
 		return err
 	}
 
+	type Blog struct {
+		Link string
+		Name string
+	}
+
+	var blogs []Blog
+
 	// Generate path for each file
 	for _, file := range mdFiles {
-		filename, _ := sanitizeFilename(path.Base(file))
-		e.debug("%s\n", filename)
+		fileUrl, err := sanitizeFilename(path.Base(file))
+		if err != nil {
+			return err
+		}
+		url := fmt.Sprintf("GET /%s/", fileUrl)
+		e.debug("%s\n", fileUrl)
+
+		blogs = append(blogs, Blog{"/" + fileUrl, path.Base(file)})
 
 		mux.Handle(
-			fmt.Sprintf("GET /%s/", filename),
+			url,
 			http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Add("Cache-Control", "public, max-age=31536000")
+
 				data, err := os.ReadFile(file)
 				if err != nil {
 					HandleError(w, err)
@@ -155,9 +170,52 @@ func Server(e *Engine, dirPath string) error {
 		)
 	}
 
-	//Adding path for homepage
-
 	// COMMIT: Add homepage
+	// NOTE: Treat the request for now as full page request, will later
+	// add support for AJAX request for each route
+	mux.Handle("GET /", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Cache-Control", "public, max-age=31536000")
+
+		writer := &renderer.Writer{}
+
+		homepageTempl, err := template.ParseFiles("templates/homepage.html")
+		if err != nil {
+			HandleError(w, err)
+		}
+
+		homepageTempl.ExecuteTemplate(writer, "homepage", blogs)
+
+		homepage := writer.String()
+
+		templ, err := template.New("").Funcs(renderer.FuncsMap).ParseFiles(
+			"templates/index.html",
+			"templates/templates.html",
+		)
+		if err != nil {
+			HandleError(w, err)
+		}
+
+		templ.ExecuteTemplate(writer, "index", struct {
+			Content template.HTML
+			Hash    int
+		}{template.HTML(homepage), hash})
+
+		html := writer.String()
+		e.debug(html)
+
+		var b bytes.Buffer
+
+		compressor := gzip.NewWriter(&b)
+		compressor.Write([]byte(html))
+		compressor.Close()
+
+		w.Header().Add("Content-Type", "text/html")
+		w.Header().Add("Content-Encoding", "gzip")
+		w.WriteHeader(http.StatusOK)
+		w.Write(b.Bytes())
+
+	}))
+
 	srv := &http.Server{Addr: ":3000", Handler: mux}
 
 	port := os.Getenv("PORT")
