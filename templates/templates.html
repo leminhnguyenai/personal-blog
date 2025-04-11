@@ -386,3 +386,24 @@
 {{ block "italic-text" . }}
     <span class="italic">{{ .Value }}</span>
 {{ end }}
+
+<!--COMMIT: Add navbar component-->
+<!--BACKLOG: Make navbar reactive (e.g adding window based on the blog post the user are in)-->
+{{ block "nav-bar" . }}
+    <div class="fixed flex z-50 top-[var(--base-h)] left-[calc(var(--base-w)*2)] gap-[var(--base-w)] text-base">
+        <a 
+            class="relative flex"
+            href="/"
+        > 
+            <span class="relative px-[var(--base-w)] bg-tmux-red text-tmux-dark">0</span>
+            <span class="relative px-[var(--base-w)] bg-tmux-dark text-tmux-gray hover:underline active:underline">Home</span>
+        </a>
+        <a 
+            class="relative flex"
+            href="/about"
+        > 
+            <span class="relative px-[var(--base-w)] bg-tmux-red text-tmux-dark">1</span>
+            <span class="relative px-[var(--base-w)] bg-tmux-dark text-tmux-gray hover:underline active:underline">About</span>
+        </a>
+    </div>
+{{ end }}

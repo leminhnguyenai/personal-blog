@@ -59,6 +59,7 @@ func searchMdFiles(dirPath string) ([]string, error) {
 	return mdFiles, nil
 }
 
+// Sanitize the filename to be valid URL format
 func sanitizeFilename(filepath string) (string, error) {
 	var sanitizedFilename string
 
@@ -96,6 +97,7 @@ func Server(e *Engine, dirPath string) error {
 		return err
 	}
 
+	// Generate path for each file
 	for _, file := range mdFiles {
 		filename, _ := sanitizeFilename(path.Base(file))
 		e.debug("%s\n", filename)
@@ -124,7 +126,9 @@ func Server(e *Engine, dirPath string) error {
 
 				content := mdRenderer.Render(astTree)
 
-				templ, err := template.New("").Funcs(renderer.FuncsMap).ParseFiles("templates/index.html")
+				templ, err := template.New("").
+					Funcs(renderer.FuncsMap).
+					ParseFiles("templates/index.html", "templates/templates.html")
 				if err != nil {
 					HandleError(w, err)
 					return
@@ -151,6 +155,9 @@ func Server(e *Engine, dirPath string) error {
 		)
 	}
 
+	//Adding path for homepage
+
+	// COMMIT: Add homepage
 	srv := &http.Server{Addr: ":3000", Handler: mux}
 
 	port := os.Getenv("PORT")
@@ -164,7 +171,6 @@ func Server(e *Engine, dirPath string) error {
 		}
 	}()
 
-	// FIX: Fix name get stripped begin and end pos
 	for {
 		select {
 		case err := <-errChan:
