@@ -1,23 +1,22 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"log"
 	"net"
 	"os"
-	"os/signal"
 	"strconv"
-	"syscall"
 
-	"github.com/leminhnguyenai/personal-blog/runner"
+	"github.com/leminhnguyenai/personal-blog/internal"
+)
+
+var (
+	debugMode bool
+	dirPath   string
 )
 
 func init() {
-	if err := runner.LoadEnv(".env", true); err != nil {
-		log.Fatal(err)
-	}
-
-	// Set port to a random free one if not specified in .env
+	// Set up a random free port if none is specified in .env
 	if os.Getenv("PORT") == "" {
 		a, err := net.ResolveTCPAddr("tcp", "localhost:0")
 		if err != nil {
@@ -32,32 +31,31 @@ func init() {
 
 		os.Setenv("PORT", strconv.Itoa(l.Addr().(*net.TCPAddr).Port))
 	}
+
+	parseFlags(os.Args[1:])
+}
+
+// NOTE: Preview mode is disable for now, no plan to bring back in the future
+func parseFlags(args []string) {
+	// Check for debug flag
+	flag.BoolVar(&debugMode, "d", false, "Debug mode")
+
+	if err := flag.CommandLine.Parse(args); err != nil {
+		log.Fatal(err)
+	}
+
+	if len(flag.CommandLine.Args()) == 0 {
+		log.Fatalf("No path specified\n")
+	}
+
+	dirPath = flag.CommandLine.Args()[0]
 }
 
 func main() {
-	// NOTE: This is for simplicity, as the program grow there will be more than 1 arguement
-	var err error
-	errChan := make(chan error)
-
-	engine := runner.NewEngine()
-
-	go func() {
-		if err = engine.Execute(os.Args[1:]); err != nil {
-			errChan <- err
-		}
-	}()
-
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-
-	for {
-		select {
-		case <-sigChan:
-			engine.Stop()
-			fmt.Println("Bye")
-			os.Exit(0)
-		case err = <-errChan:
-			log.Fatalf("%s\nThe application stopped\n", err.Error())
-		}
+	srv, err := internal.NewServer(debugMode, dirPath)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	srv.Start()
 }
