@@ -52,8 +52,12 @@ func parseFlags(args []string) {
 }
 
 func main() {
-	srv, err := internal.NewServer(debugMode, dirPath)
+	srv, err := internal.NewServer(debugMode)
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err = srv.Construct(dirPath); err != nil {
 		log.Fatal(err)
 	}
 

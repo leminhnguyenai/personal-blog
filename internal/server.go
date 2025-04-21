@@ -5,35 +5,39 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	"github.com/leminhnguyenai/personal-blog/internal/middlewares"
 )
 
 type Server struct {
-	handler http.Handler
+	mux *http.ServeMux
 
 	debugMode bool
 
 	// TODO: Add DB
 }
 
-func NewServer(debugMode bool, dirPath string) (*Server, error) {
-	mux := http.NewServeMux()
+func NewServer(debugMode bool) (*Server, error) {
+	return &Server{
+		mux:       http.NewServeMux(),
+		debugMode: debugMode,
+	}, nil
+}
 
+func (srv *Server) Construct(dirPath string) error {
 	// Handlers for HTTP server
-	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+	srv.mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Leminhohhoho's blog"))
 	})
 
-	return &Server{
-		handler:   mux,
-		debugMode: debugMode,
-	}, nil
+	return nil
 }
 
 func (srv *Server) Start() {
 	port := os.Getenv("PORT")
 
 	fmt.Printf("The server is live on http://localhost:%s\n", port)
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), srv.handler); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", port), middlewares.LoggerMiddleware(srv.mux)); err != nil {
 		log.Fatal(err)
 	}
 }
