@@ -31,8 +31,8 @@ func ColorStringFg(str string, colors ...Style) string {
 	result := str
 
 	for _, color := range colors {
-		result = string(color) + result + Reset
+		result = string(color) + result
 	}
 
-	return result
+	return result + Reset
 }
