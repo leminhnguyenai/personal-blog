@@ -13,20 +13,20 @@ func LoggerMiddleware(h http.Handler) http.Handler {
 		switch r.Method {
 		case "GET":
 			log.Printf(
-				common.ColorStringFg("%s:", common.Bold, common.GreenFg)+"%s\n",
+				common.ColorString("%s:", common.Bold, common.GreenFg)+"%s\n",
 				r.Method,
 				r.URL.Path,
 			)
 		case "POST":
-			log.Printf(common.ColorStringFg("%s:", common.Bold, common.YellowFg)+"%s\n", r.Method, r.URL.Path)
+			log.Printf(common.ColorString("%s:", common.Bold, common.YellowFg)+"%s\n", r.Method, r.URL.Path)
 		case "PATCH":
 			log.Printf(
-				common.ColorStringFg("%s:", common.Bold, common.BlueFg)+"%s\n",
+				common.ColorString("%s:", common.Bold, common.BlueFg)+"%s\n",
 				r.Method,
 				r.URL.Path,
 			)
 		case "DELETE":
-			log.Printf(common.ColorStringFg("%s:", common.Bold, common.RedFg)+"%s\n", r.Method, r.URL.Path)
+			log.Printf(common.ColorString("%s:", common.Bold, common.RedFg)+"%s\n", r.Method, r.URL.Path)
 		}
 
 		h.ServeHTTP(w, r)

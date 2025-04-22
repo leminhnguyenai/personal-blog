@@ -27,7 +27,7 @@ var (
 	Underline Style = "\033[4m"
 )
 
-func ColorStringFg(str string, colors ...Style) string {
+func ColorString(str string, colors ...Style) string {
 	result := str
 
 	for _, color := range colors {

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/leminhnguyenai/personal-blog/internal/common"
 	"github.com/leminhnguyenai/personal-blog/internal/middlewares"
 )
 
@@ -27,6 +28,19 @@ func NewServer(debugMode bool) (*Server, error) {
 func (srv *Server) Construct(dirPath string) error {
 	// Handlers for HTTP server
 	srv.mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+		srv.debug("ContentLength: %d bytes\n", r.ContentLength)
+		w.Write([]byte("Leminhohhoho's blog"))
+	})
+	srv.mux.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
+		srv.debug("ContentLength: %d bytes\n", r.ContentLength)
+		w.Write([]byte("Leminhohhoho's blog"))
+	})
+	srv.mux.HandleFunc("PATCH /", func(w http.ResponseWriter, r *http.Request) {
+		srv.debug("ContentLength: %d bytes\n", r.ContentLength)
+		w.Write([]byte("Leminhohhoho's blog"))
+	})
+	srv.mux.HandleFunc("DELETE /", func(w http.ResponseWriter, r *http.Request) {
+		srv.debug("ContentLength: %d bytes\n", r.ContentLength)
 		w.Write([]byte("Leminhohhoho's blog"))
 	})
 
@@ -45,6 +59,8 @@ func (srv *Server) Start() {
 func (srv *Server) debug(format string, args ...any) {
 	if srv.debugMode {
 		// NOTE: Replace this with your own implementation of format later
-		fmt.Printf(format, args...)
+		fmt.Printf("[" + common.ColorString("DEBUG", common.Bold, common.RedFg) + "]: " +
+			fmt.Sprintf(format, args...),
+		)
 	}
 }
