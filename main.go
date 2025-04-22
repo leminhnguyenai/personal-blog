@@ -16,6 +16,10 @@ var (
 )
 
 func init() {
+	if err := internal.LoadEnv(".env", true); err != nil {
+		log.Fatal(err)
+	}
+
 	// Set up a random free port if none is specified in .env
 	if os.Getenv("PORT") == "" {
 		a, err := net.ResolveTCPAddr("tcp", "localhost:0")
