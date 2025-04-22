@@ -8,3 +8,5 @@ output.css
 *.min.*
 app.log
 *.gz
+*.sqlite
+*.db
