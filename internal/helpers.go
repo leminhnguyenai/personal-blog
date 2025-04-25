@@ -3,9 +3,13 @@ package internal
 import (
 	"bufio"
 	"fmt"
+	"net/http"
 	"os"
+	"path"
 	"regexp"
+	"slices"
 	"strings"
+	"text/template"
 )
 
 // NOTE: This is a naive implementation of godotenv, it only support single line values currently
@@ -74,4 +78,51 @@ func LoadEnv(envPath string, overload bool) error {
 	}
 
 	return nil
+}
+
+// Alternative to http.FileServer that support sending compressed file if the request
+// include Accept-Encoding header
+func FileServer(dirPath string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Cache-Control", "public, max-age=31536000")
+
+		encodingHeader := r.Header.Get("Accept-Encoding")
+		relativePath := template.JSEscapeString(strings.TrimPrefix(r.URL.Path, "/static"))
+		fileExt := path.Ext(relativePath)
+
+		// Remove the hash from the relative path
+		splits := strings.Split(relativePath, ".")
+		possibleHash := splits[len(splits)-2]
+		if regexp.MustCompile(`^[0-9]+$`).FindString(possibleHash) != "" {
+			relativePath = strings.Join(splits[:len(splits)-2], ".") + fileExt
+		}
+
+		if strings.Contains(relativePath, "../") {
+			http.Error(w, "Illegal command ../", http.StatusBadRequest)
+		}
+
+		filePath := path.Join(dirPath, relativePath)
+
+		if encodingHeader != "" && strings.Contains(encodingHeader, "gzip") {
+			supportedCompressingExt := []string{".css", ".js", ".html"}
+
+			if slices.Contains(supportedCompressingExt, fileExt) {
+				filePath += ".gz"
+				w.Header().Add("Content-Encoding", "gzip")
+			}
+		}
+
+		switch fileExt {
+		case ".css":
+			w.Header().Add("Content-type", "text/css")
+		case ".html":
+			w.Header().Add("Content-type", "text/html")
+		case ".js":
+			w.Header().Add("Content-type", "text/javascript")
+		case ".woff2":
+			w.Header().Add("Content-type", "font/woff2")
+		}
+
+		http.ServeFile(w, r, filePath)
+	})
 }
