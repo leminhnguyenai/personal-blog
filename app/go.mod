@@ -1,3 +1,3 @@
-module github.com/leminhnguyenai/personal-blog
+module github.com/leminhnguyenai/personal-blog/app
 
 go 1.23.4

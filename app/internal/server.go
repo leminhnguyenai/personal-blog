@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/leminhnguyenai/personal-blog/internal/common"
-	"github.com/leminhnguyenai/personal-blog/internal/middlewares"
+	"github.com/leminhnguyenai/personal-blog/app/internal/common"
+	"github.com/leminhnguyenai/personal-blog/app/internal/middlewares"
 )
 
 type Server struct {

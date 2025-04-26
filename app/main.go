@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/leminhnguyenai/personal-blog/internal"
+	"github.com/leminhnguyenai/personal-blog/app/internal"
 )
 
 var (
