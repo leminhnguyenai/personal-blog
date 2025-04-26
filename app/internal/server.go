@@ -58,7 +58,6 @@ func (srv *Server) Start() {
 
 func (srv *Server) debug(format string, args ...any) {
 	if srv.debugMode {
-		// NOTE: Replace this with your own implementation of format later
 		fmt.Printf("[" + common.ColorString("DEBUG", common.Bold, common.RedFg) + "]: " +
 			fmt.Sprintf(format, args...),
 		)

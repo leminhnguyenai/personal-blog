@@ -1,0 +1,409 @@
+{{ block "frontmatter" . }}
+    <p class="relative my-[calc(var(--base-h)*2)] lg:my-[calc(var(--base-h)*4)] text-lg lg:text-[calc(var(--font-size)*4)] text-title-red">{{ .Title }}</p> 
+    <p class="relative text-base text-gray-400">{{ .Date }}</p>
+    <div
+        class="relative flex my-[var(--base-h)] gap-[var(--base-w)]"
+    > 
+        {{ range .Tags }}
+            <a 
+                href="?tag={{ . }}" 
+                class="relative px-[var(--base-w)] text-base text-code-orange bg-code-orange/30 hover:underline active:underline"
+            >
+                #{{ . }}
+            </a> 
+        {{ end }}
+    </div>
+    <hr class="relative h-[var(--base-h)] text-gray-400">
+    <div class="mb-[var(--base-h)] flex flex-col">{{ .TOC }}</div>
+    <hr class="relative h-[var(--base-h)] text-gray-400">
+{{ end }}
+
+{{ block "heading" . }}
+    {{ if eq .Type 1 }}
+        <h1
+            heading
+            id="{{ .Link }}" 
+            class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
+            noti="true"
+        > 
+            # {{ .Value }}
+        </h1>
+    {{ else if eq .Type 2 }}
+        <h2
+            heading
+            id="{{ .Link }}" 
+            class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
+            noti="true"
+        > 
+            ## {{ .Value }}
+        </h2>
+    {{ else if eq .Type 3 }}
+        <h3
+            heading
+            id="{{ .Link }}" 
+            class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
+            noti="true"
+        > 
+            ### {{ .Value }}
+        </h3>
+    {{ else if eq .Type 4 }}
+        <h4
+            heading
+            id="{{ .Link }}" 
+            class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
+            noti="true"
+        > 
+            #### {{ .Value }}
+        </h4>
+    {{ else if eq .Type 5 }}
+        <h5
+            heading
+            id="{{ .Link }}" 
+            class="relative my-[calc(var(--base-h)*2)] text-lg text-title-red hover:underline active:underline cursor-pointer" 
+            noti="true"
+        > 
+            ##### {{ .Value }}
+        </h5>
+    {{ end }}
+    {{ .Children }}
+{{ end }}
+
+{{ block "paragraph" . }}
+    <li class="relative text-base list-none">
+        {{ .Values }} 
+        {{ if ne .Children "" }}
+            <ul class="relative pl-[calc(var(--base-w)*4)] list-inside">{{ .Children }}</ul>
+        {{ end }}
+    </li>
+{{ end }}
+
+{{ block "hyphen-list" . }}
+    <li class="relative text-base list-none">
+        <span class="relative text-gray-400">–</span>
+            {{ .Values }} 
+        {{ if ne .Children "" }}
+            <ul class="relative pl-[calc(var(--base-w)*4)] list-inside">{{ .Children }}</ul>
+        {{ end }}
+    </li>
+{{ end }}
+
+{{ block "numbered-list" . }}
+    <li class="relative text-base list-none">
+        <span class="relative text-gray-400">{{ .Number }}</span>
+            {{ .Values }}
+        {{ if ne .Children "" }}
+            <ul class="relative pl-[calc(var(--base-w)*4)] list-inside">{{ .Children }}</ul>
+        {{ end }}
+    </li>
+{{ end }}
+
+{{ block "quote" . }}
+    <blockquote class="relative flex my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] py-[calc(var(--base-h)*2)] outline-1 outline-offset-[-1px] items-center justify-center text-base text-silver italic">
+        <p class="absolute left-[calc(var(--base-w)*4)] bottom-[calc(85%-var(--base-w))] px-4 bg-rich-black text-center text-lg nf">󰉾</p>
+        {{ .Values }}
+    </blockquote>
+{{ end }}
+
+{{ block "callout" . }}
+    {{ if eq .Values "Note" }}
+        <div class="relative my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-aqua/10 outline-1 outline-offset-[-1px] outline-aqua">
+            <p class="relative text-aqua mb-[var(--base-h)]">{{ .Values }}</p>
+        {{ .Children }}
+        </div>
+    {{ else if eq .Values "Important" }}
+        <div class="relative my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-code-purple/10 outline-1 outline-offset-[-1px] outline-code-purple">
+            <p class="relative text-code-purple mb-[var(--base-h)]">{{ .Values }}</p>
+        {{ .Children }}
+        </div>
+    {{ else if eq .Values "Warning" }}
+        <div class="relative my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-warning-yellow/10 outline-1 outline-offset-[-1px] outline-warning-yellow">
+            <p class="relative text-warning-yellow mb-[var(--base-h)]">{{ .Values }}</p>
+        {{ .Children }}
+        </div>
+    {{ else if eq .Values "Warning" }}
+        <div class="relative my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] px-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-code-grey/10 outline-1 outline-offset-[-1px] outline-code-grey">
+            <p class="relative text-code-grey mb-[var(--base-h)]">{{ .Values }}</p>
+        {{ .Children }}
+        </div>
+    {{ end }}
+{{ end }}
+
+{{ block "metadata" . }}
+    <div class="relative flex w-full px-[var(--base-w)] items-center justify-between text-gray-400">
+        <div class="flex gap-[var(--base-w)]">
+            <span class="relative px-[var(--base-w)] bg-code-blue text-rich-black">NORMAL</span>
+            <div class="relative flex gap-0">
+                <span 
+                    class="relative w-[calc(var(--base-w)*2)] mr-[var(--base-w)] nf {{ index . 2 }}"
+                >
+                    {{ index . 1 }}
+                </span>
+                <span>
+                    {{ with capitalizeFilename ( index . 0 ) }}
+                        {{ . }}
+                    {{ else }}  
+                        {{ index . 0 }}
+                    {{ end }}
+                </span>
+            </div>
+        </div>
+        <!--FIX: Fix copy button not clickable on mobile-->
+        <button
+            type="button"
+            clipboard
+            class="relative z-99 px-[var(--base-w)] bg-code-blue text-rich-black cursor-pointer hover:underline active:underline"   
+            noti="true"
+        >COPY</button>
+    </div>
+{{ end }}
+
+
+{{ block "codeblock" . }}
+    <div
+        codeblock
+        class="relative my-[calc(var(--base-h)*3)] ml-0 lg:ml-[calc(var(--base-w)*2)] py-[var(--base-h)] bg-gray-400/10 text-base outline outline-gray-400 outline-offset-[-1px]"
+    >
+        <div class="flex">
+            <div class="relative text-gray-400">
+                {{ range $i, $el := .Code }}
+                    <p code-gutter class="relative pl-[calc(var(--base-w)*4)] pr-[var(--base-w)] text-right">{{ sum $i 1 }}</p>
+                {{ end }}
+            </div>
+            <pre class="relative flex flex-col font-jetbrains overflow-x-auto overflow-y-hidden pr-[var(--base-w)] lg:overflow-x-hidden lg:whitespace-pre-wrap lg:break-words">
+                {{ range .Code }}
+                    {{ if eq . "" }}
+                        <p  code-line> </p>
+                    {{ else }}
+                        <p code-line>{{ . }}</p>
+                    {{ end }}
+                {{ end }}
+            </pre>
+        </div>
+		{{ if matchMetadata .Metadata "go" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#05a5d0]" ) }}
+		{{ else if matchMetadata .Metadata "html" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#dc4a25]" ) }}
+		{{ else if matchMetadata .Metadata "css" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#623194]" ) }}
+		{{ else if matchMetadata .Metadata "javascript" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#f7d104]" ) }}
+		{{ else if matchMetadata .Metadata "zig" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#f7a41d]" ) }}
+		{{ else if matchMetadata .Metadata "json" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#cbcb41]" ) }}
+		{{ else if matchMetadata .Metadata "toml" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#a1a1aa]" ) }}
+		{{ else if matchMetadata .Metadata "bash" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#89e051]" ) }}
+		{{ else if matchMetadata .Metadata "config" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#6d8086]" ) }}
+		{{ else if matchMetadata .Metadata "lua" }}
+			{{ template "metadata" ( arr .Metadata "" "text-[#000080]" ) }}
+		{{ else }}
+			{{ template "metadata" ( arr "Plaintext" "" "text-gray-400" ) }}
+		{{ end }}        
+    </div>
+{{ end }}
+
+{{ block "text" . }}
+    <span class="relative">{{ .Value }}</span>
+{{ end }}
+
+<!--NOTE: Using javascript (or if can CSS) to automatically prevent the viewport from clipping the pop up-->
+{{ block "youtube-preview" . }}
+    <div
+        pop-up
+        class="w-128 pop-up-bottom bg-rich-black text-title-red invisible absolute z-50 flex border p-2 delay-0 hover:visible"
+    >
+        <img 
+            class="m-1 outline outline-offset-[-1px] brightness-90"
+            src="{{ .Thumbnails.Medium.URL }}"  
+            alt="{{ .Title }}" 
+            width="160px" 
+            height="90px"
+        >
+        <div class="m-1 flex flex-col gap-4">
+            <a 
+                href="{{ .VideoURL }}" 
+                class="text-title-red hover:underline active:underline"
+            >
+                {{ .Title }}
+            </a>
+            <a 
+                href="{{ .ChannelURL }}" 
+                class="text-title-red/75 text-xs hover:underline active:underline"
+            >
+                {{ .ChannelTitle }}
+            </a>
+        </div>
+    </div>
+{{ end }}
+
+{{ block "github-branches-preview" . }}
+    <div pop-up class="z-60 pop-up-bottom text-code-purple bg-code-purple invisible absolute flex w-64 flex-col gap-[1px] border delay-0 hover:visible">
+        {{ range .Branches }}
+            <a
+                href="https://github.com/{{ $.Owner }}/{{ $.Repo }}/tree/{{ .Name }}"
+                class="bg-rich-black p-2 hover:underline"
+            >
+                {{ .Name }}
+            </a>
+        {{ end }}
+    </div>
+{{ end }}
+
+{{ block "github-preview" . }}
+    <div
+        pop-up
+        class="w-128 pop-up-bottom bg-rich-black text-title-purple invisible absolute z-50 flex flex-col justify-between border p-2 delay-0 hover:visible"
+    >
+        <div class="ml-2 flex items-center">
+            <a  
+                class="hover:underline active:underline" 
+                href="https://github.com/{{ .Owner }}"
+            >
+                {{ .Owner }}
+            </a>
+            <span>/</span>
+            <a 
+                class="hover:underline active:underline" 
+                href="https://github.com/{{ .Owner }}/{{ .Repo }}"
+            >
+                {{ .Repo }}
+            </a>
+        </div> 
+        <div class="2 ml-2 flex items-center justify-between text-xs">
+            <div 
+                class="text-code-purple/75 relative flex items-center hover:[&>div.pop-up]:visible"
+            >
+                {{ template "github-branches-preview" . }}
+                <a 
+                    class="text-code-purple/75 flex items-center hover:[&>span.text]:underline"
+                    href="https://github.com/{{ .Owner }}/{{ .Repo }}/branches"
+                >
+                        <span class="text">{{ len .Branches }} branch(es)</span>
+                </a>
+            </div>
+            <a 
+                href="{{ .Commit.HTMLURL }}"
+                class="text-code-purple/75 flex items-center hover:[&>span.text]:underline"
+            >
+                <span class="text">{{ .TimeSinceLastCommit }}</span>
+            </a>
+        </div>
+    </div>
+{{ end }}
+
+<!--BACKLOG: Add auto generate link from obsidian local link-->
+{{ block "link" . }}
+    {{ if eq .Type "Youtube" }}
+        <span
+            class="relative text-[#fe314d] hover:[&>div[pop-up]]:visible"
+        >
+            {{ .Preview }}
+            <a href="{{ .Link }}" class="hover:underline">{{ .Placeholder }}</a>
+        </span>
+    {{ else if eq .Type "Github" }}
+        <span
+            class="text-code-purple relative hover:[&>div[pop-up]]:visible"
+        >
+            {{ .Preview }}
+            <a href="{{ .Link }}" class="hover:underline">{{ .Placeholder }}</a>
+        </span>
+    {{ else if eq .Type "Reddit" }}
+        <a
+            class="text-[#ff4500] hover:underline"
+            href="{{ .Link }}"
+        >{{ .Placeholder }}</a>
+    {{ else if eq .Type "Gopkg" }}
+        <a
+            class="text-[#027d9c] hover:underline"
+            href="{{ .Link }}"
+        >{{ .Placeholder }}</a>
+    {{ else }}
+        <a
+            class="text-code-lime hover:underline"
+            href="{{ .Link }}"
+        >{{ .Placeholder }}</a>
+    {{ end }}
+{{ end }}
+
+{{ block "inline-code" . }}
+    <code class="relative px-[calc(var(--base-w))] bg-code-grey text-code-lime">{{ .Value }}</code>
+{{ end }}
+
+{{ block "TOC" . }}
+    <li class="relative text-base list-none">
+        <span class="relative text-gray-400">-</span>
+        {{ if eq .Type 1 }}
+            <a 
+                chapter
+                href="#{{ .Link }}" 
+                class="relative text-base text-title-red hover:underline active:underline"
+            >
+                {{ .Value }} 
+            </a>
+        {{ else if eq .Type 2 }}
+            <a 
+                chapter
+                href="#{{ .Link }}" 
+                class="relative text-base text-title-red hover:underline active:underline"
+            >
+                {{ .Value }} 
+            </a>
+        {{ else if eq .Type 3 }}
+            <a 
+                chapter
+                href="#{{ .Link }}" 
+                class="relative text-base text-title-red hover:underline active:underline"
+            >
+                {{ .Value }} 
+            </a>
+        {{ else if eq .Type 4 }}
+            <a 
+                chapter
+                href="#{{ .Link }}" 
+                class="relative text-base text-title-red hover:underline active:underline"
+            >
+                {{ .Value }} 
+            </a>
+        {{ else if eq .Type 5 }}
+            <a 
+                chapter
+                href="#{{ .Link }}" 
+                class="relative text-base text-title-red hover:underline active:underline"
+            >
+                {{ .Value }} 
+            </a>
+        {{ end }}
+        <ul class="relative pl-[calc(var(--base-w)*4)] list-inside">{{ .Children }}</ul>
+    </li>
+{{ end }}
+
+{{ block "bold-text" . }}
+    <span class="font-bold">{{ .Value }}</span>
+{{ end }}
+
+{{ block "italic-text" . }}
+    <span class="italic">{{ .Value }}</span>
+{{ end }}
+
+<!--BACKLOG: Make navbar reactive (e.g adding window based on the blog post the user are in)-->
+{{ block "nav-bar" . }}
+    <div class="fixed flex z-50 top-[var(--base-h)] left-[calc(var(--base-w)*2)] gap-[var(--base-w)] text-base">
+        <a 
+            class="relative flex"
+            href="/"
+        > 
+            <span class="relative px-[var(--base-w)] bg-tmux-dark text-tmux-gray">0</span>
+            <span class="relative px-[var(--base-w)] bg-tmux-gray text-tmux-dark hover:underline active:underline">Home</span>
+        </a>
+        <a 
+            class="relative flex"
+            href="/about"
+        > 
+            <span class="relative px-[var(--base-w)] bg-tmux-dark text-tmux-gray">1</span>
+            <span class="relative px-[var(--base-w)] bg-tmux-gray text-tmux-dark hover:underline active:underline">About</span>
+        </a>
+    </div>
+{{ end }}

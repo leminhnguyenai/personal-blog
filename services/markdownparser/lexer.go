@@ -323,6 +323,7 @@ func frontmatterHandler(lex *lexer, matchStr string) {
 
 		switch propertyName[:len(propertyName)-1] {
 		case "id":
+			// NOTE: Add handler for removing whitespaces and handling cases if the value is empty
 			values = append(values, "id", line[4:])
 		case "date":
 			values = append(values, "date", line[6:])
