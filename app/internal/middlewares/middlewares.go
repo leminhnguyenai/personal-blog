@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/leminhnguyenai/personal-blog/internal/common"
+	"github.com/leminhohoho/personal-blog/app/internal/common"
 )
 
 func LoggerMiddleware(h http.Handler) http.Handler {

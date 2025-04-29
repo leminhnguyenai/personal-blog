@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/leminhnguyenai/personal-blog/services/markdownparser"
+	"github.com/leminhohoho/personal-blog/services/markdownparser"
 )
 
 type Writer struct {
@@ -45,7 +45,7 @@ func (r *Renderer) Render(astTree *markdownparser.Node) string {
 	return content
 }
 
-func (r *Renderer) GenerateTOC(node *markdownparser.Node) string {
+func (r *Renderer) generateTOC(node *markdownparser.Node) string {
 	children := ""
 
 	for _, child := range node.Children {
@@ -73,7 +73,7 @@ func getStringRepresentation(node *markdownparser.Node) string {
 }
 
 func (r *Renderer) tocRenderer(node *markdownparser.Node) string {
-	children := r.GenerateTOC(node)
+	children := r.generateTOC(node)
 	strRepresentation := getStringRepresentation(node)
 	values, _ := r.traverse(node)
 	link := strings.Replace(strRepresentation, " ", "-", -1)
@@ -175,7 +175,7 @@ func (r *Renderer) frontmatterRenderer(node *markdownparser.Node) string {
 		}
 	}
 
-	data.TOC = template.HTML(r.GenerateTOC(node))
+	data.TOC = template.HTML(r.generateTOC(node))
 
 	r.templates.ExecuteTemplate(r.writer, "frontmatter", data)
 	return r.writer.String()
