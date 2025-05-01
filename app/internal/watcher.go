@@ -2,13 +2,13 @@ package internal
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"os"
 	"path"
 	"slices"
 	"time"
 
+	"github.com/leminhohoho/personal-blog/app/internal/common/logger"
 	"github.com/leminhohoho/personal-blog/app/internal/utils/markdownrenderer"
 	"github.com/leminhohoho/personal-blog/pkgs/filewatcher"
 	"github.com/leminhohoho/personal-blog/pkgs/markdownparser"
@@ -23,12 +23,13 @@ const (
 // accordingly. Watcher run parallel to the server and has no relation to it
 type Watcher struct {
 	fw       *filewatcher.FileWatcher
+	log      *logger.Logger
 	rootPath string
 
 	db *sql.DB
 }
 
-func NewWatcher(dirPath string) (*Watcher, error) {
+func NewWatcher(dirPath string, debugMode bool) (*Watcher, error) {
 	db, err := sql.Open("sqlite3", sqliteDB)
 	if err != nil {
 		return nil, err
@@ -36,7 +37,7 @@ func NewWatcher(dirPath string) (*Watcher, error) {
 
 	fw := filewatcher.NewFileWatcher(dirPath, time.Millisecond*100)
 
-	return &Watcher{fw: fw, rootPath: dirPath, db: db}, nil
+	return &Watcher{fw: fw, log: logger.NewLogger(debugMode), rootPath: dirPath, db: db}, nil
 }
 
 func (w *Watcher) Start() {
@@ -50,7 +51,7 @@ func (w *Watcher) Start() {
 				log.Fatalf("File watcher stop unexpectedly\n")
 			}
 
-			log.Println(ev)
+			w.log.Debug("%v\n", ev)
 		case err, ok := <-w.fw.Errors:
 			if !ok {
 				log.Fatalf("File watcher stop unexpectedly\n")
@@ -86,7 +87,7 @@ func (w *Watcher) uploadToDB() error {
 	})
 
 	for _, file := range watchList {
-		fmt.Println(file.Path)
+		w.log.Debug(file.Path + "\n")
 		filename := path.Base(file.Path)
 		filename = filename[:len(filename)-4]
 		data, err := os.ReadFile(file.Path)

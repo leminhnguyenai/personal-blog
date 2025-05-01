@@ -1,4 +1,6 @@
-package common
+package logger
+
+import "fmt"
 
 type Style string
 
@@ -26,6 +28,24 @@ var (
 	Bold      Style = "\033[1m"
 	Underline Style = "\033[4m"
 )
+
+type Logger struct {
+	debugMode bool
+}
+
+func NewLogger(debugMode bool) *Logger {
+	return &Logger{
+		debugMode: debugMode,
+	}
+}
+
+func (lg *Logger) Debug(format string, args ...any) {
+	if lg.debugMode {
+		fmt.Printf("[" + ColorString("DEBUG", Bold, RedFg) + "]: " +
+			fmt.Sprintf(format, args...),
+		)
+	}
+}
 
 func ColorString(str string, colors ...Style) string {
 	result := str

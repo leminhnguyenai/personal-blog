@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/leminhohoho/personal-blog/app/internal/common"
+	"github.com/leminhohoho/personal-blog/app/internal/common/logger"
 )
 
 func LoggerMiddleware(h http.Handler) http.Handler {
@@ -13,20 +13,20 @@ func LoggerMiddleware(h http.Handler) http.Handler {
 		switch r.Method {
 		case "GET":
 			log.Printf(
-				common.ColorString("%s:", common.Bold, common.GreenFg)+"%s\n",
+				logger.ColorString("%s:", logger.Bold, logger.GreenFg)+"%s\n",
 				r.Method,
 				r.URL.Path,
 			)
 		case "POST":
-			log.Printf(common.ColorString("%s:", common.Bold, common.YellowFg)+"%s\n", r.Method, r.URL.Path)
+			log.Printf(logger.ColorString("%s:", logger.Bold, logger.YellowFg)+"%s\n", r.Method, r.URL.Path)
 		case "PATCH":
 			log.Printf(
-				common.ColorString("%s:", common.Bold, common.BlueFg)+"%s\n",
+				logger.ColorString("%s:", logger.Bold, logger.BlueFg)+"%s\n",
 				r.Method,
 				r.URL.Path,
 			)
 		case "DELETE":
-			log.Printf(common.ColorString("%s:", common.Bold, common.RedFg)+"%s\n", r.Method, r.URL.Path)
+			log.Printf(logger.ColorString("%s:", logger.Bold, logger.RedFg)+"%s\n", r.Method, r.URL.Path)
 		}
 
 		h.ServeHTTP(w, r)

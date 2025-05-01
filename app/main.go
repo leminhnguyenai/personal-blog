@@ -61,7 +61,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	watcher, err := internal.NewWatcher(dirPath)
+	watcher, err := internal.NewWatcher(dirPath, debugMode)
 	if err != nil {
 		log.Fatal(err)
 	}
