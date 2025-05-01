@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/leminhohoho/personal-blog/services/filewatcher"
+	"github.com/leminhohoho/personal-blog/pkgs/filewatcher"
 )
 
 func runMultipleCommands(cmds [][]string) error {

@@ -16,7 +16,7 @@ var (
 )
 
 func init() {
-	if err := internal.LoadEnv(".env", true); err != nil {
+	if err := internal.LoadEnv("../.env", true); err != nil {
 		log.Fatal(err)
 	}
 
@@ -61,9 +61,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err = srv.Construct(dirPath); err != nil {
+	watcher, err := internal.NewWatcher(dirPath)
+	if err != nil {
 		log.Fatal(err)
 	}
 
+	if err = srv.Construct(); err != nil {
+		log.Fatal(err)
+	}
+
+	go watcher.Start()
 	srv.Start()
 }

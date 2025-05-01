@@ -25,7 +25,7 @@ func NewServer(debugMode bool) (*Server, error) {
 	}, nil
 }
 
-func (srv *Server) Construct(dirPath string) error {
+func (srv *Server) Construct() error {
 	// Handlers for HTTP server
 	srv.mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		srv.debug("ContentLength: %d bytes\n", r.ContentLength)

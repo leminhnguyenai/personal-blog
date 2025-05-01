@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/leminhohoho/personal-blog/services/markdownparser"
+	"github.com/leminhohoho/personal-blog/pkgs/markdownparser"
 )
 
 type Writer struct {
