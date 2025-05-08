@@ -140,6 +140,10 @@ func (node *Node) findAncestor(possibleAncestor *Node) {
 }
 
 func ParseAST(source string) (*Node, error) {
+	if source == "" {
+		return nil, nil
+	}
+
 	tokens, err := Tokenize(source)
 	if err != nil {
 		return nil, err

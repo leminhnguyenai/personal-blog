@@ -1,6 +1,9 @@
 package logger
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 type Style string
 
@@ -40,11 +43,32 @@ func NewLogger(debugMode bool) *Logger {
 }
 
 func (lg *Logger) Debug(format string, args ...any) {
+	t := time.Now()
+
 	if lg.debugMode {
-		fmt.Printf("[" + ColorString("DEBUG", Bold, RedFg) + "]: " +
-			fmt.Sprintf(format, args...),
+		fmt.Printf(
+			"[" + ColorString(
+				"DEBUG",
+				Bold,
+				RedFg,
+			) + "]: " + ColorString(
+				t.Format("2006-01-02 15:04:05")+" ", CyanFg,
+			) +
+				fmt.Sprintf(
+					format,
+					args...),
 		)
 	}
+}
+
+func (lg *Logger) Error(err error, args ...any) {
+	t := time.Now()
+
+	fmt.Printf("[" + ColorString("ERROR", Bold, YellowFg) + "]: " + ColorString(
+		t.Format("2006-01-02 15:04:05")+" ", CyanFg,
+	) +
+		fmt.Sprintf(err.Error()+"\n", args...),
+	)
 }
 
 func ColorString(str string, colors ...Style) string {

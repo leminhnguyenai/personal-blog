@@ -1,14 +1,20 @@
 package internal
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"path"
+	"regexp"
 	"slices"
+	"strings"
 	"time"
 
 	"github.com/leminhohoho/personal-blog/app/internal/common/logger"
+	"github.com/leminhohoho/personal-blog/app/internal/models"
+	"github.com/leminhohoho/personal-blog/app/internal/repositories"
 	"github.com/leminhohoho/personal-blog/app/internal/utils/markdownrenderer"
 	"github.com/leminhohoho/personal-blog/pkgs/filewatcher"
 	"github.com/leminhohoho/personal-blog/pkgs/markdownparser"
@@ -16,7 +22,8 @@ import (
 )
 
 const (
-	sqliteDB = "../sql.db"
+	sqliteDB      = "../sql.db"
+	shortDateForm = "2006-Jan-02"
 )
 
 // Watcher is responsible for handling file changes and update the database
@@ -26,18 +33,39 @@ type Watcher struct {
 	log      *logger.Logger
 	rootPath string
 
-	db *sql.DB
+	blogRepo models.BlogRepository
 }
 
 func NewWatcher(dirPath string, debugMode bool) (*Watcher, error) {
-	db, err := sql.Open("sqlite3", sqliteDB)
+	sqlite, err := sql.Open("sqlite3", sqliteDB)
 	if err != nil {
 		return nil, err
 	}
 
+	data, err := os.ReadFile("../schema.sql")
+	if err != nil {
+		return nil, err
+	}
+
+	schema := string(data)
+
+	_, err = sqlite.Exec(
+		"drop table if exists tags;drop table if exists posts;drop table if exists posts_tags;",
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = sqlite.Exec(schema)
+	if err != nil {
+		return nil, err
+	}
+
+	db := repositories.NewSQLiteBlogRepository(sqlite)
+
 	fw := filewatcher.NewFileWatcher(dirPath, time.Millisecond*100)
 
-	return &Watcher{fw: fw, log: logger.NewLogger(debugMode), rootPath: dirPath, db: db}, nil
+	return &Watcher{fw: fw, log: logger.NewLogger(debugMode), rootPath: dirPath, blogRepo: db}, nil
 }
 
 func (w *Watcher) Start() {
@@ -52,44 +80,62 @@ func (w *Watcher) Start() {
 			}
 
 			w.log.Debug("%v\n", ev)
+			if err := w.handler(ev); err != nil {
+				w.log.Error(err)
+			}
 		case err, ok := <-w.fw.Errors:
 			if !ok {
 				log.Fatalf("File watcher stop unexpectedly\n")
 			}
 
-			log.Fatal(err)
+			w.log.Error(err)
 		}
 	}
 }
 
+// Sanitize the filename to be valid URL format
+func sanitizeFilename(filepath string) (string, error) {
+	var sanitizedFilename string
+
+	for _, char := range filepath[:len(filepath)-3] {
+		// Remove unsupported char, such as glyph
+		if regexp.MustCompile(`[^a-zA-Z0-9_\-\t\f\v ]`).FindStringIndex(string(char)) != nil {
+			continue
+		}
+
+		// Replace invalid char, such as whitespaces
+		if regexp.MustCompile(`[^\S\r\n]`).FindStringIndex(string(char)) != nil {
+			sanitizedFilename += "-"
+			continue
+		}
+
+		sanitizedFilename += string(char)
+	}
+
+	if sanitizedFilename == "" {
+		return "", fmt.Errorf("Invalid file name at %s\n", filepath)
+	}
+
+	return strings.ToLower(sanitizedFilename), nil
+}
+
 func (w *Watcher) uploadToDB() error {
-	data, err := os.ReadFile("../schema.sql")
-	if err != nil {
-		return err
-	}
-
-	schema := string(data)
-
-	_, err = w.db.Exec(
-		"drop table if exists tags;drop table if exists posts;drop table if exists posts_tags;",
-	)
-	if err != nil {
-		return err
-	}
-
-	_, err = w.db.Exec(schema)
-	if err != nil {
-		return err
-	}
 
 	watchList := slices.DeleteFunc(w.fw.GetWatchList(), func(fileToWatch filewatcher.FileToWatch) bool {
 		return path.Ext(fileToWatch.Path) != ".md"
 	})
 
 	for _, file := range watchList {
-		w.log.Debug(file.Path + "\n")
-		filename := path.Base(file.Path)
-		filename = filename[:len(filename)-4]
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+		defer cancel()
+
+		w.log.Debug("Rendering " + file.Path + "\n")
+
+		filename, err := sanitizeFilename(path.Base(file.Path))
+		if err != nil {
+			return err
+		}
+
 		data, err := os.ReadFile(file.Path)
 		if err != nil {
 			return err
@@ -107,15 +153,65 @@ func (w *Watcher) uploadToDB() error {
 
 		content := mdRenderer.Render(astTree)
 
-		_, err = w.db.Exec(
-			"INSERT INTO posts(file_path, name, content) VALUES(?,?,?)",
-			file.Path,
-			filename,
-			content,
-		)
-		if err != nil {
+		if err = w.blogRepo.AddPost(ctx, models.Blog{
+			Name:        filename,
+			Path:        file.Path,
+			HTMLContent: content,
+			ModTime:     file.ModTime.Format(shortDateForm),
+		}); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (w *Watcher) handler(ev filewatcher.Event) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
+	defer cancel()
+
+	filename, err := sanitizeFilename(path.Base(ev.Path()))
+	if err != nil {
+		return err
+	}
+
+	if ev.Deleted() {
+		return w.blogRepo.DeletePost(ctx, filename)
+	}
+
+	data, err := os.ReadFile(ev.Path())
+	if err != nil {
+		return err
+	}
+
+	astTree, err := markdownparser.ParseAST(string(data))
+	if err != nil {
+		return err
+	}
+
+	mdRenderer, err := markdownrenderer.NewRenderer()
+	if err != nil {
+		return err
+	}
+
+	content := mdRenderer.Render(astTree)
+
+	if ev.Created() {
+		return w.blogRepo.AddPost(ctx, models.Blog{
+			Name:        filename,
+			Path:        ev.Path(),
+			HTMLContent: content,
+			ModTime:     ev.ModTime().Format(shortDateForm),
+		})
+	}
+
+	if ev.Modified() {
+		return w.blogRepo.UpdatePost(ctx, models.Blog{
+			Name:        filename,
+			Path:        ev.Path(),
+			HTMLContent: content,
+			ModTime:     ev.ModTime().Format(shortDateForm),
+		})
 	}
 
 	return nil

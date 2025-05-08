@@ -39,6 +39,10 @@ func NewRenderer() (*Renderer, error) {
 }
 
 func (r *Renderer) Render(astTree *markdownparser.Node) string {
+	if astTree == nil {
+		return ""
+	}
+
 	values, children := r.traverse(astTree)
 	content := values + children
 

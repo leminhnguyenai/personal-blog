@@ -20,6 +20,7 @@ const (
 type Event struct {
 	path      string
 	eventType EventType
+	modTime   time.Time
 }
 
 // Check if the event is of modification, return true if it is a modification event
@@ -41,10 +42,13 @@ func (e *Event) Deleted() bool {
 func (e *Event) Path() string {
 	return e.path
 }
+func (e *Event) ModTime() time.Time {
+	return e.modTime
+}
 
 type FileToWatch struct {
 	Path    string
-	modTime time.Time
+	ModTime time.Time
 }
 
 type FileWatcher struct {
@@ -126,7 +130,7 @@ func (fw *FileWatcher) updateWatchList() error {
 					if fw.firstScan {
 						continue
 					}
-					fw.Events <- Event{newFile, Creation}
+					fw.Events <- Event{newFile, Creation, time.Now()}
 				}
 			}
 		}
@@ -149,7 +153,7 @@ func (fw *FileWatcher) scanWatchList() error {
 		fileInfo, err := os.Stat(file.Path)
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
-				fw.Events <- Event{file.Path, Deletion}
+				fw.Events <- Event{file.Path, Deletion, time.Now()}
 				continue
 			}
 
@@ -158,14 +162,14 @@ func (fw *FileWatcher) scanWatchList() error {
 
 		newWatchList = append(newWatchList, file)
 
-		if file.modTime.IsZero() {
-			file.modTime = fileInfo.ModTime()
+		if file.ModTime.IsZero() {
+			file.ModTime = fileInfo.ModTime()
 			continue
 		}
 
-		if !file.modTime.Equal(fileInfo.ModTime()) {
-			fw.Events <- Event{file.Path, Modification}
-			file.modTime = fileInfo.ModTime()
+		if !file.ModTime.Equal(fileInfo.ModTime()) {
+			fw.Events <- Event{file.Path, Modification, fileInfo.ModTime()}
+			file.ModTime = fileInfo.ModTime()
 			continue
 		}
 	}
