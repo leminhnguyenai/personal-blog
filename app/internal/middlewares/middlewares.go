@@ -1,10 +1,10 @@
 package middlewares
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 
-	"github.com/leminhohoho/personal-blog/app/internal/common/logger"
+	"github.com/leminhohoho/personal-blog/pkgs/simplelog"
 )
 
 func LoggerMiddleware(h http.Handler) http.Handler {
@@ -12,21 +12,25 @@ func LoggerMiddleware(h http.Handler) http.Handler {
 		// NOTE: Add color to the logger
 		switch r.Method {
 		case "GET":
-			log.Printf(
-				logger.ColorString("%s:", logger.Bold, logger.GreenFg)+"%s\n",
-				r.Method,
-				r.URL.Path,
+			simplelog.Infof(
+				fmt.Sprintf(simplelog.ColorString("%s: ", simplelog.Bold+simplelog.GreenFg), r.Method) +
+					r.URL.Path + "\n",
 			)
 		case "POST":
-			log.Printf(logger.ColorString("%s:", logger.Bold, logger.YellowFg)+"%s\n", r.Method, r.URL.Path)
+			simplelog.Infof(
+				fmt.Sprintf(simplelog.ColorString("%s: ", simplelog.Bold+simplelog.YellowFg), r.Method) +
+					r.URL.Path + "\n",
+			)
 		case "PATCH":
-			log.Printf(
-				logger.ColorString("%s:", logger.Bold, logger.BlueFg)+"%s\n",
-				r.Method,
-				r.URL.Path,
+			simplelog.Infof(
+				fmt.Sprintf(simplelog.ColorString("%s: ", simplelog.Bold+simplelog.BlueFg), r.Method) +
+					r.URL.Path + "\n",
 			)
 		case "DELETE":
-			log.Printf(logger.ColorString("%s:", logger.Bold, logger.RedFg)+"%s\n", r.Method, r.URL.Path)
+			simplelog.Infof(
+				fmt.Sprintf(simplelog.ColorString("%s: ", simplelog.Bold+simplelog.RedFg), r.Method) +
+					r.URL.Path + "\n",
+			)
 		}
 
 		h.ServeHTTP(w, r)

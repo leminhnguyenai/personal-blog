@@ -23,6 +23,22 @@ type Event struct {
 	modTime   time.Time
 }
 
+func (e *Event) String() string {
+	str := ""
+	switch e.eventType {
+	case Modification:
+		str += "Modification"
+	case Creation:
+		str += "Creation"
+	case Deletion:
+		str += "Deletion"
+	}
+
+	str += " - Path: " + e.path + " - Modified time: " + e.modTime.Format("2006-01-02 15:04:05")
+
+	return str
+}
+
 // Check if the event is of modification, return true if it is a modification event
 func (e *Event) Modified() bool {
 	return e.eventType == Modification

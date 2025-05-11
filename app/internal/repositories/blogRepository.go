@@ -18,7 +18,47 @@ func NewSQLiteBlogRepository(db *sql.DB) *SQLiteBlogRepository {
 	}
 }
 
-func (b *SQLiteBlogRepository) GetPost(ctx context.Context, filename string) (*models.Blog, error) {
+func (b *SQLiteBlogRepository) GetAllPosts(ctx context.Context) ([]*models.Blog, error) {
+	errChan := make(chan error)
+	respChan := make(chan []*models.Blog)
+
+	go func() {
+		rows, err := b.db.Query(`SELECT name, file_path, content, last_modified_time FROM posts`)
+		if err != nil {
+			errChan <- err
+		}
+
+		var blogs []*models.Blog
+
+		for rows.Next() {
+			var blog models.Blog
+
+			if err := rows.Scan(&blog.Name, &blog.Path, &blog.HTMLContent, &blog.ModTime); err != nil {
+				errChan <- err
+			}
+
+			blogs = append(blogs, &blog)
+		}
+
+		if len(blogs) == 0 {
+			errChan <- fmt.Errorf("The database is empty\n")
+			return
+		}
+		respChan <- blogs
+
+	}()
+
+	select {
+	case <-ctx.Done():
+		return nil, fmt.Errorf("Stopped by context\n")
+	case err := <-errChan:
+		return nil, err
+	case resp := <-respChan:
+		return resp, nil
+	}
+}
+
+func (b *SQLiteBlogRepository) GetPostByID(ctx context.Context, filename string) (*models.Blog, error) {
 	errChan := make(chan error)
 	respChan := make(chan models.Blog)
 

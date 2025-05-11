@@ -13,7 +13,8 @@ type Blog struct {
 }
 
 type BlogRepository interface {
-	GetPost(ctx context.Context, filename string) (*Blog, error)
+	GetAllPosts(ctx context.Context) ([]*Blog, error)
+	GetPostByID(ctx context.Context, filename string) (*Blog, error)
 	AddPost(ctx context.Context, blog Blog) error
 	UpdatePost(ctx context.Context, blog Blog) error
 	DeletePost(ctx context.Context, filename string) error

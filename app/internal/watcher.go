@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/leminhohoho/personal-blog/app/internal/common/logger"
 	"github.com/leminhohoho/personal-blog/app/internal/models"
 	"github.com/leminhohoho/personal-blog/app/internal/repositories"
 	"github.com/leminhohoho/personal-blog/app/internal/utils/markdownrenderer"
 	"github.com/leminhohoho/personal-blog/pkgs/filewatcher"
 	"github.com/leminhohoho/personal-blog/pkgs/markdownparser"
+	"github.com/leminhohoho/personal-blog/pkgs/simplelog"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -30,7 +30,6 @@ const (
 // accordingly. Watcher run parallel to the server and has no relation to it
 type Watcher struct {
 	fw       *filewatcher.FileWatcher
-	log      *logger.Logger
 	rootPath string
 
 	blogRepo models.BlogRepository
@@ -65,32 +64,35 @@ func NewWatcher(dirPath string, debugMode bool) (*Watcher, error) {
 
 	fw := filewatcher.NewFileWatcher(dirPath, time.Millisecond*100)
 
-	return &Watcher{fw: fw, log: logger.NewLogger(debugMode), rootPath: dirPath, blogRepo: db}, nil
+	return &Watcher{fw: fw, rootPath: dirPath, blogRepo: db}, nil
 }
 
 func (w *Watcher) Start() {
 	if err := w.uploadToDB(); err != nil {
 		log.Fatal(err)
 	}
-	for {
-		select {
-		case ev, ok := <-w.fw.Events:
-			if !ok {
-				log.Fatalf("File watcher stop unexpectedly\n")
-			}
+	go func() {
+		for {
+			select {
+			case ev, ok := <-w.fw.Events:
+				if !ok {
+					log.Fatalf("File watcher stop unexpectedly\n")
+				}
 
-			w.log.Debug("%v\n", ev)
-			if err := w.handler(ev); err != nil {
-				w.log.Error(err)
-			}
-		case err, ok := <-w.fw.Errors:
-			if !ok {
-				log.Fatalf("File watcher stop unexpectedly\n")
-			}
+				simplelog.Infof(ev.String())
+				if err := w.handler(ev); err != nil {
+					simplelog.Errorf(err)
+				}
+			case err, ok := <-w.fw.Errors:
+				if !ok {
+					log.Fatalf("File watcher stop unexpectedly\n")
+				}
 
-			w.log.Error(err)
+				simplelog.Errorf(err)
+			}
 		}
-	}
+	}()
+
 }
 
 // Sanitize the filename to be valid URL format
@@ -129,7 +131,7 @@ func (w *Watcher) uploadToDB() error {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*1)
 		defer cancel()
 
-		w.log.Debug("Rendering " + file.Path + "\n")
+		simplelog.Debugf("Rendering " + file.Path + "\n")
 
 		filename, err := sanitizeFilename(path.Base(file.Path))
 		if err != nil {

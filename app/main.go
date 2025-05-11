@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/leminhohoho/personal-blog/app/internal"
+	"github.com/leminhohoho/personal-blog/app/internal/helpers"
 )
 
 var (
@@ -16,7 +17,7 @@ var (
 )
 
 func init() {
-	if err := internal.LoadEnv("../.env", true); err != nil {
+	if err := helpers.LoadEnv("../.env", true); err != nil {
 		log.Fatal(err)
 	}
 
@@ -65,11 +66,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	watcher.Start()
 
 	if err = srv.Construct(); err != nil {
 		log.Fatal(err)
 	}
-
-	go watcher.Start()
 	srv.Start()
 }
